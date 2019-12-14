@@ -10,13 +10,8 @@ namespace CefSharpWPFSample
         public MainWindow()
         {
             InitializeComponent();
-
-            _browser.Address = @"C:\GitHub\Selenium.CefSharp.Driver\Project\Test\Controls.html";
-            CefSharpSettings.LegacyJavascriptBindingEnabled = true;
+           // _browser.Address = @"C:\GitHub\Selenium.CefSharp.Driver\Project\Test\Controls.html";
         }
-
-        bool inited = false;
-
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
@@ -27,47 +22,52 @@ namespace CefSharpWPFSample
             //test
             if (e.Key == Key.U)
             {
-                if (!inited)
-                {
-                    //
-                    //_browser.loa
+                var init = @"
 
-                    var check = @"!(window.__seleniumCefSharpDriver == null)";
+       (function () {
+        if (!(window.__seleniumCefSharpDriver == null)) return;
 
-                    var retx = CefSharp.WebBrowserExtensions.EvaluateScriptAsync(_browser, check).Result;
-
-                    var init = @"
-if (!(window.__seleniumCefSharpDriver == null)) return;
-
-    window.__seleniumCefSharpDriver = {};
-    window.__seleniumCefSharpDriver.elements = [];
+        window.__seleniumCefSharpDriver = {};
+        window.__seleniumCefSharpDriver.elements = [];
 
 
-  function showAndSelectElement(element) {
-    var rect = element.getBoundingClientRect();
-    var elemtop = rect.top + window.pageYOffset;
-    document.documentElement.scrollTop = elemtop;
-    element.focus();
-  }
-";
-                    var ret = CefSharp.WebBrowserExtensions.EvaluateScriptAsync(_browser, init).Result;
-                    
-                    inited = true;
-                }
+        window.__seleniumCefSharpDriver.showAndSelectElement = function (element) {
+            var rect = element.getBoundingClientRect();
+            var elemtop = rect.top + window.pageYOffset;
+            document.documentElement.scrollTop = elemtop;
+            element.focus();
+        }
 
-                var scr = @"
-var e = document.getElementById('inputJS');
-window.__seleniumCefSharpDriver.elements.push(e);
-window.__seleniumCefSharpDriver.elements.length - 1;
+    })();
+    ";
+                var ret = CefSharp.WebBrowserExtensions.EvaluateScriptAsync(_browser, init).Result;
+
+                var id = "inputJS";
+                var scr = $@"
+    (function () {{
+        var e = document.getElementById('{id}');
+        if (e === null) return -1;
+        var index = window.__seleniumCefSharpDriver.elements.findIndex(x => {{
+            return x === e;
+        }});
+        if (index != -1) return index;
+
+        window.__seleniumCefSharpDriver.elements.push(e);
+        return window.__seleniumCefSharpDriver.elements.length - 1;
+
+    }})();
 ";
                 var ret2 = CefSharp.WebBrowserExtensions.EvaluateScriptAsync(_browser, scr).Result;
 
-                int id = (int)ret2.Result;
+                int index = (int)ret2.Result;
                 var click = $@"
-var element = window.__seleniumCefSharpDriver.elements[{id}];
-showAndSelectElement(element);
+(function () {{
+var element = window.__seleniumCefSharpDriver.elements[{index}];
+window.__seleniumCefSharpDriver.showAndSelectElement(element);
 element.focus();
 element.click();
+return element;
+ }})();
 ";
                 var ret3 = CefSharp.WebBrowserExtensions.EvaluateScriptAsync(_browser, click).Result;
             }

@@ -7,12 +7,12 @@ namespace Selenium.CefSharp.Driver
     public class CefSharpWebElement : IWebElement
     {
         private CefSharpDriver _driver;
-        private int _id;
+        private int _index;
 
-        public CefSharpWebElement(CefSharpDriver driver, int id)
+        public CefSharpWebElement(CefSharpDriver driver, int index)
         {
             _driver = driver;
-            _id = id;
+            _index = index;
         }
 
         public string TagName => throw new System.NotImplementedException();
@@ -35,11 +35,7 @@ namespace Selenium.CefSharp.Driver
         }
 
         public void Click()
-            => _driver.ExecuteScript($@"
-var element = window.__seleniumCefSharpDriver.elements[{_id}];
-__seleniumCefSharpDriver_showAndSelectElement(element);
-element.click();
-");
+            => _driver.ExecuteScript(JS.Click(_index));
 
         public IWebElement FindElement(By by)
         {

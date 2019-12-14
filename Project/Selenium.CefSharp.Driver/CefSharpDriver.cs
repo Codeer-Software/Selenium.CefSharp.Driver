@@ -14,58 +14,16 @@ namespace Selenium.CefSharp.Driver
     {
         WindowsAppFriend _app;
 
-        public CefSharpDriver(AppVar appVar)
-        {
-            AppVar = appVar;
-            _app = (WindowsAppFriend)AppVar.App;
-        }
-
-        internal dynamic ExecuteScript(string src)
-        {
-var init = @"
-    window.__seleniumCefSharpDriver = {};
-    window.__seleniumCefSharpDriver.elements = [];
-
-    function __seleniumCefSharpDriver_showAndSelectElement(element) {
-        var rect = element.getBoundingClientRect();
-        var elemtop = rect.top + window.pageYOffset;
-        document.documentElement.scrollTop = elemtop;
-        element.focus();
-    }
-";
-            while (!(bool)this.Dynamic().CanExecuteJavascriptInMainFrame)
-            {
-                Thread.Sleep(10);
-            }
-
-            var check = @"!(window.__seleniumCefSharpDriver == null)";
-
-            if (!(bool)ExecuteScriptCore(check).Result)
-            {
-                ExecuteScriptCore(init);
-            }
-            return ExecuteScriptCore(src).Result;
-        }
-
-        internal dynamic ExecuteScriptCore(string init)
-        {
-            var option = new OperationTypeInfo(
-                "CefSharp.WebBrowserExtensions",
-                "CefSharp.IWebBrowser",
-                typeof(string).FullName,
-                typeof(TimeSpan?).FullName);
-
-            var result = _app["CefSharp.WebBrowserExtensions.EvaluateScriptAsync", option](AppVar, init, null).Dynamic();
-
-            return result.Result;
-        }
-
         public AppVar AppVar { get; }
 
-        public string Url 
+        public string Url
         {
             get => this.Dynamic().Address;
-            set => this.Dynamic().Address = value;
+            set
+            {
+                this.Dynamic().Address = value;
+                WaitForJavaScriptUsable();
+            }
         }
 
         public string Title => throw new NotImplementedException();
@@ -75,6 +33,12 @@ var init = @"
         public string CurrentWindowHandle => throw new NotImplementedException();
 
         public ReadOnlyCollection<string> WindowHandles => throw new NotImplementedException();
+
+        public CefSharpDriver(AppVar appVar)
+        {
+            AppVar = appVar;
+            _app = (WindowsAppFriend)AppVar.App;
+        }
 
         public void Close() => throw new NotImplementedException();
 
@@ -86,14 +50,8 @@ var init = @"
             if (text.Contains("By.Id:"))
             {
                 var id = text.Substring("By.Id:".Length).Trim();
-
-                var scr = $@"
-var e = document.getElementById('{id}');
-window.__seleniumCefSharpDriver.elements.push(e);
-window.__seleniumCefSharpDriver.elements.length - 1;
-";
+                var scr = JS.FindElementById(id);
                 return new CefSharpWebElement(this, (int)ExecuteScript(scr));
-
             }
             return null;
         }
@@ -121,6 +79,36 @@ window.__seleniumCefSharpDriver.elements.length - 1;
         public ITargetLocator SwitchTo()
         {
             throw new NotImplementedException();
+        }
+
+        internal dynamic ExecuteScript(string src)
+        {
+            WaitForJavaScriptUsable();
+            ExecuteScriptCore(JS.Initialize);
+            return ExecuteScriptCore(src).Result;
+        }
+
+        //TODO return value.
+
+        dynamic ExecuteScriptCore(string src)
+        {
+            var option = new OperationTypeInfo(
+                "CefSharp.WebBrowserExtensions",
+                "CefSharp.IWebBrowser",
+                typeof(string).FullName,
+                typeof(TimeSpan?).FullName);
+
+            var result = _app["CefSharp.WebBrowserExtensions.EvaluateScriptAsync", option](AppVar, src, null).Dynamic();
+
+            return result.Result;
+        }
+
+        void WaitForJavaScriptUsable()
+        {
+            while (!(bool)this.Dynamic().CanExecuteJavascriptInMainFrame)
+            {
+                Thread.Sleep(10);
+            }
         }
     }
 }

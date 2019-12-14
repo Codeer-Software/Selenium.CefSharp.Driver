@@ -26,7 +26,7 @@ namespace Test
             var process = Process.Start(processPath);
 
             //html
-            _htmlPath = Path.Combine(dir, @"\Test\Controls.html");
+            _htmlPath = Path.Combine(dir, @"Test\Controls.html");
 
             //attach by friendly.
             _app = new WindowsAppFriend(process);
@@ -45,6 +45,8 @@ namespace Test
             _driver.Url = _htmlPath;
             var buttonJs = _driver.FindElement(By.Id("inputJS"));
             buttonJs.Click();
+            
+            _driver.FindElement(By.Id("inputJS"));
         }
     }
 }
