@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CefSharpWPFSample"
         mc:Ignorable="d"
+        xmlns:cefwpf="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        
+        <cefwpf:ChromiumWebBrowser x:Name="_browser" Address="https://github.com/Codeer-Software/Selenium.CefSharp.Driver"/>
     </Grid>
 </Window>

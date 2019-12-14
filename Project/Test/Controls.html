@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html>
+<script type="text/javascript">
+    function clickJS(){
+    document.getElementById("textBoxName").value = "JS";
+    }
+</script>
+<form method="post" action="/courier/htm-form">
+    <label id="labelTitle">Title Controls</label><br />
+    <table>
+        <colgroup style="padding: 0.3em">
+            <col span="2" />
+        </colgroup>
+        <colgroup class="term"></colgroup>
+        <tbody>
+            <tr>
+                <td>Name：</td>
+                <td><input id="textBoxName" type="text" /></td>
+            </tr>
+            <tr>
+                <td>Date：</td>
+                <td><input id="date" type="date" /></td>
+            </tr>
+            <tr>
+                <td>Gender：</td>
+                <td>
+                    <input id="radioMan" name="gender" type="radio" checked="checked" /> Man
+                    <input id="radioWoman" name="gender" type="radio" /> Woman
+                </td>
+            </tr>
+            <tr>
+                <td>Personal belongings：</td>
+                <td>
+                    <input id="checkBoxCellPhone" type="checkbox" /> Cell phone
+                    <input id="checkBoxCar" type="checkbox" /> Casr
+                    <input id="checkBoxCottage" type="checkbox" checked="checked" /> Cottage　
+                </td>
+            </tr>
+            <tr>
+                <td>Favorite fruit：</td>
+                <td>
+                    <select id="dropDownFruit">
+                        <option>Apple</option>
+                        <option>Orange</option>
+                        <option>Banana</option>
+                        <option>Pinapple</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <textarea id="textareaFreeans" name="freeans" rows="4" cols="40">Please describe the free opinion</textarea>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <input id="inputJS" type="button" value="JS" onClick="clickJS()" />
+                </td>
+            </tr>
+        </tbody>
+        <br />
+    </table>
+    <br />
+    <td colspan="2">
+        <a id="codeer" href="http://www.codeer.co.jp/">codeer</a>
+    </td>
+
+</form>
+</html>
