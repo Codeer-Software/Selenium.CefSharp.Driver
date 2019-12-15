@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Input;
 using CefSharp;
 using CefSharp.Wpf;
@@ -24,6 +25,16 @@ namespace CefSharpWPFSample
             {
                 var html = _browser.GetSourceAsync().Result;
 
+                var xxx = new Uri("https://github.com/Codeer-Software/Selenium.CefSharp.Driver");
+
+
+
+                var ary = @"
+var x = [];
+x.push(1);
+x;
+";
+                var x = CefSharp.WebBrowserExtensions.EvaluateScriptAsync(_browser, ary).Result;
 
                 var init = @"
 

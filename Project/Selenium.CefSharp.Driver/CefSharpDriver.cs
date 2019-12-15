@@ -4,6 +4,7 @@ using Codeer.Friendly.Windows;
 using Codeer.Friendly.Windows.Grasp;
 using OpenQA.Selenium;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
 
@@ -14,7 +15,7 @@ namespace Selenium.CefSharp.Driver
         IWebDriver,
         IJavaScriptExecutor
     {
-        dynamic _webBrowserExtensions;
+        internal dynamic WebBrowserExtensions { get; }
 
         public WindowsAppFriend App => (WindowsAppFriend)AppVar.App;
 
@@ -32,12 +33,12 @@ namespace Selenium.CefSharp.Driver
 
         public string Title => this.Dynamic().Title;
 
-        public string PageSource => _webBrowserExtensions.GetSourceAsync(this).Result;
+        public string PageSource => WebBrowserExtensions.GetSourceAsync(this).Result;
 
         public CefSharpDriver(AppVar appVar)
         {
             AppVar = appVar;
-            _webBrowserExtensions = App.Type("CefSharp.WebBrowserExtensions");
+            WebBrowserExtensions = App.Type("CefSharp.WebBrowserExtensions");
             WaitForJavaScriptUsable();
         }
 
@@ -57,23 +58,23 @@ namespace Selenium.CefSharp.Driver
 
         public ReadOnlyCollection<IWebElement> FindElements(By by)
         {
-            throw new NotImplementedException();
+            var list = new List<IWebElement>();
+
+            var text = by.ToString();
+            if (text.Contains("By.Id:"))
+            {
+                //id is only one in the html.
+                var id = text.Substring("By.Id:".Length).Trim();
+                var scr = JS.FindElementById(id);
+                list.Add(new CefSharpWebElement(this, (int)ExecuteScript(scr)));
+            }
+
+            return new ReadOnlyCollection<IWebElement>(list);
         }
 
-        public IOptions Manage()
-        {
-            throw new NotImplementedException();
-        }
+        public INavigation Navigate() => new CefSharpNavigation(this);
 
-        public INavigation Navigate()
-        {
-            throw new NotImplementedException();
-        }
-
-        public ITargetLocator SwitchTo()
-        {
-            throw new NotImplementedException();
-        }
+        public ITargetLocator SwitchTo() => new CefSharpTargetLocator(this);
 
         public object ExecuteScript(string script, params object[] args)
         {
@@ -119,7 +120,7 @@ namespace Selenium.CefSharp.Driver
             return App["CefSharp.WebBrowserExtensions.EvaluateScriptAsync", option](AppVar, src, null).Dynamic();
         }
 
-        void WaitForJavaScriptUsable()
+        internal void WaitForJavaScriptUsable()
         {
             while (!(bool)this.Dynamic().CanExecuteJavascriptInMainFrame)
             {
@@ -132,5 +133,6 @@ namespace Selenium.CefSharp.Driver
         public ReadOnlyCollection<string> WindowHandles => throw new NotImplementedException();
         public void Close() => throw new NotImplementedException();
         public void Quit() => throw new NotImplementedException();
+        public IOptions Manage() => throw new NotImplementedException();
     }
 }

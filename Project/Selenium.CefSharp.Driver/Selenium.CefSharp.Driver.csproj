@@ -67,6 +67,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CefSharpDriver.cs" />
+    <Compile Include="CefSharpNavigation.cs" />
+    <Compile Include="CefSharpTargetLocator.cs" />
     <Compile Include="CefSharpWebElement.cs" />
     <Compile Include="JS.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

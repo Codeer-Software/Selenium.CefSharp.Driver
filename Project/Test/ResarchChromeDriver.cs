@@ -26,8 +26,8 @@ namespace Test
         public void Test()
         {
             _driver.Url = "https://github.com/Codeer-Software/Selenium.CefSharp.Driver";
-            _driver.Quit();
-
+            _driver.Manage();
+            _driver.Navigate().Refresh();
         }
     }
 }

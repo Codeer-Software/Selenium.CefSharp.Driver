@@ -55,8 +55,6 @@ namespace Test
             textBoxName.SendKeys("abc");
         }
 
-
-
         [TestMethod]
         public void TestTitle()
         {
@@ -68,5 +66,21 @@ namespace Test
         {
             var pageSource = _driver.PageSource;
         }
+
+        [TestMethod]
+        public void TestNavigation()
+        {
+            _driver.Url = _htmlPath;
+            var navigate = _driver.Navigate();
+            navigate.Back();
+            _driver.Url.Contains("Selenium.CefSharp.Driver").IsTrue();
+            navigate.Forward();
+            _driver.Url.Contains("Controls").IsTrue();
+            navigate.GoToUrl("https://github.com/Codeer-Software/Selenium.CefSharp.Driver");
+            _driver.Url.Contains("Selenium.CefSharp.Driver").IsTrue();
+            navigate.Refresh();
+            _driver.Url.Contains("Selenium.CefSharp.Driver").IsTrue();
+        }
+
     }
 }
