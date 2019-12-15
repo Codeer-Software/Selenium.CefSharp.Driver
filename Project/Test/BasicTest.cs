@@ -54,5 +54,19 @@ namespace Test
             var textBoxName = _driver.FindElement(By.Id("textBoxName"));
             textBoxName.SendKeys("abc");
         }
+
+
+
+        [TestMethod]
+        public void TestTitle()
+        {
+            var title = _driver.Title;
+        }
+
+        [TestMethod]
+        public void TestPageSource()
+        {
+            var pageSource = _driver.PageSource;
+        }
     }
 }

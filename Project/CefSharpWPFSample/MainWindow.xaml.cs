@@ -22,6 +22,9 @@ namespace CefSharpWPFSample
             //test
             if (e.Key == Key.U)
             {
+                var html = _browser.GetSourceAsync().Result;
+
+
                 var init = @"
 
        (function () {

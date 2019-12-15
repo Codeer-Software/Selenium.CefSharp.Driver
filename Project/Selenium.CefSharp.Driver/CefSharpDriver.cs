@@ -14,6 +14,8 @@ namespace Selenium.CefSharp.Driver
         IWebDriver,
         IJavaScriptExecutor
     {
+        dynamic _webBrowserExtensions;
+
         public WindowsAppFriend App => (WindowsAppFriend)AppVar.App;
 
         public AppVar AppVar { get; }
@@ -28,17 +30,16 @@ namespace Selenium.CefSharp.Driver
             }
         }
 
-        public string Title => throw new NotImplementedException();
+        public string Title => this.Dynamic().Title;
 
-        public string PageSource => throw new NotImplementedException();
+        public string PageSource => _webBrowserExtensions.GetSourceAsync(this).Result;
 
-        public string CurrentWindowHandle => throw new NotImplementedException();
-
-        public ReadOnlyCollection<string> WindowHandles => throw new NotImplementedException();
-
-        public CefSharpDriver(AppVar appVar) => AppVar = appVar;
-
-        public void Close() => throw new NotImplementedException();
+        public CefSharpDriver(AppVar appVar)
+        {
+            AppVar = appVar;
+            _webBrowserExtensions = App.Type("CefSharp.WebBrowserExtensions");
+            WaitForJavaScriptUsable();
+        }
 
         public void Dispose() => AppVar.Dispose();
 
@@ -65,11 +66,6 @@ namespace Selenium.CefSharp.Driver
         }
 
         public INavigation Navigate()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Quit()
         {
             throw new NotImplementedException();
         }
@@ -110,6 +106,9 @@ namespace Selenium.CefSharp.Driver
         }
 
         dynamic ExecuteScriptCore(string src)
+            => ExecuteScriptAsyncCore(src).Result;
+
+        dynamic ExecuteScriptAsyncCore(string src)
         {
             var option = new OperationTypeInfo(
                 "CefSharp.WebBrowserExtensions",
@@ -117,20 +116,7 @@ namespace Selenium.CefSharp.Driver
                 typeof(string).FullName,
                 typeof(TimeSpan?).FullName);
 
-            var result = App["CefSharp.WebBrowserExtensions.EvaluateScriptAsync", option](AppVar, src, null).Dynamic();
-
-            return result.Result;
-        }
-
-        void ExecuteScriptAsyncCore(string src)
-        {
-            var option = new OperationTypeInfo(
-                "CefSharp.WebBrowserExtensions",
-                "CefSharp.IWebBrowser",
-                typeof(string).FullName,
-                typeof(TimeSpan?).FullName);
-
-            App["CefSharp.WebBrowserExtensions.EvaluateScriptAsync", option](AppVar, src, null);
+            return App["CefSharp.WebBrowserExtensions.EvaluateScriptAsync", option](AppVar, src, null).Dynamic();
         }
 
         void WaitForJavaScriptUsable()
@@ -140,5 +126,11 @@ namespace Selenium.CefSharp.Driver
                 Thread.Sleep(10);
             }
         }
+
+        //don't support.
+        public string CurrentWindowHandle => throw new NotImplementedException();
+        public ReadOnlyCollection<string> WindowHandles => throw new NotImplementedException();
+        public void Close() => throw new NotImplementedException();
+        public void Quit() => throw new NotImplementedException();
     }
 }
