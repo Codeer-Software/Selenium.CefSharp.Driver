@@ -45,8 +45,14 @@ namespace Test
             _driver.Url = _htmlPath;
             var buttonJs = _driver.FindElement(By.Id("inputJS"));
             buttonJs.Click();
-            
-            _driver.FindElement(By.Id("inputJS"));
+        }
+
+        [TestMethod]
+        public void TestSendKey()
+        {
+            _driver.Url = _htmlPath;
+            var textBoxName = _driver.FindElement(By.Id("textBoxName"));
+            textBoxName.SendKeys("abc");
         }
     }
 }

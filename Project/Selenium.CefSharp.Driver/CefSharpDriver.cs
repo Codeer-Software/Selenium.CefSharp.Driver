@@ -1,6 +1,7 @@
 ﻿using Codeer.Friendly;
 using Codeer.Friendly.Dynamic;
 using Codeer.Friendly.Windows;
+using Codeer.Friendly.Windows.Grasp;
 using OpenQA.Selenium;
 using System;
 using System.Collections.ObjectModel;
@@ -13,7 +14,7 @@ namespace Selenium.CefSharp.Driver
         IWebDriver,
         IJavaScriptExecutor
     {
-        WindowsAppFriend _app;
+        public WindowsAppFriend App => (WindowsAppFriend)AppVar.App;
 
         public AppVar AppVar { get; }
 
@@ -35,11 +36,7 @@ namespace Selenium.CefSharp.Driver
 
         public ReadOnlyCollection<string> WindowHandles => throw new NotImplementedException();
 
-        public CefSharpDriver(AppVar appVar)
-        {
-            AppVar = appVar;
-            _app = (WindowsAppFriend)AppVar.App;
-        }
+        public CefSharpDriver(AppVar appVar) => AppVar = appVar;
 
         public void Close() => throw new NotImplementedException();
 
@@ -96,6 +93,14 @@ namespace Selenium.CefSharp.Driver
             ExecuteScriptAsyncCore(script);
             return null;
         }
+        
+        public void Activate()
+        {
+            //TODO WinForms
+            var source = App.Type("System.Windows.Interop.HwndSource").FromVisual(this);
+            new WindowControl(App, (IntPtr)source.Handle).Activate();
+            this.Dynamic().Focus();
+        }
 
         internal dynamic ExecuteScript(string script)
         {
@@ -112,7 +117,7 @@ namespace Selenium.CefSharp.Driver
                 typeof(string).FullName,
                 typeof(TimeSpan?).FullName);
 
-            var result = _app["CefSharp.WebBrowserExtensions.EvaluateScriptAsync", option](AppVar, src, null).Dynamic();
+            var result = App["CefSharp.WebBrowserExtensions.EvaluateScriptAsync", option](AppVar, src, null).Dynamic();
 
             return result.Result;
         }
@@ -125,7 +130,7 @@ namespace Selenium.CefSharp.Driver
                 typeof(string).FullName,
                 typeof(TimeSpan?).FullName);
 
-            _app["CefSharp.WebBrowserExtensions.EvaluateScriptAsync", option](AppVar, src, null);
+            App["CefSharp.WebBrowserExtensions.EvaluateScriptAsync", option](AppVar, src, null);
         }
 
         void WaitForJavaScriptUsable()

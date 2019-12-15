@@ -1,4 +1,6 @@
-﻿using OpenQA.Selenium;
+﻿using Codeer.Friendly.Dynamic;
+using Codeer.Friendly.Windows.KeyMouse;
+using OpenQA.Selenium;
 using System.Collections.ObjectModel;
 using System.Drawing;
 
@@ -64,7 +66,12 @@ namespace Selenium.CefSharp.Driver
 
         public void SendKeys(string text)
         {
-            throw new System.NotImplementedException();
+            _driver.ExecuteScript(JS.Focus(_index));
+
+            //TODO adjust text spec.
+
+            _driver.Activate();
+            _driver.App.SendKeys(text);
         }
 
         public void Submit()

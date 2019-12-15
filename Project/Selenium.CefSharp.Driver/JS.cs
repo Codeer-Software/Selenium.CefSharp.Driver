@@ -40,5 +40,10 @@ var element = window.__seleniumCefSharpDriver.elements[{index}];
 window.__seleniumCefSharpDriver.showAndSelectElement(element);
 element.click();
 ";
+        public static string Focus(int index)
+    => $@"
+var element = window.__seleniumCefSharpDriver.elements[{index}];
+window.__seleniumCefSharpDriver.showAndSelectElement(element);
+";
     }
 }
