@@ -27,7 +27,7 @@ namespace Selenium.CefSharp.Driver
             set
             {
                 this.Dynamic().Address = value;
-                WaitForJavaScriptUsable();
+                WaitForLoading();
             }
         }
 
@@ -39,7 +39,7 @@ namespace Selenium.CefSharp.Driver
         {
             AppVar = appVar;
             WebBrowserExtensions = App.Type("CefSharp.WebBrowserExtensions");
-            WaitForJavaScriptUsable();
+            WaitForLoading();
         }
 
         public void Dispose() => AppVar.Dispose();
@@ -76,6 +76,14 @@ namespace Selenium.CefSharp.Driver
 
         public ITargetLocator SwitchTo() => new CefSharpTargetLocator(this);
 
+        public void Activate()
+        {
+            //TODO WinForms
+            var source = App.Type("System.Windows.Interop.HwndSource").FromVisual(this);
+            new WindowControl(App, (IntPtr)source.Handle).Activate();
+            this.Dynamic().Focus();
+        }
+
         public object ExecuteScript(string script, params object[] args)
         {
             //TODO arguments & return value.
@@ -85,23 +93,15 @@ namespace Selenium.CefSharp.Driver
         public object ExecuteAsyncScript(string script, params object[] args)
         {
             //TODO arguments & return value.
-            WaitForJavaScriptUsable();
+            WaitForLoading();
             ExecuteScriptAsyncCore(JS.Initialize);
             ExecuteScriptAsyncCore(script);
             return null;
         }
-        
-        public void Activate()
-        {
-            //TODO WinForms
-            var source = App.Type("System.Windows.Interop.HwndSource").FromVisual(this);
-            new WindowControl(App, (IntPtr)source.Handle).Activate();
-            this.Dynamic().Focus();
-        }
 
         internal dynamic ExecuteScript(string script)
         {
-            WaitForJavaScriptUsable();
+            WaitForLoading();
             ExecuteScriptCore(JS.Initialize);
             return ExecuteScriptCore(script).Result;
         }
@@ -110,19 +110,11 @@ namespace Selenium.CefSharp.Driver
             => ExecuteScriptAsyncCore(src).Result;
 
         dynamic ExecuteScriptAsyncCore(string src)
-        {
-            var option = new OperationTypeInfo(
-                "CefSharp.WebBrowserExtensions",
-                "CefSharp.IWebBrowser",
-                typeof(string).FullName,
-                typeof(TimeSpan?).FullName);
+            => WebBrowserExtensions.GetMainFrame(this).EvaluateScriptAsync(src, "about:blank", 1, null);
 
-            return App["CefSharp.WebBrowserExtensions.EvaluateScriptAsync", option](AppVar, src, null).Dynamic();
-        }
-
-        internal void WaitForJavaScriptUsable()
+        internal void WaitForLoading()
         {
-            while (!(bool)this.Dynamic().CanExecuteJavascriptInMainFrame)
+            while ((bool)this.Dynamic().IsLoading)
             {
                 Thread.Sleep(10);
             }

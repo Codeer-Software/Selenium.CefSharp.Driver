@@ -81,6 +81,5 @@ namespace Test
             navigate.Refresh();
             _driver.Url.Contains("Selenium.CefSharp.Driver").IsTrue();
         }
-
     }
 }

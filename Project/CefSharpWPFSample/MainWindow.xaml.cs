@@ -11,7 +11,12 @@ namespace CefSharpWPFSample
         public MainWindow()
         {
             InitializeComponent();
-           // _browser.Address = @"C:\GitHub\Selenium.CefSharp.Driver\Project\Test\Controls.html";
+            //  _browser.Address = @"C:\GitHub\Selenium.CefSharp.Driver\Project\Test\Controls.html";
+
+            _browser.Loaded += _browser_Loaded;
+            _browser.FrameLoadStart += _browser_FrameLoadStart;
+            _browser.FrameLoadEnd += _browser_FrameLoadEnd;
+            
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -19,14 +24,15 @@ namespace CefSharpWPFSample
             base.OnKeyDown(e);
 
             if (Keyboard.Modifiers != ModifierKeys.Control) return;
-
+            if (e.Key == Key.Q)
+            {
+                _browser.Address = @"C:\GitHub\Selenium.CefSharp.Driver\Project\Test\Controls.html";
+            }
+          
             //test
             if (e.Key == Key.U)
             {
                 var html = _browser.GetSourceAsync().Result;
-
-                var xxx = new Uri("https://github.com/Codeer-Software/Selenium.CefSharp.Driver");
-
 
 
                 var ary = @"
@@ -34,6 +40,18 @@ var x = [];
 x.push(1);
 x;
 ";
+
+
+                var a = _browser.GetTextAsync().Result;
+                _browser.Address = @"C:\GitHub\Selenium.CefSharp.Driver\Project\Test\Controls.html";
+                
+                var y = _browser.GetSourceAsync().Result;
+                var z= _browser.GetTextAsync().Result;
+
+                var vvv = _browser.GetMainFrame().IsValid;
+                var xxx = _browser.GetMainFrame().EvaluateScriptAsync(ary).Result;
+                //(string script, string scriptUrl = "about:blank", int startLine = 1, TimeSpan? timeout = null);
+
                 var x = CefSharp.WebBrowserExtensions.EvaluateScriptAsync(_browser, ary).Result;
 
                 var init = @"
@@ -85,6 +103,18 @@ return element;
 ";
                 var ret3 = CefSharp.WebBrowserExtensions.EvaluateScriptAsync(_browser, click).Result;
             }
+        }
+
+        private void _browser_FrameLoadStart(object sender, FrameLoadStartEventArgs e)
+        {
+        }
+        private void _browser_FrameLoadEnd(object sender, FrameLoadEndEventArgs e)
+        {
+        }
+
+
+        private void _browser_Loaded(object sender, RoutedEventArgs e)
+        {
         }
     }
 }

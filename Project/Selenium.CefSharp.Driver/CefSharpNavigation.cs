@@ -13,13 +13,13 @@ namespace Selenium.CefSharp.Driver
         public void Back()
         {
             _driver.WebBrowserExtensions.Back(_driver);
-            _driver.WaitForJavaScriptUsable();
+            _driver.WaitForLoading();
         }
 
         public void Forward()
         {
             _driver.WebBrowserExtensions.Forward(_driver);
-            _driver.WaitForJavaScriptUsable();
+            _driver.WaitForLoading();
         }
 
         public void GoToUrl(string url) => _driver.Url = url;
@@ -29,7 +29,7 @@ namespace Selenium.CefSharp.Driver
         public void Refresh()
         {
             _driver.WebBrowserExtensions.Reload(_driver);
-            _driver.WaitForJavaScriptUsable();
+            _driver.WaitForLoading();
         }
     }
 }
