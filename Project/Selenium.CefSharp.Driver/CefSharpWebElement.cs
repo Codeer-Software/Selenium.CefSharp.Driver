@@ -37,7 +37,7 @@ namespace Selenium.CefSharp.Driver
         }
 
         public void Click()
-            => _driver.ExecuteScript(JS.Click(_index));
+            => _driver.ExecuteScriptInternal(JS.Click(_index));
 
         public IWebElement FindElement(By by)
         {
@@ -66,7 +66,7 @@ namespace Selenium.CefSharp.Driver
 
         public void SendKeys(string text)
         {
-            _driver.ExecuteScript(JS.Focus(_index));
+            _driver.ExecuteScriptInternal(JS.Focus(_index));
 
             //TODO adjust text spec.
 
