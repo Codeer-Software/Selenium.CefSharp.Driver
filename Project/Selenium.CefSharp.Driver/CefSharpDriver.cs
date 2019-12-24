@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Threading;
 using System.Linq;
 using System.Collections.Generic;
+using Selenium.CefSharp.Driver.InTarget;
 
 namespace Selenium.CefSharp.Driver
 {
@@ -39,7 +40,11 @@ namespace Selenium.CefSharp.Driver
 
         public ReadOnlyCollection<string> WindowHandles => throw new NotImplementedException();
 
-        public CefSharpDriver(AppVar appVar) => AppVar = appVar;
+        public CefSharpDriver(AppVar appVar)
+        {
+            AppVar = appVar;
+            App.LoadAssembly(typeof(JSResultConverter).Assembly);
+        }
 
         public void Close() => throw new NotImplementedException();
 
@@ -114,7 +119,7 @@ namespace Selenium.CefSharp.Driver
         {
             WaitForJavaScriptUsable();
             ExecuteScriptCore(JS.Initialize);
-            return ExecuteScriptCore(script, args).Result;
+            return App.Type<JSResultConverter>().ConvertToSelializable(ExecuteScriptCore(script, args).Result);
         }
 
         dynamic ExecuteScriptCore(string src, params object[] args)
@@ -172,10 +177,14 @@ return val;
             {
                 return Convert.ToInt64((int)value);
             }
-            if(value is List<object>)  // cef は配列はList<object>になる模様? ただし selenium は ReadOnlyCollection になる模様?
+            if (value is List<object> list)  // cef は配列はList<object>になる模様? ただし selenium は ReadOnlyCollection になる模様?
             {
-                var result = ((IEnumerable<Object>)value).Select(i => ConvertExecuteScriptResult(i)).ToList();
+                var result = list.Select(i => ConvertExecuteScriptResult(i)).ToList();
                 return new ReadOnlyCollection<Object>(result);
+            }
+            if (value is Dictionary<string, object> dic)
+            {
+                return dic.ToDictionary(e => e.Key, e => ConvertExecuteScriptResult(e.Value));
             }
             return value;
         }
