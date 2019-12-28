@@ -80,10 +80,8 @@
   <ItemGroup>
     <Compile Include="BasicTest.cs" />
     <Compile Include="ChainingAssertion.MSTest.cs" />
-    <Compile Include="CefSpikes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SelemiumSpikes.cs" />
-    <Compile Include="SpikesBase.cs" />
+    <Compile Include="CefSeleniumCompareTestBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
