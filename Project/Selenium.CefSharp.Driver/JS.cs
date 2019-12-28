@@ -14,7 +14,7 @@
         var elemtop = rect.top + window.pageYOffset;
         document.documentElement.scrollTop = elemtop;
         element.focus();
-    }
+    };
 
     window.__seleniumCefSharpDriver.entryElement = function (element) {
 
@@ -27,12 +27,12 @@
 
         window.__seleniumCefSharpDriver.elements.push(element);
         return window.__seleniumCefSharpDriver.elements.length - 1;
-    }
+    };
 })();
 ";
 
         public static string FindElementById(string id)
-            => $@"window.__seleniumCefSharpDriver.entryElement(document.getElementById('{id}'));";
+            => $@"return window.__seleniumCefSharpDriver.entryElement(document.getElementById('{id}'));";
 
         public static string Click(int index)
             => $@"
