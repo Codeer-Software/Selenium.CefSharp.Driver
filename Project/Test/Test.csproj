@@ -82,7 +82,6 @@
     <Compile Include="ChainingAssertion.MSTest.cs" />
     <Compile Include="CefSpikes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResarchChromeDriver.cs" />
     <Compile Include="SelemiumSpikes.cs" />
     <Compile Include="SpikesBase.cs" />
   </ItemGroup>

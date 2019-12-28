@@ -20,6 +20,8 @@ namespace Selenium.CefSharp.Driver
     {
         public WindowsAppFriend App => (WindowsAppFriend)AppVar.App;
 
+        internal dynamic WebBrowserExtensions { get; }
+
         public AppVar AppVar { get; }
 
         public string Url
@@ -28,25 +30,21 @@ namespace Selenium.CefSharp.Driver
             set
             {
                 this.Dynamic().Address = value;
-                WaitForJavaScriptUsable();
+                WaitForLoading();
             }
         }
 
-        public string Title => throw new NotImplementedException();
+        public string Title => this.Dynamic().Title;
 
-        public string PageSource => throw new NotImplementedException();
-
-        public string CurrentWindowHandle => throw new NotImplementedException();
-
-        public ReadOnlyCollection<string> WindowHandles => throw new NotImplementedException();
+        public string PageSource => WebBrowserExtensions.GetSourceAsync(this).Result;
 
         public CefSharpDriver(AppVar appVar)
         {
             AppVar = appVar;
             App.LoadAssembly(typeof(JSResultConverter).Assembly);
+            WebBrowserExtensions = App.Type("CefSharp.WebBrowserExtensions");
+            WaitForLoading();
         }
-
-        public void Close() => throw new NotImplementedException();
 
         public void Dispose() => AppVar.Dispose();
 
@@ -64,28 +62,23 @@ namespace Selenium.CefSharp.Driver
 
         public ReadOnlyCollection<IWebElement> FindElements(By by)
         {
-            throw new NotImplementedException();
+            var list = new List<IWebElement>();
+
+            var text = by.ToString();
+            if (text.Contains("By.Id:"))
+            {
+                //id is only one in the html.
+                var id = text.Substring("By.Id:".Length).Trim();
+                var scr = JS.FindElementById(id);
+                list.Add(new CefSharpWebElement(this, (int)ExecuteScriptInternal(scr)));
+            }
+
+            return new ReadOnlyCollection<IWebElement>(list);
         }
 
-        public IOptions Manage()
-        {
-            throw new NotImplementedException();
-        }
+        public INavigation Navigate() => new CefSharpNavigation(this);
 
-        public INavigation Navigate()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Quit()
-        {
-            throw new NotImplementedException();
-        }
-
-        public ITargetLocator SwitchTo()
-        {
-            throw new NotImplementedException();
-        }
+        public ITargetLocator SwitchTo() => new CefSharpTargetLocator(this);
 
         public object ExecuteScript(string script, params object[] args)
         {
@@ -101,7 +94,7 @@ namespace Selenium.CefSharp.Driver
         public object ExecuteAsyncScript(string script, params object[] args)
         {
             //TODO arguments & return value.
-            WaitForJavaScriptUsable();
+            WaitForLoading();
             ExecuteScriptAsyncCore(JS.Initialize);
             ExecuteScriptAsyncCore(script);
             return null;
@@ -117,12 +110,14 @@ namespace Selenium.CefSharp.Driver
 
         internal dynamic ExecuteScriptInternal(string script, params object[] args)
         {
-            WaitForJavaScriptUsable();
+            WaitForLoading();
             ExecuteScriptCore(JS.Initialize);
             return App.Type<JSResultConverter>().ConvertToSelializable(ExecuteScriptCore(script, args).Result);
         }
 
         dynamic ExecuteScriptCore(string src, params object[] args)
+            => WebBrowserExtensions.GetMainFrame(this).EvaluateScriptAsync(ConvertCefSharpScript(src, args), "about:blank", 1, null).Result;
+/*
         {
             var option = new OperationTypeInfo(
                 "CefSharp.WebBrowserExtensions",
@@ -134,6 +129,7 @@ namespace Selenium.CefSharp.Driver
 
             return result.Result;
         }
+        */
 
         private string ConvertCefSharpScript(string script, object[] args)
         {
@@ -200,12 +196,19 @@ return val;
             App["CefSharp.WebBrowserExtensions.EvaluateScriptAsync", option](AppVar, src, null);
         }
 
-        void WaitForJavaScriptUsable()
+        internal void WaitForLoading()
         {
-            while (!(bool)this.Dynamic().CanExecuteJavascriptInMainFrame)
+            while ((bool)this.Dynamic().IsLoading)
             {
                 Thread.Sleep(10);
             }
         }
+
+        //don't support.
+        public string CurrentWindowHandle => throw new NotImplementedException();
+        public ReadOnlyCollection<string> WindowHandles => throw new NotImplementedException();
+        public void Close() => throw new NotImplementedException();
+        public void Quit() => throw new NotImplementedException();
+        public IOptions Manage() => throw new NotImplementedException();
     }
 }
