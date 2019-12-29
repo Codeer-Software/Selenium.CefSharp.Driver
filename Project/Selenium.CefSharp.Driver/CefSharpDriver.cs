@@ -111,25 +111,17 @@ namespace Selenium.CefSharp.Driver
         internal dynamic ExecuteScriptInternal(string script, params object[] args)
         {
             WaitForLoading();
-            ExecuteScriptCore(JS.Initialize);
-            return App.Type<JSResultConverter>().ConvertToSelializable(ExecuteScriptCore(script, args).Result);
+            dynamic initializeResult = ExecuteScriptCore(JS.Initialize);
+            dynamic execResult = ExecuteScriptCore(script, args);
+            if(!(bool)execResult.Success)
+            {
+                throw new WebDriverException((string)execResult.Message);
+            }
+            return App.Type<JSResultConverter>().ConvertToSelializable(execResult.Result);
         }
 
         dynamic ExecuteScriptCore(string src, params object[] args)
             => WebBrowserExtensions.GetMainFrame(this).EvaluateScriptAsync(ConvertCefSharpScript(src, args), "about:blank", 1, null).Result;
-/*
-        {
-            var option = new OperationTypeInfo(
-                "CefSharp.WebBrowserExtensions",
-                "CefSharp.IWebBrowser",
-                typeof(string).FullName,
-                typeof(TimeSpan?).FullName);
-
-            var result = App["CefSharp.WebBrowserExtensions.EvaluateScriptAsync", option](AppVar, ConvertCefSharpScript(src, args), null).Dynamic();
-
-            return result.Result;
-        }
-        */
 
         private string ConvertCefSharpScript(string script, object[] args)
         {

@@ -49,6 +49,7 @@ namespace Test
         public void TestCleanup() => Process.GetProcessById(_app.ProcessId).Kill();
 
         public override IWebDriver GetDriver() => _driver;
+        
     }
 
     [TestClass]
@@ -78,46 +79,48 @@ namespace Test
     public abstract class CefSeleniumCompareTestBase
     {
         public abstract IWebDriver GetDriver();
+
+        private IJavaScriptExecutor GetExecutor() => (IJavaScriptExecutor)GetDriver();
         
         [TestMethod]
         public void ShouldReturnSameStringWhenExecuteReturnSingleQuotationStringJavaScript()
         {
-            var value = ((IJavaScriptExecutor)GetDriver()).ExecuteScript("return 'abcde'");
+            var value = GetExecutor().ExecuteScript("return 'abcde'");
             Assert.AreEqual("abcde", value);
         }
 
         [TestMethod]
         public void ShouldReturnSameStringWhenExecuteReturnDoubleQuotationStringJavaScript()
         {
-            var value = ((IJavaScriptExecutor)GetDriver()).ExecuteScript("return \"abcde\"");
+            var value = GetExecutor().ExecuteScript("return \"abcde\"");
             Assert.AreEqual("abcde", value);
         }
 
         [TestMethod]
         public void ShouldReturnSameStringWhenExecuteReturnBackQuotationStringJavaScript()
         {
-            var value = ((IJavaScriptExecutor)GetDriver()).ExecuteScript("return `abcde`");
+            var value = GetExecutor().ExecuteScript("return `abcde`");
             Assert.AreEqual("abcde", value);
         }
 
         [TestMethod]
         public void ShouldReturnLongValueWhenExecuteReturnIntegerJavaScript()
         {
-            var value = ((IJavaScriptExecutor)GetDriver()).ExecuteScript("return 12345");
+            var value = GetExecutor().ExecuteScript("return 12345");
             Assert.AreEqual(12345L, value);
         }
 
         [TestMethod]
         public void ShouldReturnDoubleValueWhenExecuteReturnDecimalJavaScript()
         {
-            var value = ((IJavaScriptExecutor)GetDriver()).ExecuteScript("return 12345.678");
+            var value = GetExecutor().ExecuteScript("return 12345.678");
             Assert.AreEqual(12345.678, value);
         }
 
         [TestMethod]
         public void ShouldReturnBooleanValueWhenExecuteReturnBooleanJavaScript()
         {
-            var value = ((IJavaScriptExecutor)GetDriver()).ExecuteScript("return false");
+            var value = GetExecutor().ExecuteScript("return false");
             Assert.IsFalse((bool)value);
         }
 
@@ -125,8 +128,8 @@ namespace Test
         public void ShouldReturnIsoDateStringWhenExecuteReturnDateJavaScript()
         {
             // selenium (のChrome Driver) は ISOString の結果を返す模様
-            var isoValue = ((IJavaScriptExecutor)GetDriver()).ExecuteScript("return new Date(2012,0,16,23,23,23,123).toISOString()");
-            var value = ((IJavaScriptExecutor)GetDriver()).ExecuteScript("return new Date(2012,0,16,23,23,23,123)");
+            var isoValue = GetExecutor().ExecuteScript("return new Date(2012,0,16,23,23,23,123).toISOString()");
+            var value = GetExecutor().ExecuteScript("return new Date(2012,0,16,23,23,23,123)");
             Assert.AreEqual(isoValue, value);
         }
 
@@ -134,35 +137,35 @@ namespace Test
         public void ShouldReturnNullValueWhenExecuteReturnInvalidJavaScript()
         {
             // selenium (のChrome Driver) は Invalid Date は null を返す模様
-            var value = ((IJavaScriptExecutor)GetDriver()).ExecuteScript("return new Date(void 0)");
+            var value = GetExecutor().ExecuteScript("return new Date(void 0)");
             Assert.IsNull(value);
         }
 
         [TestMethod]
         public void ShouldReturnNullValueWhenExecuteReturnUndefinedJavaScript()
         {
-            var value = ((IJavaScriptExecutor)GetDriver()).ExecuteScript("return void 0");
+            var value = GetExecutor().ExecuteScript("return void 0");
             Assert.IsNull(value);
         }
 
         [TestMethod]
         public void ShouldReturnNullValueWhenExecuteReturnPositiveInfinitJavaScript()
         {
-            var value = ((IJavaScriptExecutor)GetDriver()).ExecuteScript("return Number.POSITIVE_INFINITY");
+            var value = GetExecutor().ExecuteScript("return Number.POSITIVE_INFINITY");
             Assert.IsNull(value);
         }
 
         [TestMethod]
         public void ShouldReturnNullValueWhenExecuteReturnNegativeInfinitJavaScript()
         {
-            var value = ((IJavaScriptExecutor)GetDriver()).ExecuteScript("return Number.NEGATIVE_INFINITY");
+            var value = GetExecutor().ExecuteScript("return Number.NEGATIVE_INFINITY");
             Assert.IsNull(value);
         }
 
         [TestMethod]
         public void ShouldReturnNullValueWhenExecuteReturnNaNJavaScript()
         {
-            var value = ((IJavaScriptExecutor)GetDriver()).ExecuteScript("return Number.NaN");
+            var value = GetExecutor().ExecuteScript("return Number.NaN");
             Assert.IsNull(value);
         }
 
@@ -170,7 +173,7 @@ namespace Test
         public void ShouldReturnReadOnlyCollectionObjectValueWhenExecuteReturnArrayJavaScript()
         {
             // selenium (のChrome Driver) は ReadOnlyCollection を返す模様
-            var value = ((IJavaScriptExecutor)GetDriver()).ExecuteScript("return [123, 456, 789]");
+            var value = GetExecutor().ExecuteScript("return [123, 456, 789]");
             Assert.AreEqual(typeof(ReadOnlyCollection<object>), value.GetType());
             
             var expectValues = new[] { 123L, 456L, 789L };
@@ -186,8 +189,8 @@ namespace Test
         [TestMethod]
         public void ShouldReturnTypeMoldeConvertedValueOfElementsInReadOnlyCollectionObjectValueWhenExecuteReturnArrayJavaScript()
         {
-            var isoValue = ((IJavaScriptExecutor)GetDriver()).ExecuteScript("return new Date(2012,0,16,23,23,23,123).toISOString()");
-            var value = ((IJavaScriptExecutor)GetDriver()).ExecuteScript("return [Number.NaN, Number.POSITIVE_INFINITY, new Date(void 0), new Date(2012,0,16,23,23,23,123), 123]");
+            var isoValue = GetExecutor().ExecuteScript("return new Date(2012,0,16,23,23,23,123).toISOString()");
+            var value = GetExecutor().ExecuteScript("return [Number.NaN, Number.POSITIVE_INFINITY, new Date(void 0), new Date(2012,0,16,23,23,23,123), 123]");
             Assert.AreEqual(typeof(ReadOnlyCollection<object>), value.GetType());
 
             var expectValues = new[] { null, null, null, isoValue, 123L };
@@ -203,13 +206,30 @@ namespace Test
         [TestMethod]
         public void ShouldReturnDictionalyStringObjectWhenExecuteReturnObjectJavaScript()
         {
-            var value = ((IJavaScriptExecutor)GetDriver()).ExecuteScript("return {A:'a', B:123, C: false}");
+            var value = GetExecutor().ExecuteScript("return {A:'a', B:123, C: false}");
             Assert.AreEqual(typeof(Dictionary<string, object>), value.GetType());
 
             var resultValue = (Dictionary<string, object>)value;
             Assert.AreEqual("a", resultValue["A"]);
             Assert.AreEqual(123L, resultValue["B"]);
             Assert.AreEqual(false, resultValue["C"]);
+        }
+
+        [TestMethod]
+        public void ShouldNotDefinedToGlobalScopeIfValiableDefinedJavaScript()
+        {
+            var funcName = "___test_define_func";
+
+            GetExecutor().ExecuteScript($"function {funcName}() {{return 1;}}");
+            Assert.ThrowsException<WebDriverException>(() => GetExecutor().ExecuteScript($"return {funcName}();"),
+                $"javascript error: {funcName} is not defined");
+        }
+
+        [TestMethod]
+        public void ShouldThisInstanceIsGlobalObjectInstance()
+        {
+            var isWindow = GetExecutor().ExecuteScript("return this === window");
+            Assert.IsTrue((bool)isWindow);
         }
     }
 }
