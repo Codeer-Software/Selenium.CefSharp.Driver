@@ -130,16 +130,15 @@ namespace Selenium.CefSharp.Driver
 
             // 2. 以下のようなスクリプトを作成
             // (function() {
-            //   const result = (new Function("param1", 123, true, "return document.title;"))();
+            //   const result = (function() { return document.title; })("param1", 123, true);
             //   return toCSharpObject(result);
             // })();
-            var escapedScript = script.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "\\r");
-            
-            var result = $"(function() {{ const result = (new Function(\"{escapedScript}\"))(); {ConvertResultInJavaScriptString} }})();";
+
+            var result = $"(function() {{ const result = (function() {{ {script} }})(); \r\n {ConvertResultInJavaScriptString} }})();";
 
             return result;
         }
-
+        
         // 日付文字列はブラウザロケーションの影響なども受ける可能性があるため、JavaScript内で変換できるものは変換しておく
         private static string ConvertResultInJavaScriptString = @"
 return (function convert(val){
@@ -155,7 +154,13 @@ if(toStr.call(val) === '[object Number]') {
 if(toStr.call(val) === '[object Date]') {
     if(Number.isNaN(val.getTime())) return null;
     return val.toISOString();
-}   
+}
+if(toStr.call(val) === '[object Function]' || toStr.call(val) === '[object Object]') {
+    return Object.entries(val).reduce(function(v, kv) {
+        v[kv[0]] = convert(kv[1]);
+        return v;
+    }, {});
+}
 return val;
 })(result)";
 

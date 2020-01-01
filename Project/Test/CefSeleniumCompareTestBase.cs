@@ -14,6 +14,8 @@ using System.Windows;
 
 using Codeer.Friendly.Dynamic;
 using OpenQA.Selenium.Chrome;
+using System.Net.Sockets;
+using System.Net;
 
 namespace Test
 {
@@ -24,6 +26,8 @@ namespace Test
         CefSharpDriver _driver;
         string _htmlPath;
 
+        public override IWebDriver GetDriver() => _driver;
+
         [TestInitialize]
         public void TestInitialize()
         {
@@ -33,23 +37,30 @@ namespace Test
             var processPath = Path.Combine(dir, @"CefSharpWPFSample\bin\x86\Debug\CefSharpWPFSample.exe");
             var process = Process.Start(processPath);
 
-            //html
-            _htmlPath = Path.Combine(dir, @"Test\Controls.html");
-
             //attach by friendly.
             _app = new WindowsAppFriend(process);
             var main = _app.Type<Application>().Current.MainWindow;
 
             //create driver.
             _driver = new CefSharpDriver(main._browser);
-            _driver.Url = _htmlPath;
+            _driver.Url = this.GetHtmlUrl();
         }
 
         [TestCleanup]
         public void TestCleanup() => Process.GetProcessById(_app.ProcessId).Kill();
 
-        public override IWebDriver GetDriver() => _driver;
-        
+        [ClassInitialize]
+        public static void ClassInit(TestContext context) => ClassInitBase();
+
+        [ClassCleanup]
+        public static void ClassCleanup() => ClassCleanupBase();
+
+
+        [Ignore("This testcase not supported. Because CefSharp returns a null object result when execution result of the javascript is Promise.")]
+        public override void ShouldReturnPromiseResultWhenExecuteReturnSuccessPromiseJavaScript()
+        {
+        }
+
     }
 
     [TestClass]
@@ -59,14 +70,12 @@ namespace Test
 
         public override IWebDriver GetDriver() => _driver;
 
+        
         [TestInitialize]
         public void initialize()
         {
             _driver = new ChromeDriver();
-            var dir = GetType().Assembly.Location;
-            for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
-
-            _driver.Url = Path.Combine(dir, @"Test\Controls.html");
+            _driver.Url = this.GetHtmlUrl();
         }
 
         [TestCleanup]
@@ -74,14 +83,38 @@ namespace Test
         {
             _driver.Dispose();
         }
+
+        [ClassInitialize]
+        public static void ClassInit(TestContext context) => ClassInitBase();
+
+        [ClassCleanup]
+        public static void ClassCleanup() => ClassCleanupBase();
     }
 
     public abstract class CefSeleniumCompareTestBase
     {
+        protected static HtmlServer server = null;
+
+        protected static void ClassInitBase()
+        {
+            var dir = typeof(CefSeleniumCompareTestBase).Assembly.Location;
+            for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
+
+            var file = Path.Combine(dir, @"Test\Controls.html");
+            server = HtmlServer.Create(File.ReadAllText(file));
+        }
+
+        protected static void ClassCleanupBase()
+        {
+            if (server != null) server.Close();
+        }
+
         public abstract IWebDriver GetDriver();
 
         private IJavaScriptExecutor GetExecutor() => (IJavaScriptExecutor)GetDriver();
-        
+
+        protected string GetHtmlUrl() => server?.Url;
+
         [TestMethod]
         public void ShouldReturnSameStringWhenExecuteReturnSingleQuotationStringJavaScript()
         {
@@ -213,6 +246,39 @@ namespace Test
             Assert.AreEqual("a", resultValue["A"]);
             Assert.AreEqual(123L, resultValue["B"]);
             Assert.AreEqual(false, resultValue["C"]);
+        }
+
+        [TestMethod]
+        public virtual void ShouldReturnPromiseResultWhenExecuteReturnSuccessPromiseJavaScript()
+        {
+            var result = GetExecutor().ExecuteScript("return new Promise((resolve, reject) => {  setTimeout(() => resolve(123), 1000); });");
+            Assert.AreEqual(123L, result);
+        }
+
+        [TestMethod]
+        public void ShouldReturnLikeJavaScriptObjectResultWhenExecuteReturnFunctionJavaScript()
+        {
+            var value = GetExecutor().ExecuteScript(@"
+const f = function() { return 123; }; 
+f.A = 'a';
+f.B = function() {
+  return 345;
+}
+f.B.AA = 'aa';
+f.B.BB = 345;
+return f;");
+
+            Assert.IsInstanceOfType(value, typeof(Dictionary<string, object>));
+
+            var resultValue = (Dictionary<string, object>)value;
+            Assert.AreEqual(2, resultValue.Count);
+            Assert.AreEqual("a", resultValue["A"]);
+
+            Assert.IsInstanceOfType(resultValue["B"], typeof(Dictionary<string, object>));
+            var bValue = (Dictionary<string, object>)resultValue["B"];
+            Assert.AreEqual("aa", bValue["AA"]);
+            Assert.AreEqual(345L, bValue["BB"]);
+
         }
 
         [TestMethod]
