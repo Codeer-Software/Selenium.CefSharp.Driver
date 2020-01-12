@@ -37,7 +37,7 @@ namespace Selenium.CefSharp.Driver
         }
 
         public void Click()
-            => _driver.ExecuteScriptInternal(JS.Click(_index));
+            => _driver.ExecuteScript(JS.Click(_index));
 
         public IWebElement FindElement(By by)
         {
@@ -51,7 +51,7 @@ namespace Selenium.CefSharp.Driver
 
         public string GetAttribute(string attributeName)
         {
-            throw new System.NotImplementedException();
+            return _driver.ExecuteScript(JS.GetAttribute(this._index, attributeName)) as string;
         }
 
         public string GetCssValue(string propertyName)

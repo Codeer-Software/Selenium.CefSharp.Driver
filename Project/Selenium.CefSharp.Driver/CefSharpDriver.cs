@@ -51,29 +51,63 @@ namespace Selenium.CefSharp.Driver
         public IWebElement FindElement(By by)
         {
             var text = by.ToString();
-            if (text.Contains("By.Id:"))
+            var script = "";
+            if(text.StartsWith("By.Id:"))
             {
-                var id = text.Substring("By.Id:".Length).Trim();
-                var scr = JS.FindElementById(id);
-                return new CefSharpWebElement(this, (int)ExecuteScriptInternal(scr));
+                script = $"return document.getElementById('{text.Substring("By.Id:".Length).Trim()}');";
             }
-            return null;
+            if (text.StartsWith("By.Name:"))
+            {
+                script = $"return document.getElementsByName('{text.Substring("By.Name:".Length).Trim()}')[0];";
+            }
+            if (text.StartsWith("By.ClassName[Contains]:"))
+            {
+                script = $"return document.getElementsByClassName('{text.Substring("By.ClassName[Contains]:".Length).Trim()}')[0];";
+            }
+            if (text.StartsWith("By.CssSelector:"))
+            {
+                script = $"return document.querySelector(\"{text.Substring("By.CssSelector:".Length).Trim()}\");";
+            }
+            if (text.StartsWith("By.TagName:"))
+            {
+                script = $"return document.getElementsByTagName('{text.Substring("By.TagName:".Length).Trim()}')[0];";
+            }
+            if (!(ExecuteScript(script) is CefSharpWebElement result))
+            {
+                throw new NoSuchElementException($"Element not found: {text}");
+            }
+            return result;
         }
 
         public ReadOnlyCollection<IWebElement> FindElements(By by)
         {
-            var list = new List<IWebElement>();
-
+            //TODO: XSSのような対策が必要。たとえばBy.IDで"Foo Bar"と指定された場合にquerySelectorでは Foo IDの孫の Bar 要素になってしまう。
             var text = by.ToString();
-            if (text.Contains("By.Id:"))
+            var script = "";
+            if (text.StartsWith("By.Id:"))
             {
-                //id is only one in the html.
-                var id = text.Substring("By.Id:".Length).Trim();
-                var scr = JS.FindElementById(id);
-                list.Add(new CefSharpWebElement(this, (int)ExecuteScriptInternal(scr)));
+                script = $"return document.querySelectorAll('#{text.Substring("By.Id:".Length).Trim()}');";
             }
-
-            return new ReadOnlyCollection<IWebElement>(list);
+            if (text.StartsWith("By.Name:"))
+            {
+                script = $"return document.getElementsByName('{text.Substring("By.Name:".Length).Trim()}');";
+            }
+            if (text.StartsWith("By.ClassName[Contains]:"))
+            {
+                script = $"return document.getElementsByClassName('{text.Substring("By.ClassName[Contains]:".Length).Trim()}');";
+            }
+            if (text.StartsWith("By.CssSelector:"))
+            {
+                script = $"return document.querySelectorAll(\"{text.Substring("By.CssSelector:".Length).Trim()}\");";
+            }
+            if (text.StartsWith("By.TagName:"))
+            {
+                script = $"return document.getElementsByTagName('{text.Substring("By.TagName:".Length).Trim()}');";
+            }
+            if (!(ExecuteScript(script) is ReadOnlyCollection<IWebElement> result)) {
+                return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
+            }
+            return result;
         }
 
         public INavigation Navigate() => new CefSharpNavigation(this);
@@ -112,10 +146,19 @@ namespace Selenium.CefSharp.Driver
         {
             WaitForLoading();
             dynamic initializeResult = ExecuteScriptCore(JS.Initialize);
+            
             dynamic execResult = ExecuteScriptCore(script, args);
             if(!(bool)execResult.Success)
             {
-                throw new WebDriverException((string)execResult.Message);
+                var errorMessage = (string)execResult.Message;
+                // TODO: なんかパターン化する
+                var formattedErrorMessage = errorMessage.Split('\n')[0].Substring("Uncaught".Length).Trim();
+                if(formattedErrorMessage == "EntriedElementNotFound")
+                {
+                    throw new StaleElementReferenceException(
+                        "stale element reference: element is not attached to the page document");
+                } 
+                throw new WebDriverException(errorMessage);
             }
             return App.Type<JSResultConverter>().ConvertToSelializable(execResult.Result);
         }
@@ -138,9 +181,11 @@ namespace Selenium.CefSharp.Driver
 
             return result;
         }
-        
+
+        private const string HtmlElementEntryIdStringPrefix = "$$_selemniumCefSharpDriverEntryId:";
+        private const string HtmlElementEntryIdListStringPrefix = "$$_selemniumCefSharpDriverEntryIdList:";
         // 日付文字列はブラウザロケーションの影響なども受ける可能性があるため、JavaScript内で変換できるものは変換しておく
-        private static string ConvertResultInJavaScriptString = @"
+        private const string ConvertResultInJavaScriptString = @"
 return (function convert(val){
 const toStr = Object.prototype.toString;
 if(toStr.call(val) === '[object Array]') {
@@ -161,6 +206,25 @@ if(toStr.call(val) === '[object Function]' || toStr.call(val) === '[object Objec
         return v;
     }, {});
 }
+if(val === window) {
+    throw 'ExpectReturnWindowReference\nCannot return window object';
+}
+if(val instanceof HTMLElement || val instanceof Node) { // Document type not support
+    if(val.nodeType !== Node.ELEMENT_NODE) {
+        throw 'ExpectReturnNonElementReference\nCannot return non element node';
+    }
+    const entryId = window.__seleniumCefSharpDriver.entryElement(val);
+    return `" + HtmlElementEntryIdStringPrefix + @"${entryId}`;
+}
+if(val instanceof HTMLCollection || val instanceof NodeList) {
+    const entryIds = Array.prototype.slice.call(val).map(elem => {
+        if(elem.nodeType !== Node.ELEMENT_NODE) {
+            throw 'ExpectReturnNonElementReference\nCannot return non element node';
+        }
+        return window.__seleniumCefSharpDriver.entryElement(elem);
+    }).join(',');
+    return `" + HtmlElementEntryIdListStringPrefix + @"${entryIds}`;
+}
 return val;
 })(result)";
 
@@ -178,6 +242,25 @@ return val;
             if (value is Dictionary<string, object> dic)
             {
                 return dic.ToDictionary(e => e.Key, e => ConvertExecuteScriptResult(e.Value));
+            }
+            if (value is string stringValue)
+            {
+                if(stringValue.StartsWith(HtmlElementEntryIdStringPrefix))
+                {
+                    if(int.TryParse(stringValue.Substring(HtmlElementEntryIdStringPrefix.Length), out var val)) 
+                    {
+                        return new CefSharpWebElement(this, val);
+                    }
+                }
+                if (stringValue.StartsWith(HtmlElementEntryIdListStringPrefix))
+                {
+                    var ids = stringValue.Substring(HtmlElementEntryIdListStringPrefix.Length).Split(',');
+                    if(ids.Select(id => id.Trim()).All(id => int.TryParse(id, out _)))
+                    {
+                        return new ReadOnlyCollection<IWebElement>(
+                            ids.Select(id => int.Parse(id)).Select(id => (IWebElement)new CefSharpWebElement(this, id)).ToList());
+                    }
+                }
             }
             return value;
         }

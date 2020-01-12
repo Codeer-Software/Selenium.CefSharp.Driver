@@ -53,10 +53,18 @@ namespace Test
             listener.BeginGetContext(callback, null);
         }
         
-        public static HtmlServer Create(string html)
+        public static HtmlServer CreateFromHtmlString(string html)
         {
             var address = GetLocalhostAddress();
             var server = new HtmlServer(address, html);
+            server.Start();
+            return server;
+        }
+
+        public static HtmlServer CreateFromFile(string path)
+        {
+            var address = GetLocalhostAddress();
+            var server = new HtmlServer(address, File.ReadAllText(path));
             server.Start();
             return server;
         }
