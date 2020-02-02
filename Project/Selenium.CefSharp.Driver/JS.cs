@@ -40,22 +40,30 @@
 })();
 ";
 
+        public static string FindElementByEntryIdScriptBody(int id)
+            => $"window.__seleniumCefSharpDriver.getElementByEntryId({id})";
+
         public static string FindElementById(string id)
             => $@"return window.__seleniumCefSharpDriver.entryElement(document.getElementById('{id}'));";
 
         public static string GetAttribute(int id, string attrName) => $@"
-const elem = window.__seleniumCefSharpDriver.getElementByEntryId({id});
+const elem = {FindElementByEntryIdScriptBody(id)};
 return elem.getAttribute('{attrName}');";
+
+        public static string GetProperty(int id, string propName) => $@"
+const elem = {FindElementByEntryIdScriptBody(id)};
+return elem['{propName}'];";
+
 
         public static string Click(int index)
             => $@"
-var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+const element = {FindElementByEntryIdScriptBody(index)};
 window.__seleniumCefSharpDriver.showAndSelectElement(element);
 element.click();
 ";
         public static string Focus(int index)
     => $@"
-var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+const element = {FindElementByEntryIdScriptBody(index)};
 window.__seleniumCefSharpDriver.showAndSelectElement(element);
 ";
     }

@@ -71,6 +71,7 @@
     <Compile Include="CefSharpTargetLocator.cs" />
     <Compile Include="CefSharpWebElement.cs" />
     <Compile Include="JS.cs" />
+    <Compile Include="JsUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
