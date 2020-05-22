@@ -77,7 +77,7 @@ namespace Selenium.CefSharp.Driver
 
         public string GetProperty(string propertyName)
         {
-            throw new System.NotImplementedException();
+            return _driver.ExecuteScript(JS.GetProperty(this._index, propertyName)) as string;
         }
 
         public void SendKeys(string text)
@@ -93,6 +93,11 @@ namespace Selenium.CefSharp.Driver
         public void Submit()
         {
             throw new System.NotImplementedException();
+        }
+
+        internal int Id
+        {
+            get { return this._index; }
         }
     }
 }

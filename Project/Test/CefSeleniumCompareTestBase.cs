@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Test
 {
@@ -588,6 +589,153 @@ document.body.appendChild(elem);");
             var element = GetDriver().FindElement(By.Id("disabletest"));
             var x = element.Displayed;
 
+        }
+        // Parameter
+
+        private void SetupParameterCheckScript()
+        {
+            GetExecutor().ExecuteScript(@"window._paramcheck = function(params) {
+    const args = Array.prototype.slice.call(params);
+    return args.map(p => { return {type: Object.prototype.toString.call(p), value: p};});
+};");
+        }
+
+        private List<(string type, object value)> ToCheckResult(object value)
+        {
+            var res = (ReadOnlyCollection<object>)value;
+            return res.Select(o =>
+            {
+                var v = (Dictionary<string, object>)o;
+                return (v["type"].ToString(), v["value"]);
+            }).ToList();
+        }
+
+        private List<(string type, object value)> ExecuteParameterCheckString(params object[] args)
+        {
+            SetupParameterCheckScript();
+            return ToCheckResult(GetExecutor().ExecuteScript("return window._paramcheck(arguments);", args));
+        }
+
+        [TestMethod]
+        public void IntTypeParameterShouldPassedInNumberType()
+        {
+            var value = ExecuteParameterCheckString(123);
+            Assert.AreEqual(1, value.Count);
+            Assert.AreEqual("[object Number]", value[0].type);
+            Assert.AreEqual(123L, value[0].value);
+        }
+        
+        [TestMethod]
+        public void MultiParametersShouldPassedMultiArguments()
+        {
+            var value = ExecuteParameterCheckString(123, true, "ABC", 456, 354.234);
+            Assert.AreEqual(5, value.Count);
+        }
+
+        [TestMethod]
+        public void BoolTypeParameterShouldPassedInBooleanType()
+        {
+            var value = ExecuteParameterCheckString(true, false);
+            Assert.AreEqual(2, value.Count);
+            Assert.AreEqual("[object Boolean]", value[0].type);
+            Assert.AreEqual(true, value[0].value);
+            Assert.AreEqual("[object Boolean]", value[1].type);
+            Assert.AreEqual(false, value[1].value);
+        }
+
+        [TestMethod]
+        public void NullParameterShouldPassedInNull()
+        {
+            var value = ExecuteParameterCheckString(new object[] { null });
+            Assert.AreEqual(1, value.Count);
+            Assert.AreEqual("[object Null]", value[0].type);
+            Assert.IsNull(value[0].value);
+        }
+        
+        [TestMethod]
+        public void StringTypeParamterShouldPassedInStringType()
+        {
+            var paramValue = @"改行を含む文字列。
+どうなるか。そのほか、エスケープも必要。
+ダブルクォーテーションとか("")シングルクォーテーションとか'バックスラッシュもそう\\タブ文字とかもあるね\t!";
+
+            var value = ExecuteParameterCheckString(paramValue);
+
+            Assert.AreEqual(1, value.Count);
+            Assert.AreEqual("[object String]", value[0].type);
+            Assert.AreEqual(paramValue, value[0].value);
+        }
+
+        [TestMethod]
+        public void ArrayTypeParameterShouldPassedInArrayType()
+        {
+            IEnumerableParameterShouldPassedInArrayType(new object[] { 1, true, "text" });
+        }
+
+        [TestMethod]
+        public void ListTypeParameterShouldPassedInArrayType()
+        {
+            IEnumerableParameterShouldPassedInArrayType(new List<object> { 1, true, "text" });
+        }
+
+        [TestMethod]
+        public void ReadOnlyCollectionParameterShouldPassedInArrayType()
+        {
+            IEnumerableParameterShouldPassedInArrayType(new ReadOnlyCollection<object>(new List<object> { 1, true, "text" }));
+        }
+
+        private void IEnumerableParameterShouldPassedInArrayType(IEnumerable<object> paramValue)
+        {
+            var value = ExecuteParameterCheckString(new object[] { paramValue });
+
+            Assert.AreEqual(1, value.Count);
+            Assert.AreEqual("[object Array]", value[0].type);
+
+            Assert.IsInstanceOfType(value[0].value, typeof(ReadOnlyCollection<object>));
+
+            var values = value[0].value as ReadOnlyCollection<object>;
+            var param = paramValue.ToList();
+            Assert.AreEqual(Convert.ToInt64(param[0]), values[0]);
+            Assert.AreEqual(param[1], values[1]);
+            Assert.AreEqual(param[2], values[2]);
+        }
+
+        [TestMethod]
+        public void DictionalyParameterShouldPassedInObjectType()
+        {
+            var param = new Dictionary<string, object>()
+            {
+                { "key1", 123 }, { "key2", "ABCD" }, { "key3", true }
+            };
+            var value = ExecuteParameterCheckString(param);
+
+            Assert.AreEqual(1, value.Count);
+            Assert.AreEqual("[object Object]", value[0].type);
+            var values = value[0].value as Dictionary<string, object>;
+
+            Assert.AreEqual(param.Count, values.Count);
+            Assert.AreEqual(Convert.ToInt64(param["key1"]), values["key1"]);
+            Assert.AreEqual(param["key2"], values["key2"]);
+            Assert.AreEqual(param["key3"], values["key3"]);
+        }
+
+        [TestMethod]
+        public void ShouldThrowExceptionWhenPassedUnsupportedParameterType()
+        {
+            var paramValue = new Regex("[ABC]");
+            Assert.ThrowsException<ArgumentException>(() => ExecuteParameterCheckString(paramValue));
+        }
+
+        [TestMethod]
+        public void WebElementParameterShouldPassedInElement()
+        {
+            var input = GetDriver().FindElement(By.Id("textBoxName"));
+            var oldvalue = input.GetProperty("value");
+            var newvalue = DateTime.Now.ToString();
+            GetExecutor().ExecuteScript("arguments[0].value = arguments[1];", input, newvalue);
+
+            Assert.AreNotEqual(oldvalue, newvalue);
+            Assert.AreEqual(newvalue, input.GetProperty("value"));
         }
     }
 }

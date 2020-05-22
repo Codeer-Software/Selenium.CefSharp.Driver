@@ -177,7 +177,7 @@ namespace Selenium.CefSharp.Driver
             //   return toCSharpObject(result);
             // })();
 
-            var result = $"(function() {{ const result = (function() {{ {script} }})(); \r\n {ConvertResultInJavaScriptString} }})();";
+            var result = $"(function() {{ const result = (function() {{ {script} }})({ConvertScriptParameters(args)}); \r\n {ConvertResultInJavaScriptString} }})();";
 
             return result;
         }
@@ -263,6 +263,58 @@ return val;
                 }
             }
             return value;
+        }
+
+        private string ConvertScriptParameters(object[] args)
+        {
+            if (args == null) return string.Empty;
+            return string.Join(",", args.Select(v => ConvertScriptParameter(v)));
+        }
+
+        private string ConvertScriptParameter(object v)
+        {
+            if (v == null) return "null";
+            if (IsNumericType(v)) return v.ToString();
+            if (v is bool) return ((bool)v).ToString().ToLower();
+            if (v is string) return $"\"{JsUtils.ToJsEscapedString(v.ToString())}\"";
+            if (v is CefSharpWebElement)
+            {
+                return JS.FindElementByEntryIdScriptBody(((CefSharpWebElement)v).Id);
+            }
+            if (v is IDictionary)
+            {
+                var dic = (IDictionary)v;
+                return "{" + string.Join(",", dic.Keys.OfType<object>()
+                    .Select(key => $"\"{key.ToString()}\":{ConvertScriptParameter(dic[key])}"))
+                    + "}";
+            }
+            if (v is IEnumerable)
+            {
+                return 
+                    $"[{string.Join(",", ((IEnumerable)v).OfType<object>().Select(v1 => ConvertScriptParameter(v1)))}]";
+            }
+            throw new ArgumentException($"Argument is of an illegal type[${v}]");
+        }
+
+        private bool IsNumericType(object o)
+        {
+            switch (Type.GetTypeCode(o.GetType()))
+            {
+                case TypeCode.Byte:
+                case TypeCode.SByte:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Single:
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         void ExecuteScriptAsyncCore(string src)
