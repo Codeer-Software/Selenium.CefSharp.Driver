@@ -731,12 +731,13 @@ document.body.appendChild(elem);");
             element.Size.Is(new System.Drawing.Size(173, 21));
         }
 
+        /*
         [TestMethod]
         public void Displayed()
         {
             var element = GetDriver().FindElement(By.Id("disabletest"));
             var x = element.Displayed;
 
-        }
+        }*/
     }
 }
