@@ -53,10 +53,59 @@ var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
 window.__seleniumCefSharpDriver.showAndSelectElement(element);
 element.click();
 ";
+
         public static string Focus(int index)
     => $@"
 var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
 window.__seleniumCefSharpDriver.showAndSelectElement(element);
+";
+        public static string GetTagName(int index)
+    => $@"
+var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+return element.tagName;
+";
+
+        public static string GetInnerHTML(int index)
+    => $@"
+var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+return element.innerHTML;
+";
+
+        public static string GetDisabled(int index)
+    => $@"
+var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+return element.disabled;
+";
+        public static string GetSelected(int index)
+    => $@"
+var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+if ('selected' in element) return element.selected;
+if ('checked' in element) return element.checked;
+return false;
+";
+
+        public static string GetBoundingClientRectX(int index)
+    => $@"
+var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+return element.getBoundingClientRect().x;
+";
+
+        public static string GetBoundingClientRectY(int index)
+    => $@"
+var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+return element.getBoundingClientRect().y;
+";
+
+        public static string GetBoundingClientRectWidth(int index)
+    => $@"
+var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+return element.getBoundingClientRect().width;
+";
+
+        public static string GetBoundingClientRectHeight(int index)
+    => $@"
+var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+return element.getBoundingClientRect().height;
 ";
     }
 }

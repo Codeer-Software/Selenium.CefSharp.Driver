@@ -17,17 +17,33 @@ namespace Selenium.CefSharp.Driver
             _index = index;
         }
 
-        public string TagName => throw new System.NotImplementedException();
+        public string TagName => (_driver.ExecuteScript(JS.GetTagName(this._index)) as string)?.ToLower();
 
-        public string Text => throw new System.NotImplementedException();
+        public string Text => _driver.ExecuteScript(JS.GetInnerHTML(this._index)) as string;
 
-        public bool Enabled => throw new System.NotImplementedException();
+        public bool Enabled => !(bool)_driver.ExecuteScript(JS.GetDisabled(this._index));
 
-        public bool Selected => throw new System.NotImplementedException();
+        public bool Selected => (bool)_driver.ExecuteScript(JS.GetSelected(this._index));
 
-        public Point Location => throw new System.NotImplementedException();
+        public Point Location
+        {
+            get
+            {
+                var x = (long)_driver.ExecuteScript(JS.GetBoundingClientRectX(this._index));
+                var y = (long)_driver.ExecuteScript(JS.GetBoundingClientRectY(this._index));
+                return new Point((int)x, (int)y);
+            }
+        }
 
-        public Size Size => throw new System.NotImplementedException();
+        public Size Size
+        {
+            get
+            {
+                var w = (long)_driver.ExecuteScript(JS.GetBoundingClientRectWidth(this._index));
+                var h = (long)_driver.ExecuteScript(JS.GetBoundingClientRectHeight(this._index));
+                return new Size((int)w, (int)h);
+            }
+        }
 
         public bool Displayed => throw new System.NotImplementedException();
 

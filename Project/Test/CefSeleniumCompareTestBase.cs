@@ -69,7 +69,7 @@ namespace Test
 
         public override IWebDriver GetDriver() => _driver;
 
-        
+
         [TestInitialize]
         public void initialize()
         {
@@ -203,7 +203,7 @@ namespace Test
             // selenium (のChrome Driver) は ReadOnlyCollection を返す模様
             var value = GetExecutor().ExecuteScript("return [123, 456, 789]");
             Assert.AreEqual(typeof(ReadOnlyCollection<object>), value.GetType());
-            
+
             var expectValues = new[] { 123L, 456L, 789L };
             var resultValues = (ReadOnlyCollection<object>)value;
 
@@ -346,7 +346,7 @@ return f;");
                 "return Array.prototype.slice.call(document.querySelector('form').childNodes)" +
                 ".filter(n => n.nodeType !== Node.ELEMENT_NODE)[0]"));
         }
-        
+
         //FindElement(s)ById
 
         [TestMethod]
@@ -530,5 +530,64 @@ document.body.appendChild(elem);");
             element.SendKeys("ABC");
         }
 
+        [TestMethod]
+        public void TagName()
+        {
+            var element = GetDriver().FindElement(By.Id("textBoxName"));
+            element.TagName.Is("input");
+        }
+
+        [TestMethod]
+        public void Text()
+        {
+            var element = GetDriver().FindElement(By.Id("labelTitle"));
+            element.Text.Is("Title Controls");
+        }
+
+        [TestMethod]
+        public void Enabled()
+        {
+            GetDriver().FindElement(By.Id("textBoxName")).Enabled.IsTrue();
+            GetDriver().FindElement(By.Id("disabletest")).Enabled.IsFalse();
+        }
+
+        [TestMethod]
+        public void Selected()
+        {
+            var checkBox = GetDriver().FindElement(By.Id("checkBoxCellPhone"));
+            checkBox.Selected.IsFalse();
+            checkBox.Click();
+            checkBox.Selected.IsTrue();
+
+            GetDriver().FindElement(By.Id("opt0")).Selected.IsTrue();
+            GetDriver().FindElement(By.Id("opt1")).Selected.IsFalse();
+
+            GetDriver().FindElement(By.Id("radioMan")).Selected.IsTrue();
+            GetDriver().FindElement(By.Id("radioWoman")).Selected.IsFalse();
+        }
+
+        [TestMethod]
+        public void Location()
+        {
+            var element = GetDriver().FindElement(By.Id("textBoxName"));
+            var x = element.Location;
+
+            //Different from browser
+        }
+
+        [TestMethod]
+        public void Size()
+        {
+            var element = GetDriver().FindElement(By.Id("textBoxName"));
+            element.Size.Is(new System.Drawing.Size(173, 21));
+        }
+
+        [TestMethod]
+        public void Displayed()
+        {
+            var element = GetDriver().FindElement(By.Id("disabletest"));
+            var x = element.Displayed;
+
+        }
     }
 }
