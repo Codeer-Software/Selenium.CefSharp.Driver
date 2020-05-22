@@ -531,65 +531,6 @@ document.body.appendChild(elem);");
             element.SendKeys("ABC");
         }
 
-        [TestMethod]
-        public void TagName()
-        {
-            var element = GetDriver().FindElement(By.Id("textBoxName"));
-            element.TagName.Is("input");
-        }
-
-        [TestMethod]
-        public void Text()
-        {
-            var element = GetDriver().FindElement(By.Id("labelTitle"));
-            element.Text.Is("Title Controls");
-        }
-
-        [TestMethod]
-        public void Enabled()
-        {
-            GetDriver().FindElement(By.Id("textBoxName")).Enabled.IsTrue();
-            GetDriver().FindElement(By.Id("disabletest")).Enabled.IsFalse();
-        }
-
-        [TestMethod]
-        public void Selected()
-        {
-            var checkBox = GetDriver().FindElement(By.Id("checkBoxCellPhone"));
-            checkBox.Selected.IsFalse();
-            checkBox.Click();
-            checkBox.Selected.IsTrue();
-
-            GetDriver().FindElement(By.Id("opt0")).Selected.IsTrue();
-            GetDriver().FindElement(By.Id("opt1")).Selected.IsFalse();
-
-            GetDriver().FindElement(By.Id("radioMan")).Selected.IsTrue();
-            GetDriver().FindElement(By.Id("radioWoman")).Selected.IsFalse();
-        }
-
-        [TestMethod]
-        public void Location()
-        {
-            var element = GetDriver().FindElement(By.Id("textBoxName"));
-            var x = element.Location;
-
-            //Different from browser
-        }
-
-        [TestMethod]
-        public void Size()
-        {
-            var element = GetDriver().FindElement(By.Id("textBoxName"));
-            element.Size.Is(new System.Drawing.Size(173, 21));
-        }
-
-        [TestMethod]
-        public void Displayed()
-        {
-            var element = GetDriver().FindElement(By.Id("disabletest"));
-            var x = element.Displayed;
-
-        }
         // Parameter
 
         private void SetupParameterCheckScript()
@@ -736,6 +677,66 @@ document.body.appendChild(elem);");
 
             Assert.AreNotEqual(oldvalue, newvalue);
             Assert.AreEqual(newvalue, input.GetProperty("value"));
+        }
+
+        [TestMethod]
+        public void TagName()
+        {
+            var element = GetDriver().FindElement(By.Id("textBoxName"));
+            element.TagName.Is("input");
+        }
+
+        [TestMethod]
+        public void Text()
+        {
+            var element = GetDriver().FindElement(By.Id("labelTitle"));
+            element.Text.Is("Title Controls");
+        }
+
+        [TestMethod]
+        public void Enabled()
+        {
+            GetDriver().FindElement(By.Id("textBoxName")).Enabled.IsTrue();
+            GetDriver().FindElement(By.Id("disabletest")).Enabled.IsFalse();
+        }
+
+        [TestMethod]
+        public void Selected()
+        {
+            var checkBox = GetDriver().FindElement(By.Id("checkBoxCellPhone"));
+            checkBox.Selected.IsFalse();
+            checkBox.Click();
+            checkBox.Selected.IsTrue();
+
+            GetDriver().FindElement(By.Id("opt0")).Selected.IsTrue();
+            GetDriver().FindElement(By.Id("opt1")).Selected.IsFalse();
+
+            GetDriver().FindElement(By.Id("radioMan")).Selected.IsTrue();
+            GetDriver().FindElement(By.Id("radioWoman")).Selected.IsFalse();
+        }
+
+        [TestMethod]
+        public void Location()
+        {
+            var element = GetDriver().FindElement(By.Id("textBoxName"));
+            var x = element.Location;
+
+            //Different from browser
+        }
+
+        [TestMethod]
+        public void Size()
+        {
+            var element = GetDriver().FindElement(By.Id("textBoxName"));
+            element.Size.Is(new System.Drawing.Size(173, 21));
+        }
+
+        [TestMethod]
+        public void Displayed()
+        {
+            var element = GetDriver().FindElement(By.Id("disabletest"));
+            var x = element.Displayed;
+
         }
     }
 }
