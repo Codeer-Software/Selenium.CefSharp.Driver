@@ -760,5 +760,48 @@ document.body.appendChild(elem);");
             var element = GetDriver().FindElement(By.Id("form"));
             element.Submit();
         }
+
+
+
+        [TestMethod]
+        public void a_ShouldGetFirstElementWhenUsedFindElementById()
+        {
+            var element = GetDriver().FindElement(By.ClassName("bytest")).FindElement(By.Id("idtest"));
+            var dataKey = element.GetAttribute("data-key");
+            Assert.AreEqual("1", dataKey);
+        }
+
+
+        [TestMethod]
+        public void a_ShouldGetFirstElementWhenUsedFindElementByName()
+        {
+            var element = GetDriver().FindElement(By.ClassName("bytest")).FindElement(By.Name("nametest"));
+            var dataKey = element.GetAttribute("data-key");
+            Assert.AreEqual("1", dataKey);
+        }
+
+        [TestMethod]
+        public void a_ShouldGetFirstElementWhenUsedFindElementByClassName()
+        {
+            var element = GetDriver().FindElement(By.ClassName("bytest")).FindElement(By.ClassName("classtest"));
+            var dataKey = element.GetAttribute("data-key");
+            Assert.AreEqual("1", dataKey);
+        }
+
+        [TestMethod]
+        public void a_ShouldGetFirstElementWhenUsedFindElementByTagName()
+        {
+            var element = GetDriver().FindElement(By.ClassName("bytest")).FindElement(By.TagName("tagtest"));
+            var dataKey = element.GetAttribute("data-key");
+            Assert.AreEqual("1", dataKey);
+        }
+
+        [TestMethod]
+        public void a_ShouldGetFirstElementWhenUsedFindElementByCssSelector()
+        {
+            var element = GetDriver().FindElement(By.ClassName("bytest")).FindElement(By.CssSelector("#idtest[name='nametest']"));
+            var dataKey = element.GetAttribute("data-key");
+            Assert.AreEqual("1", dataKey);
+        }
     }
 }

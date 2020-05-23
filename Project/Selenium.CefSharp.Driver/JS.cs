@@ -158,5 +158,22 @@ return style['{propertyName}'];
 const element = {FindElementByEntryIdScriptBody(index)};
 element.submit();
 ";
+
+        public static string FindElementByProp(int index, string prop, string value)
+        => $@"
+var element = {FindElementByEntryIdScriptBody(index)};
+for(var i = 0; i < element.children.length; i++) {{
+    if (element.children[i].{prop} == '{value}') return element.children[i];
+}}
+return null;";
+
+        public static string FindElementByPropIgnoreCase(int index, string prop, string value)
+        => $@"
+var element = {FindElementByEntryIdScriptBody(index)};
+for(var i = 0; i < element.children.length; i++) {{
+    if (element.children[i].{prop}.toUpperCase() == '{value.ToUpper()}') return element.children[i];
+}}
+return null;";
+
     }
 }
