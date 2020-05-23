@@ -50,6 +50,10 @@
 const elem = {FindElementByEntryIdScriptBody(id)};
 return elem.getAttribute('{attrName}');";
 
+        public static string SetAttribute(int id, string attrName, string value) => $@"
+const elem = {FindElementByEntryIdScriptBody(id)};
+return elem.setAttribute('{attrName}', '{value}');";
+
         public static string GetProperty(int id, string propName) => $@"
 const elem = {FindElementByEntryIdScriptBody(id)};
 return elem['{propName}'];";
@@ -114,6 +118,33 @@ return element.getBoundingClientRect().width;
     => $@"
 var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
 return element.getBoundingClientRect().height;
+";
+
+        public static string GetDisplayed(int index)
+    => $@"
+var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+" + @"
+  if (element.offsetParent === null) {
+    return false;
+  }
+
+  var target = element;
+  do {
+    var style = getComputedStyle(target);
+
+    if (style.display === 'none'
+      || style.visibility !== 'visible'
+      || parseFloat(style.opacity || '') <= 0.0
+      || parseInt(style.height || '', 10) <= 0
+      || parseInt(style.width || '', 10) <= 0
+    ) {
+      return false;
+    }
+
+    target = target.parentElement;
+  } while (target !== null)
+
+  return true;
 ";
     }
 }

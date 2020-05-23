@@ -731,13 +731,20 @@ document.body.appendChild(elem);");
             element.Size.Is(new System.Drawing.Size(173, 21));
         }
 
-        /*
         [TestMethod]
         public void Displayed()
         {
-            var element = GetDriver().FindElement(By.Id("disabletest"));
-            var x = element.Displayed;
+            GetDriver().FindElement(By.Id("disabletest")).Displayed.IsTrue();
+            GetDriver().FindElement(By.Id("not_displayed")).Displayed.IsFalse();
+        }
 
-        }*/
+        [TestMethod]
+        public void Clear()
+        {
+            var element = GetDriver().FindElement(By.Id("textBoxName"));
+            element.GetAttribute("value").Is("ABCDE");
+            element.Clear();
+            element.GetAttribute("value").Is("");
+        }
     }
 }

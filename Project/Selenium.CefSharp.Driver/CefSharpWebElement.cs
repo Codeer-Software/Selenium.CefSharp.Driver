@@ -9,28 +9,28 @@ namespace Selenium.CefSharp.Driver
     public class CefSharpWebElement : IWebElement
     {
         private CefSharpDriver _driver;
-        private int _index;
+        internal int Id { get; }
 
         public CefSharpWebElement(CefSharpDriver driver, int index)
         {
             _driver = driver;
-            _index = index;
+            Id = index;
         }
 
-        public string TagName => (_driver.ExecuteScript(JS.GetTagName(this._index)) as string)?.ToLower();
+        public string TagName => (_driver.ExecuteScript(JS.GetTagName(this.Id)) as string)?.ToLower();
 
-        public string Text => _driver.ExecuteScript(JS.GetInnerHTML(this._index)) as string;
+        public string Text => _driver.ExecuteScript(JS.GetInnerHTML(this.Id)) as string;
 
-        public bool Enabled => !(bool)_driver.ExecuteScript(JS.GetDisabled(this._index));
+        public bool Enabled => !(bool)_driver.ExecuteScript(JS.GetDisabled(this.Id));
 
-        public bool Selected => (bool)_driver.ExecuteScript(JS.GetSelected(this._index));
+        public bool Selected => (bool)_driver.ExecuteScript(JS.GetSelected(this.Id));
 
         public Point Location
         {
             get
             {
-                var x = (long)_driver.ExecuteScript(JS.GetBoundingClientRectX(this._index));
-                var y = (long)_driver.ExecuteScript(JS.GetBoundingClientRectY(this._index));
+                var x = (long)_driver.ExecuteScript(JS.GetBoundingClientRectX(this.Id));
+                var y = (long)_driver.ExecuteScript(JS.GetBoundingClientRectY(this.Id));
                 return new Point((int)x, (int)y);
             }
         }
@@ -39,21 +39,19 @@ namespace Selenium.CefSharp.Driver
         {
             get
             {
-                var w = (long)_driver.ExecuteScript(JS.GetBoundingClientRectWidth(this._index));
-                var h = (long)_driver.ExecuteScript(JS.GetBoundingClientRectHeight(this._index));
+                var w = (long)_driver.ExecuteScript(JS.GetBoundingClientRectWidth(this.Id));
+                var h = (long)_driver.ExecuteScript(JS.GetBoundingClientRectHeight(this.Id));
                 return new Size((int)w, (int)h);
             }
         }
 
-        public bool Displayed => throw new System.NotImplementedException();
+        public bool Displayed => (bool)_driver.ExecuteScript(JS.GetDisplayed(this.Id));
 
         public void Clear()
-        {
-            throw new System.NotImplementedException();
-        }
+            => _driver.ExecuteScript(JS.SetAttribute(this.Id, "value", string.Empty));
 
         public void Click()
-            => _driver.ExecuteScript(JS.Click(_index));
+            => _driver.ExecuteScript(JS.Click(Id));
 
         public IWebElement FindElement(By by)
         {
@@ -67,7 +65,7 @@ namespace Selenium.CefSharp.Driver
 
         public string GetAttribute(string attributeName)
         {
-            return _driver.ExecuteScript(JS.GetAttribute(this._index, attributeName)) as string;
+            return _driver.ExecuteScript(JS.GetAttribute(this.Id, attributeName)) as string;
         }
 
         public string GetCssValue(string propertyName)
@@ -77,12 +75,12 @@ namespace Selenium.CefSharp.Driver
 
         public string GetProperty(string propertyName)
         {
-            return _driver.ExecuteScript(JS.GetProperty(this._index, propertyName)) as string;
+            return _driver.ExecuteScript(JS.GetProperty(this.Id, propertyName)) as string;
         }
 
         public void SendKeys(string text)
         {
-            _driver.ExecuteScriptInternal(JS.Focus(_index));
+            _driver.ExecuteScriptInternal(JS.Focus(Id));
 
             //TODO adjust text spec.
 
@@ -93,11 +91,6 @@ namespace Selenium.CefSharp.Driver
         public void Submit()
         {
             throw new System.NotImplementedException();
-        }
-
-        internal int Id
-        {
-            get { return this._index; }
         }
     }
 }
