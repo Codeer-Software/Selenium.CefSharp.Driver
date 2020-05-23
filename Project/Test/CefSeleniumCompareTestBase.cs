@@ -746,5 +746,19 @@ document.body.appendChild(elem);");
             element.Clear();
             element.GetAttribute("value").Is("");
         }
+
+        [TestMethod]
+        public void GetCssValue()
+        {
+            var element = GetDriver().FindElement(By.Id("not_displayed"));
+            element.GetCssValue("display").Is("none");
+        }
+
+        [TestMethod]
+        public void Submit()
+        {
+            var element = GetDriver().FindElement(By.Id("form"));
+            element.Submit();
+        }
     }
 }

@@ -58,7 +58,6 @@ return elem.setAttribute('{attrName}', '{value}');";
 const elem = {FindElementByEntryIdScriptBody(id)};
 return elem['{propName}'];";
 
-
         public static string Click(int index)
             => $@"
 const element = {FindElementByEntryIdScriptBody(index)};
@@ -124,27 +123,40 @@ return element.getBoundingClientRect().height;
     => $@"
 var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
 " + @"
-  if (element.offsetParent === null) {
+if (element.offsetParent === null) {
     return false;
-  }
+}
 
-  var target = element;
-  do {
-    var style = getComputedStyle(target);
+var target = element;
+do {
+var style = getComputedStyle(target);
 
-    if (style.display === 'none'
-      || style.visibility !== 'visible'
-      || parseFloat(style.opacity || '') <= 0.0
-      || parseInt(style.height || '', 10) <= 0
-      || parseInt(style.width || '', 10) <= 0
-    ) {
-      return false;
-    }
+if (style.display === 'none'
+    || style.visibility !== 'visible'
+    || parseFloat(style.opacity || '') <= 0.0
+    || parseInt(style.height || '', 10) <= 0
+    || parseInt(style.width || '', 10) <= 0
+) {
+    return false;
+}
 
-    target = target.parentElement;
-  } while (target !== null)
+target = target.parentElement;
+} while (target !== null)
 
-  return true;
+return true;
+";
+
+        public static string GetCssValue(int index, string propertyName)
+    => $@"
+var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+var style = getComputedStyle(element);
+return style['{propertyName}'];
+";
+
+        public static string Submit(int index)
+            => $@"
+const element = {FindElementByEntryIdScriptBody(index)};
+element.submit();
 ";
     }
 }

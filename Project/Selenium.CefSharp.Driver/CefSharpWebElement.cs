@@ -1,5 +1,4 @@
-﻿using Codeer.Friendly.Dynamic;
-using Codeer.Friendly.Windows.KeyMouse;
+﻿using Codeer.Friendly.Windows.KeyMouse;
 using OpenQA.Selenium;
 using System.Collections.ObjectModel;
 using System.Drawing;
@@ -53,30 +52,14 @@ namespace Selenium.CefSharp.Driver
         public void Click()
             => _driver.ExecuteScript(JS.Click(Id));
 
-        public IWebElement FindElement(By by)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public ReadOnlyCollection<IWebElement> FindElements(By by)
-        {
-            throw new System.NotImplementedException();
-        }
-
         public string GetAttribute(string attributeName)
-        {
-            return _driver.ExecuteScript(JS.GetAttribute(this.Id, attributeName)) as string;
-        }
+            => _driver.ExecuteScript(JS.GetAttribute(this.Id, attributeName)) as string;
 
         public string GetCssValue(string propertyName)
-        {
-            throw new System.NotImplementedException();
-        }
+            => _driver.ExecuteScript(JS.GetCssValue(this.Id, propertyName)) as string;
 
         public string GetProperty(string propertyName)
-        {
-            return _driver.ExecuteScript(JS.GetProperty(this.Id, propertyName)) as string;
-        }
+            => _driver.ExecuteScript(JS.GetProperty(this.Id, propertyName)) as string;
 
         public void SendKeys(string text)
         {
@@ -89,6 +72,14 @@ namespace Selenium.CefSharp.Driver
         }
 
         public void Submit()
+            => _driver.ExecuteScript(JS.Submit(this.Id));
+
+        public IWebElement FindElement(By by)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public ReadOnlyCollection<IWebElement> FindElements(By by)
         {
             throw new System.NotImplementedException();
         }
