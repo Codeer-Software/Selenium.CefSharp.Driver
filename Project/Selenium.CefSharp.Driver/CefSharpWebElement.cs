@@ -1,5 +1,6 @@
 ﻿using Codeer.Friendly.Windows.KeyMouse;
 using OpenQA.Selenium;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 
@@ -68,6 +69,8 @@ namespace Selenium.CefSharp.Driver
             //TODO adjust text spec.
 
             _driver.Activate();
+            
+            //TODO 丸山さん これもっといい方法ないですかねー
             _driver.App.SendKeys(text);
         }
 
@@ -109,7 +112,35 @@ return element.querySelector(""{text.Substring("By.CssSelector:".Length).Trim()}
 
         public ReadOnlyCollection<IWebElement> FindElements(By by)
         {
-            throw new System.NotImplementedException();
+            var text = by.ToString();
+            var script = "";
+            if (text.StartsWith("By.Id:"))
+            {
+                script = JS.FindElementsByProp(this.Id, "id", text.Substring("By.Id:".Length).Trim());
+            }
+            if (text.StartsWith("By.Name:"))
+            {
+                script = JS.FindElementsByProp(this.Id, "name", text.Substring("By.Name:".Length).Trim());
+            }
+            if (text.StartsWith("By.ClassName[Contains]:"))
+            {
+                script = JS.FindElementsByPropContains(this.Id, "className", text.Substring("By.ClassName[Contains]:".Length).Trim());
+            }
+            if (text.StartsWith("By.CssSelector:"))
+            {
+                script = $@"
+var element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
+return element.querySelectorAll(""{text.Substring("By.CssSelector:".Length).Trim()}"");";
+            }
+            if (text.StartsWith("By.TagName:"))
+            {
+                script = JS.FindElementsByPropIgnoreCase(this.Id, "tagName", text.Substring("By.TagName:".Length).Trim());
+            }
+            if (!(_driver.ExecuteScript(script) is ReadOnlyCollection<IWebElement> result))
+            {
+                return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
+            }
+            return result;
         }
     }
 }

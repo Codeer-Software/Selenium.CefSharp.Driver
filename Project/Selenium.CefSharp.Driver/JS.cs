@@ -175,5 +175,32 @@ for(var i = 0; i < element.children.length; i++) {{
 }}
 return null;";
 
+        public static string FindElementsByProp(int index, string prop, string value)
+        => $@"
+var element = {FindElementByEntryIdScriptBody(index)};
+var hits = [];
+for(var i = 0; i < element.children.length; i++) {{
+    if (element.children[i].{prop} == '{value}') hits.push(element.children[i]);
+}}
+return hits;";
+
+        public static string FindElementsByPropIgnoreCase(int index, string prop, string value)
+        => $@"
+var element = {FindElementByEntryIdScriptBody(index)};
+var hits = [];
+for(var i = 0; i < element.children.length; i++) {{
+    if (element.children[i].{prop}.toUpperCase() == '{value.ToUpper()}') hits.push(element.children[i]);
+}}
+return hits;";
+
+        public static string FindElementsByPropContains(int index, string prop, string value)
+        => $@"
+var element = {FindElementByEntryIdScriptBody(index)};
+var hits = [];
+for(var i = 0; i < element.children.length; i++) {{
+    if (element.children[i].{prop}.split(' ').indexOf('{value}') != -1) hits.push(element.children[i]);
+}}
+return hits;";
+
     }
 }

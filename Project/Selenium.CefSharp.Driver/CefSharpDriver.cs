@@ -237,6 +237,14 @@ return val;
             if (value is List<object> list)  // cef は配列はList<object>になる模様? ただし selenium は ReadOnlyCollection になる模様?
             {
                 var result = list.Select(i => ConvertExecuteScriptResult(i)).ToList();
+
+                //TODO 丸山さん 足してみた。これ意図とあってますか?
+                var webElements = result.OfType<IWebElement>().ToList();
+                if (0 < webElements.Count && webElements.Count == result.Count)
+                {
+                    return new ReadOnlyCollection<IWebElement>(webElements);
+                }
+
                 return new ReadOnlyCollection<Object>(result);
             }
             if (value is Dictionary<string, object> dic)
