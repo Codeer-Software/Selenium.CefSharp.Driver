@@ -72,24 +72,24 @@ window.__seleniumCefSharpDriver.showAndSelectElement(element);
 ";
         public static string GetTagName(int index)
     => $@"
-var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
 return element.tagName;
 ";
 
         public static string GetInnerHTML(int index)
     => $@"
-var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
 return element.innerHTML;
 ";
 
         public static string GetDisabled(int index)
     => $@"
-var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
 return element.disabled;
 ";
         public static string GetSelected(int index)
     => $@"
-var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
 if ('selected' in element) return element.selected;
 if ('checked' in element) return element.checked;
 return false;
@@ -97,39 +97,39 @@ return false;
 
         public static string GetBoundingClientRectX(int index)
     => $@"
-var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
 return element.getBoundingClientRect().x;
 ";
 
         public static string GetBoundingClientRectY(int index)
     => $@"
-var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
 return element.getBoundingClientRect().y;
 ";
 
         public static string GetBoundingClientRectWidth(int index)
     => $@"
-var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
 return element.getBoundingClientRect().width;
 ";
 
         public static string GetBoundingClientRectHeight(int index)
     => $@"
-var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
 return element.getBoundingClientRect().height;
 ";
 
         public static string GetDisplayed(int index)
     => $@"
-var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
 " + @"
 if (element.offsetParent === null) {
     return false;
 }
 
-var target = element;
+let target = element;
 do {
-var style = getComputedStyle(target);
+const style = getComputedStyle(target);
 
 if (style.display === 'none'
     || style.visibility !== 'visible'
@@ -148,8 +148,8 @@ return true;
 
         public static string GetCssValue(int index, string propertyName)
     => $@"
-var element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
-var style = getComputedStyle(element);
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({index});
+const style = getComputedStyle(element);
 return style['{propertyName}'];
 ";
 
@@ -161,43 +161,43 @@ element.submit();
 
         public static string FindElementByProp(int index, string prop, string value)
         => $@"
-var element = {FindElementByEntryIdScriptBody(index)};
-for(var i = 0; i < element.children.length; i++) {{
+const element = {FindElementByEntryIdScriptBody(index)};
+for(let i = 0; i < element.children.length; i++) {{
     if (element.children[i].{prop} == '{value}') return element.children[i];
 }}
 return null;";
 
         public static string FindElementByPropIgnoreCase(int index, string prop, string value)
         => $@"
-var element = {FindElementByEntryIdScriptBody(index)};
-for(var i = 0; i < element.children.length; i++) {{
+const element = {FindElementByEntryIdScriptBody(index)};
+for(let i = 0; i < element.children.length; i++) {{
     if (element.children[i].{prop}.toUpperCase() == '{value.ToUpper()}') return element.children[i];
 }}
 return null;";
 
         public static string FindElementsByProp(int index, string prop, string value)
         => $@"
-var element = {FindElementByEntryIdScriptBody(index)};
-var hits = [];
-for(var i = 0; i < element.children.length; i++) {{
+const element = {FindElementByEntryIdScriptBody(index)};
+const hits = [];
+for(let i = 0; i < element.children.length; i++) {{
     if (element.children[i].{prop} == '{value}') hits.push(element.children[i]);
 }}
 return hits;";
 
         public static string FindElementsByPropIgnoreCase(int index, string prop, string value)
         => $@"
-var element = {FindElementByEntryIdScriptBody(index)};
-var hits = [];
-for(var i = 0; i < element.children.length; i++) {{
+const element = {FindElementByEntryIdScriptBody(index)};
+let hits = [];
+for(let i = 0; i < element.children.length; i++) {{
     if (element.children[i].{prop}.toUpperCase() == '{value.ToUpper()}') hits.push(element.children[i]);
 }}
 return hits;";
 
         public static string FindElementsByPropContains(int index, string prop, string value)
         => $@"
-var element = {FindElementByEntryIdScriptBody(index)};
-var hits = [];
-for(var i = 0; i < element.children.length; i++) {{
+const element = {FindElementByEntryIdScriptBody(index)};
+const hits = [];
+for(let i = 0; i < element.children.length; i++) {{
     if (element.children[i].{prop}.split(' ').indexOf('{value}') != -1) hits.push(element.children[i]);
 }}
 return hits;";

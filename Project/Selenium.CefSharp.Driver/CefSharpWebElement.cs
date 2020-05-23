@@ -96,7 +96,7 @@ namespace Selenium.CefSharp.Driver
             if (text.StartsWith("By.CssSelector:"))
             {
                 script = $@"
-var element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
 return element.querySelector(""{text.Substring("By.CssSelector:".Length).Trim()}"");";
             }
             if (text.StartsWith("By.TagName:"))
@@ -129,7 +129,7 @@ return element.querySelector(""{text.Substring("By.CssSelector:".Length).Trim()}
             if (text.StartsWith("By.CssSelector:"))
             {
                 script = $@"
-var element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
 return element.querySelectorAll(""{text.Substring("By.CssSelector:".Length).Trim()}"");";
             }
             if (text.StartsWith("By.TagName:"))
