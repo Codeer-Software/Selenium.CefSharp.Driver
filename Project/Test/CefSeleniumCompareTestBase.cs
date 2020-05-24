@@ -67,11 +67,6 @@ namespace Test
         public override void ShouldReturnWebElementWhenExecuteReturnDocumentScript()
         {
         }
-
-        [Ignore("This testcase not implemente yet.")]
-        public override void ShouldGetAsyncCallbackResult()
-        {
-        }
     }
 
     [TestClass]
@@ -124,11 +119,6 @@ namespace Test
 
         [Ignore("This testcase not supported. Because Document cannot be identified in the current processing method after the second time.")]
         public override void ShouldReturnWebElementWhenExecuteReturnDocumentScript()
-        {
-        }
-
-        [Ignore("This testcase not implemente yet.")]
-        public override void ShouldGetAsyncCallbackResult()
         {
         }
     }
@@ -974,7 +964,7 @@ document.body.appendChild(elem);");
         }
 
         [TestMethod]
-        public virtual void ShouldGetAsyncCallbackResult()
+        public void ShouldGetAsyncCallbackResult()
         {
             // var timeout = GetDriver().Manage().Timeouts().AsynchronousJavaScript;
             var result = GetExecutor().ExecuteAsyncScript($@"

@@ -66,7 +66,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsyncResultBoundObject.cs" />
     <Compile Include="CefSharpDriver.cs" />
     <Compile Include="CefSharpNavigation.cs" />
     <Compile Include="CefSharpTargetLocator.cs" />
