@@ -69,6 +69,10 @@ namespace Test
         {
         }
 
+        [Ignore("This testcase not implemente yet.")]
+        public override void ShouldGetAsyncCallbackResult()
+        {
+        }
     }
 
     [TestClass]
@@ -911,6 +915,19 @@ document.body.appendChild(elem);");
             Assert.AreEqual(0, elements.Count);
         }
 
-       
+        [TestMethod]
+        public virtual void ShouldGetAsyncCallbackResult()
+        {
+            // var timeout = GetDriver().Manage().Timeouts().AsynchronousJavaScript;
+            var result = GetExecutor().ExecuteAsyncScript($@"
+const callback = arguments[arguments.length - 1];
+const param1 = arguments[0];
+window.setTimeout(() => {{
+    callback(param1 + "" world"");
+}}, {1000});
+", "Hello");
+            //timeout.TotalMilliseconds + 1000
+            Assert.AreEqual("Hello world", result);
+        }
     }
 }

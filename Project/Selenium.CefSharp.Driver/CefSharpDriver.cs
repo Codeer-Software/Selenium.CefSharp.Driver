@@ -124,9 +124,7 @@ namespace Selenium.CefSharp.Driver
         public object ExecuteAsyncScript(string script, params object[] args)
         {
             //TODO arguments & return value.
-            WaitForLoading();
-            ExecuteScriptAsyncCore(JS.Initialize);
-            ExecuteScriptAsyncCore(script);
+            ExecuteScriptAsyncInternal(script, args);
             return null;
         }
         
@@ -162,27 +160,46 @@ namespace Selenium.CefSharp.Driver
         dynamic ExecuteScriptCore(string src, params object[] args)
             => WebBrowserExtensions.GetMainFrame(this).EvaluateScriptAsync(ConvertCefSharpScript(src, args), "about:blank", 1, null).Result;
 
-        private string ConvertCefSharpScript(string script, object[] args)
+        internal dynamic ExecuteScriptAsyncInternal(string script, params object[] args)
         {
-            // 1. args を分解
-            // https://github.com/SeleniumHQ/selenium/blob/646b49a5acd8cc896408b8dfaaa631e71242f4b8/dotnet/src/webdriver/Remote/RemoteWebDriver.cs#L1106
+            WaitForLoading();
+            ExecuteScriptCore(JS.Initialize);
 
-            // 2. 以下のようなスクリプトを作成
-            // (function() {
-            //   const result = (function() { return document.title; })("param1", 123, true);
-            //   return toCSharpObject(result);
-            // })();
+            var callbackObj = new AsyncResultBoundObject();
+            var scriptId = $"_cefsharp_script_{Guid.NewGuid():N}";
 
-            var result = $"(function() {{ const result = (function() {{ {script} }})({ConvertScriptParameters(args)}); \r\n {ConvertResultInJavaScriptString} }})();";
-
-            return result;
+            // コールバックを受け取るオブジェクトを登録したい
+            //_browser.JavascriptObjectRepository.Register(scriptId, callbackObj, true, BindingOptions.DefaultBinder);
+            ExecuteScriptAsyncCore(scriptId, script, args);
+            while (!callbackObj.IsCompleted)
+            {
+                Thread.Sleep(10);
+            }
+            // 登録を解除するしたい
+            // _browser.JavascriptObjectRepository.UnRegister(scriptId);
+            return callbackObj.Value;
         }
+
+        dynamic ExecuteScriptAsyncCore(string scriptId, string src, params object[] args)
+            => WebBrowserExtensions.GetMainFrame(this).EvaluateScriptAsync(ConvertCefSharpAsyncScript(scriptId, src, args), "about:blank", 1, null).Result;
+
+        private string ConvertCefSharpScript(string script, object[] args)
+            => $"(function() {{ const result = (function() {{ {script} }})({ConvertScriptParameters(args)}); \r\n return {ConvertResultInJavaScriptString} }})();";
+
+        private string ConvertCefSharpAsyncScript(string scriptId, string script, object[] args)
+            => $@"
+(function() {{
+    CefSharp.BindObjectAsync('{scriptId}').then(() => {{
+        (function() {{ {script} }})({ConvertScriptParameters(args)}, (result) => {{
+            {scriptId}.complete({ConvertResultInJavaScriptString});
+        }});
+    }});
+}})()";
 
         private const string HtmlElementEntryIdStringPrefix = "$$_selemniumCefSharpDriverEntryId:";
         private const string HtmlElementEntryIdListStringPrefix = "$$_selemniumCefSharpDriverEntryIdList:";
         // 日付文字列はブラウザロケーションの影響なども受ける可能性があるため、JavaScript内で変換できるものは変換しておく
-        private const string ConvertResultInJavaScriptString = @"
-return (function convert(val){
+        private const string ConvertResultInJavaScriptString = @"(function convert(val){
 const toStr = Object.prototype.toString;
 if(toStr.call(val) === '[object Array]') {
     return val.map(function(v) {return convert(v);});

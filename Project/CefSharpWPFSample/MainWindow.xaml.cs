@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using CefSharp;
@@ -6,6 +7,19 @@ using CefSharp.Wpf;
 
 namespace CefSharpWPFSample
 {
+    public class CallbackBoundObject 
+    {
+        public void Complete(object value)
+        {
+            this.Value = value;
+            this.IsCompleted = true;
+        }
+
+        public bool IsCompleted { get; private set; } = false;
+
+        public object Value { get; private set; } = null;
+    }
+
     public partial class MainWindow : Window
     {
         public MainWindow()
@@ -27,6 +41,26 @@ namespace CefSharpWPFSample
             if (e.Key == Key.Q)
             {
                 _browser.Address = @"C:\GitHub\Selenium.CefSharp.Driver\Project\Test\Controls.html";
+            }
+
+            if(e.Key == Key.B)
+            {
+                var callbackObj = new CallbackBoundObject();
+                _browser.JavascriptObjectRepository.Register("_asyncScriptBoundObject", callbackObj, true, BindingOptions.DefaultBinder);
+                var script = @"
+CefSharp.BindObjectAsync('_asyncScriptBoundObject').then(() => {
+    setTimeout(() => {
+        _asyncScriptBoundObject.complete({a:123});
+    }, 5000);
+});";
+                var x = CefSharp.WebBrowserExtensions.EvaluateScriptAsync(_browser, script).Result;
+
+                while(!callbackObj.IsCompleted)
+                {
+                    Thread.Sleep(10);
+                }
+                _browser.JavascriptObjectRepository.UnRegister("_asyncScriptBoundObject");
+                var res = callbackObj.Value;
             }
           
             //test
