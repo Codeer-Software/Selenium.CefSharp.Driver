@@ -81,12 +81,11 @@ namespace Selenium.CefSharp.Driver
 
         public ReadOnlyCollection<IWebElement> FindElements(By by)
         {
-            //TODO: XSSのような対策が必要。たとえばBy.IDで"Foo Bar"と指定された場合にquerySelectorでは Foo IDの孫の Bar 要素になってしまう。
             var text = by.ToString();
             var script = "";
             if (text.StartsWith("By.Id:"))
             {
-                script = $"return document.querySelectorAll('#{text.Substring("By.Id:".Length).Trim()}');";
+                script = $"return document.querySelectorAll('[id=\"{text.Substring("By.Id:".Length).Trim()}\"]');";
             }
             if (text.StartsWith("By.Name:"))
             {
@@ -116,11 +115,8 @@ namespace Selenium.CefSharp.Driver
 
         public object ExecuteScript(string script, params object[] args)
         {
-            //TODO arguments & return value.
-            //TODO 作者と相談
             var result = ExecuteScriptInternal(script, args);
 
-            //この処理、本当は ExecuteScriptInternal の中じゃないとダメ。
             var rawResult = (result as DynamicAppVar)?.CodeerFriendlyAppVar?.Core;
             return ConvertExecuteScriptResult(rawResult);
         }
@@ -238,7 +234,7 @@ return val;
             {
                 var result = list.Select(i => ConvertExecuteScriptResult(i)).ToList();
 
-                //TODO 丸山さん 足してみた。これ意図とあってますか?
+                //TODO 石川さん ChromeDriverと全く同じ型で返却されるのがベストです。で、これが動くタイミングが分からんかったがいけると思うので残しときます。
                 var webElements = result.OfType<IWebElement>().ToList();
                 if (0 < webElements.Count && webElements.Count == result.Count)
                 {

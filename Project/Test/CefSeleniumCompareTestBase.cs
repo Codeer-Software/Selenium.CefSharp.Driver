@@ -18,16 +18,27 @@ namespace Test
     [TestClass]
     public class CefSelemiumCompareTestForCef : CefSeleniumCompareTestBase
     {
-        WindowsAppFriend _app;
-        CefSharpDriver _driver;
+        static WindowsAppFriend _app;
+        static CefSharpDriver _driver;
 
         public override IWebDriver GetDriver() => _driver;
 
         [TestInitialize]
         public void TestInitialize()
         {
+            _driver.Url = this.GetHtmlUrl();
+        }
+
+        //[TestCleanup]
+        //public void TestCleanup() => Process.GetProcessById(_app.ProcessId).Kill();
+
+        [ClassInitialize]
+        public static void ClassInit(TestContext context)
+        {
+            ClassInitBase();
+
             //start process.
-            var dir = GetType().Assembly.Location;
+            var dir = typeof(CefSelemiumCompareTestForCef).Assembly.Location;
             for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
             var processPath = Path.Combine(dir, @"CefSharpWPFSample\bin\x86\Debug\CefSharpWPFSample.exe");
             var process = Process.Start(processPath);
@@ -38,18 +49,15 @@ namespace Test
 
             //create driver.
             _driver = new CefSharpDriver(main._browser);
-            _driver.Url = this.GetHtmlUrl();
+
         }
 
-        [TestCleanup]
-        public void TestCleanup() => Process.GetProcessById(_app.ProcessId).Kill();
-
-        [ClassInitialize]
-        public static void ClassInit(TestContext context) => ClassInitBase();
-
         [ClassCleanup]
-        public static void ClassCleanup() => ClassCleanupBase();
-
+        public static void ClassCleanup()
+        {
+            Process.GetProcessById(_app.ProcessId).Kill();
+            ClassCleanupBase();
+        }
 
         [Ignore("This testcase not supported. Because CefSharp returns a null object result when execution result of the javascript is Promise.")]
         public override void ShouldReturnPromiseResultWhenExecuteReturnSuccessPromiseJavaScript()
@@ -66,29 +74,33 @@ namespace Test
     [TestClass]
     public class CefSelemiumCompareTestForSelenium : CefSeleniumCompareTestBase
     {
-        IWebDriver _driver;
+        static IWebDriver _driver;
 
         public override IWebDriver GetDriver() => _driver;
-
 
         [TestInitialize]
         public void initialize()
         {
-            _driver = new ChromeDriver();
             _driver.Url = this.GetHtmlUrl();
         }
 
         [TestCleanup]
         public void TestCleanup()
         {
-            _driver.Dispose();
         }
 
         [ClassInitialize]
-        public static void ClassInit(TestContext context) => ClassInitBase();
-
+        public static void ClassInit(TestContext context)
+        {
+            ClassInitBase();
+            _driver = new ChromeDriver();
+        }
         [ClassCleanup]
-        public static void ClassCleanup() => ClassCleanupBase();
+        public static void ClassCleanup()
+        {
+            _driver.Dispose();
+            ClassCleanupBase();
+        }
     }
 
     public abstract class CefSeleniumCompareTestBase
@@ -368,9 +380,17 @@ return f;");
         public void ShouldGetAllElementWhenUsedFindElementsById()
         {
             var elements = GetDriver().FindElements(By.Id("idtest"));
-            Assert.AreEqual(2, elements.Count);
+            Assert.AreEqual(3, elements.Count);
             Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
             Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
+            Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
+        }
+
+        [TestMethod]
+        public void ShouldIgnoreQuerySelectorNameWhenUsedFindElementsById()
+        {
+            var elements = GetDriver().FindElements(By.Id("form .term"));
+            Assert.AreEqual(0, elements.Count);
         }
 
         [TestMethod]
@@ -400,9 +420,10 @@ return f;");
         public void ShouldGetAllElementWhenUsedFindElementsByName()
         {
             var elements = GetDriver().FindElements(By.Name("nametest"));
-            Assert.AreEqual(2, elements.Count);
+            Assert.AreEqual(3, elements.Count);
             Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
             Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
+            Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
         }
 
         [TestMethod]
@@ -432,9 +453,10 @@ return f;");
         public void ShouldGetAllElementWhenUsedFindElementsByClassName()
         {
             var elements = GetDriver().FindElements(By.ClassName("classtest"));
-            Assert.AreEqual(2, elements.Count);
+            Assert.AreEqual(3, elements.Count);
             Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
             Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
+            Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
         }
 
         [TestMethod]
@@ -808,9 +830,10 @@ document.body.appendChild(elem);");
         public void ShouldGetAllElementWhenUsedFindElementsByIdFromElement()
         {
             var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.Id("idtest"));
-            Assert.AreEqual(2, elements.Count);
+            Assert.AreEqual(3, elements.Count);
             Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
             Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
+            Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
         }
 
         [TestMethod]
@@ -824,9 +847,10 @@ document.body.appendChild(elem);");
         public void ShouldGetAllElementWhenUsedFindElementsByNameFromElement()
         {
             var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.Name("nametest"));
-            Assert.AreEqual(2, elements.Count);
+            Assert.AreEqual(3, elements.Count);
             Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
             Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
+            Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
         }
 
         [TestMethod]
@@ -840,9 +864,10 @@ document.body.appendChild(elem);");
         public void ShouldGetAllElementWhenUsedFindElementsByClassNameFromElement()
         {
             var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.ClassName("classtest"));
-            Assert.AreEqual(2, elements.Count);
+            Assert.AreEqual(3, elements.Count);
             Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
             Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
+            Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
         }
 
         [TestMethod]
@@ -856,9 +881,10 @@ document.body.appendChild(elem);");
         public void ShouldGetAllElementWhenUsedFindElementsByCssSelectorFromElement()
         {
             var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.CssSelector("#idtest[name='nametest']"));
-            Assert.AreEqual(2, elements.Count);
+            Assert.AreEqual(3, elements.Count);
             Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
             Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
+            Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
         }
 
         [TestMethod]
@@ -873,12 +899,6 @@ document.body.appendChild(elem);");
         {
             var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.TagName("tagtest"));
 
-            //TODO 丸山さん
-            var x = GetDriver().FindElement(By.ClassName("bytest"));
-            
-            //なんでやろ？3が返ってきます。4になってほしいのに。
-            var y = ((IJavaScriptExecutor)GetDriver()).ExecuteScript("return arguments[0].children", x);
-
             Assert.AreEqual(2, elements.Count);
             Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
             Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
@@ -890,5 +910,7 @@ document.body.appendChild(elem);");
             var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.TagName("tagtest_no"));
             Assert.AreEqual(0, elements.Count);
         }
+
+       
     }
 }

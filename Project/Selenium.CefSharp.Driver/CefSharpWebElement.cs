@@ -83,15 +83,21 @@ namespace Selenium.CefSharp.Driver
             var script = "";
             if (text.StartsWith("By.Id:"))
             {
-                script = JS.FindElementByProp(this.Id, "id", text.Substring("By.Id:".Length).Trim());
+                script = $@"
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
+return element.querySelector('[id=""{text.Substring("By.Id:".Length).Trim()}""]');";
             }
             if (text.StartsWith("By.Name:"))
             {
-                script = JS.FindElementByProp(this.Id, "name", text.Substring("By.Name:".Length).Trim());
+                script = $@"
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
+return element.querySelector('[name=""{text.Substring("By.Name:".Length).Trim()}""]');";
             }
             if (text.StartsWith("By.ClassName[Contains]:"))
             {
-                script = JS.FindElementByProp(this.Id, "className", text.Substring("By.ClassName[Contains]:".Length).Trim());
+                script = $@"
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
+return element.getElementsByClassName('{text.Substring("By.ClassName[Contains]:".Length).Trim()}')[0];";
             }
             if (text.StartsWith("By.CssSelector:"))
             {
@@ -101,7 +107,9 @@ return element.querySelector(""{text.Substring("By.CssSelector:".Length).Trim()}
             }
             if (text.StartsWith("By.TagName:"))
             {
-                script = JS.FindElementByPropIgnoreCase(this.Id, "tagName", text.Substring("By.TagName:".Length).Trim());
+                script = $@"
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
+return element.getElementsByTagName('{text.Substring("By.TagName:".Length).Trim()}')[0];";
             }
             if (!(_driver.ExecuteScript(script) is CefSharpWebElement result))
             {
@@ -116,15 +124,21 @@ return element.querySelector(""{text.Substring("By.CssSelector:".Length).Trim()}
             var script = "";
             if (text.StartsWith("By.Id:"))
             {
-                script = JS.FindElementsByProp(this.Id, "id", text.Substring("By.Id:".Length).Trim());
+                script = $@"
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
+return element.querySelectorAll('[id=""{text.Substring("By.Id:".Length).Trim()}""]');";
             }
             if (text.StartsWith("By.Name:"))
             {
-                script = JS.FindElementsByProp(this.Id, "name", text.Substring("By.Name:".Length).Trim());
+                script = $@"
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
+return element.querySelectorAll('[name=""{text.Substring("By.Name:".Length).Trim()}""]');";
             }
             if (text.StartsWith("By.ClassName[Contains]:"))
             {
-                script = JS.FindElementsByPropContains(this.Id, "className", text.Substring("By.ClassName[Contains]:".Length).Trim());
+                script = $@"
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
+return element.getElementsByClassName('{text.Substring("By.ClassName[Contains]:".Length).Trim()}');";
             }
             if (text.StartsWith("By.CssSelector:"))
             {
@@ -134,7 +148,9 @@ return element.querySelectorAll(""{text.Substring("By.CssSelector:".Length).Trim
             }
             if (text.StartsWith("By.TagName:"))
             {
-                script = JS.FindElementsByPropIgnoreCase(this.Id, "tagName", text.Substring("By.TagName:".Length).Trim());
+                script = $@"
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
+return element.getElementsByTagName('{text.Substring("By.TagName:".Length).Trim()}');";
             }
             if (!(_driver.ExecuteScript(script) is ReadOnlyCollection<IWebElement> result))
             {
