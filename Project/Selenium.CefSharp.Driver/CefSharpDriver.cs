@@ -131,7 +131,6 @@ namespace Selenium.CefSharp.Driver
 
         public object ExecuteAsyncScript(string script, params object[] args)
         {
-            //TODO arguments & return value.
             var result = ExecuteScriptAsyncInternal(script, args);
             var rawResult = (result as DynamicAppVar)?.CodeerFriendlyAppVar?.Core;
             return ConvertExecuteScriptResult(rawResult);
@@ -186,14 +185,13 @@ namespace Selenium.CefSharp.Driver
             var scriptId = $"_cefsharp_script_{Guid.NewGuid():N}";
             var BindingOptions = App.Type("CefSharp.BindingOptions");
 
-            // コールバックを受け取るオブジェクトを登録したい
             this.Dynamic().JavascriptObjectRepository.Register(scriptId, callbackObj, true, BindingOptions.DefaultBinder);
             ExecuteScriptAsyncCore(scriptId, script, args);
             while (!(bool)callbackObj.IsCompleted)
             {
                 Thread.Sleep(10);
             }
-            // 登録を解除するしたい
+
             this.Dynamic().JavascriptObjectRepository.UnRegister(scriptId);
             return callbackObj.Value;
         }
