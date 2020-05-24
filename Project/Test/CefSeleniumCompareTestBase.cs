@@ -9,14 +9,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Windows;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Codeer.Friendly.Windows.Grasp;
 
 namespace Test
 {
     [TestClass]
-    public class CefSelemiumCompareTestForCef : CefSeleniumCompareTestBase
+    public class CefSelemiumCompareTestForCefWinForms : CefSeleniumCompareTestBase
     {
         static WindowsAppFriend _app;
         static CefSharpDriver _driver;
@@ -38,18 +38,76 @@ namespace Test
             ClassInitBase();
 
             //start process.
-            var dir = typeof(CefSelemiumCompareTestForCef).Assembly.Location;
+            var dir = typeof(CefSelemiumCompareTestForCefWinForms).Assembly.Location;
+            for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
+            var processPath = Path.Combine(dir, @"CefSharpWinFormsSample\bin\x86\Debug\CefSharpWinFormsSample.exe");
+            var process = Process.Start(processPath);
+
+            //attach by friendly.
+            _app = new WindowsAppFriend(process);
+            var main = _app.WaitForIdentifyFromWindowText("MainWindow");
+
+            //create driver.
+            _driver = new CefSharpDriver(main.Dynamic()._browser);
+        }
+
+        [ClassCleanup]
+        public static void ClassCleanup()
+        {
+            Process.GetProcessById(_app.ProcessId).Kill();
+            ClassCleanupBase();
+        }
+
+        [Ignore("This testcase not supported. Because CefSharp returns a null object result when execution result of the javascript is Promise.")]
+        public override void ShouldReturnPromiseResultWhenExecuteReturnSuccessPromiseJavaScript()
+        {
+        }
+
+        [Ignore("This testcase not supported. Because Document cannot be identified in the current processing method after the second time.")]
+        public override void ShouldReturnWebElementWhenExecuteReturnDocumentScript()
+        {
+        }
+
+        [Ignore("This testcase not implemente yet.")]
+        public override void ShouldGetAsyncCallbackResult()
+        {
+        }
+    }
+
+    [TestClass]
+    public class CefSelemiumCompareTestForCefWPF : CefSeleniumCompareTestBase
+    {
+        static WindowsAppFriend _app;
+        static CefSharpDriver _driver;
+
+        public override IWebDriver GetDriver() => _driver;
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            _driver.Url = this.GetHtmlUrl();
+        }
+
+        //[TestCleanup]
+        //public void TestCleanup() => Process.GetProcessById(_app.ProcessId).Kill();
+
+        [ClassInitialize]
+        public static void ClassInit(TestContext context)
+        {
+            ClassInitBase();
+
+            //start process.
+            var dir = typeof(CefSelemiumCompareTestForCefWPF).Assembly.Location;
             for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
             var processPath = Path.Combine(dir, @"CefSharpWPFSample\bin\x86\Debug\CefSharpWPFSample.exe");
             var process = Process.Start(processPath);
 
             //attach by friendly.
             _app = new WindowsAppFriend(process);
-            var main = _app.Type<Application>().Current.MainWindow;
+            var main = _app.WaitForIdentifyFromWindowText("MainWindow");
 
             //create driver.
-            _driver = new CefSharpDriver(main._browser);
-
+            _driver = new CefSharpDriver(main.Dynamic()._browser);
         }
 
         [ClassCleanup]

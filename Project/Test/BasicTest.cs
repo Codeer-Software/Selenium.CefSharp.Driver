@@ -6,34 +6,50 @@ using Codeer.Friendly.Windows;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using Selenium.CefSharp.Driver;
+using Codeer.Friendly.Windows.Grasp;
 
 namespace Test
 {
     [TestClass]
-    public class BasicTest
+    public class BasicTestWPF : BasicTest
+    {
+        protected override string GetExePath(string dir)
+            => Path.Combine(dir, @"CefSharpWPFSample\bin\x86\Debug\CefSharpWPFSample.exe");
+    }
+
+    [TestClass]
+    public class BasicTestWinForms : BasicTest
+    {
+        protected override string GetExePath(string dir)
+            => Path.Combine(dir, @"CefSharpWinFormsSample\bin\x86\Debug\CefSharpWinFormsSample.exe");
+    }
+
+
+
+    public abstract class BasicTest
     {
         WindowsAppFriend _app;
         CefSharpDriver _driver;
         string _htmlPath;
 
+        protected abstract string GetExePath(string dir);
+
         [TestInitialize]
         public void TestInitialize()
         {
-            //start process.
             var dir = GetType().Assembly.Location;
             for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
-            var processPath = Path.Combine(dir, @"CefSharpWPFSample\bin\x86\Debug\CefSharpWPFSample.exe");
-            var process = Process.Start(processPath);
+            var process = Process.Start(GetExePath(dir));
 
             //html
             _htmlPath = Path.Combine(dir, @"Test\Controls.html");
 
             //attach by friendly.
             _app = new WindowsAppFriend(process);
-            var main = _app.Type<Application>().Current.MainWindow;
+            var main = _app.WaitForIdentifyFromWindowText("MainWindow");
 
             //create driver.
-            _driver = new CefSharpDriver(main._browser);
+            _driver = new CefSharpDriver(main.Dynamic()._browser);
         }
 
         [TestCleanup]

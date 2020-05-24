@@ -10,6 +10,7 @@ using System.Threading;
 using System.Linq;
 using System.Collections.Generic;
 using Selenium.CefSharp.Driver.InTarget;
+using Codeer.Friendly.DotNetExecutor;
 
 namespace Selenium.CefSharp.Driver
 {
@@ -29,12 +30,19 @@ namespace Selenium.CefSharp.Driver
             get => this.Dynamic().Address;
             set
             {
-                this.Dynamic().Address = value;
+                if (IsWPF)
+                {
+                    this.Dynamic().Address = value;
+                }
+                else
+                {
+                    this.Dynamic().Load(value);
+                }
                 WaitForLoading();
             }
         }
 
-        public string Title => this.Dynamic().Title;
+        public string Title => IsWPF ? this.Dynamic().Title : this.Dynamic().Text;
 
         public string PageSource => WebBrowserExtensions.GetSourceAsync(this).Result;
 
@@ -130,9 +138,17 @@ namespace Selenium.CefSharp.Driver
         
         public void Activate()
         {
-            //TODO WinForms
-            var source = App.Type("System.Windows.Interop.HwndSource").FromVisual(this);
-            new WindowControl(App, (IntPtr)source.Handle).Activate();
+            if (IsWPF)
+            {
+                //WPF
+                var source = App.Type("System.Windows.Interop.HwndSource").FromVisual(this);
+                new WindowControl(App, (IntPtr)source.Handle).Activate();
+            }
+            else
+            {
+                //WinForms
+                new WindowControl(AppVar).Activate();
+            }
             this.Dynamic().Focus();
         }
 
@@ -354,6 +370,18 @@ return val;
             while ((bool)this.Dynamic().IsLoading)
             {
                 Thread.Sleep(10);
+            }
+        }
+
+        bool IsWPF
+        {
+            get
+            {
+                var finder = App.Type<TypeFinder>()();
+                var wpfType = (AppVar)finder.GetType("CefSharp.Wpf.ChromiumWebBrowser");
+                var t = this.Dynamic().GetType();
+                var isWPF = !wpfType.IsNull && (bool)wpfType["IsAssignableFrom", new OperationTypeInfo(typeof(Type).FullName, typeof(Type).FullName)]((AppVar)t).Core;
+                return isWPF;
             }
         }
 

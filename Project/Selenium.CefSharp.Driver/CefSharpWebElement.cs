@@ -69,8 +69,6 @@ namespace Selenium.CefSharp.Driver
             //TODO adjust text spec.
 
             _driver.Activate();
-            
-            //TODO 丸山さん これもっといい方法ないですかねー
             _driver.App.SendKeys(text);
         }
 
