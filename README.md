@@ -13,7 +13,7 @@ Supports WinForms & WPF.
 Install Selenium.CefSharp.Driver from NuGet
 
     PM> Install-Package Selenium.CefSharp.Driver
-https://www.nuget.org/packages/Codeer.Friendly.Windows/
+https://www.nuget.org/packages/Selenium.CefSharp.Driver/
 
 # What problem can this solve?
 Chrome driver is able to manipulate apps that are configured only with CefSharp, but it can't manipulate apps that used CefSharp for only part of it.
