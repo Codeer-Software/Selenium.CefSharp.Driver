@@ -1,14 +1,18 @@
-Selenium.CefSharp.Driver
+Selenium.CefSharp.Driver_α
 ======================
+
+<br>
+The status of this library is alpha.
+<br>
 
 ## Features ...
 It is a library for operating ChromiumWebBrowser with the interface of Selenium.
 Supports WinForms & WPF.
 
 ## Getting Started
-Install Friendly.Windows from NuGet
+Install Selenium.CefSharp.Driver from NuGet
 
-    PM> Install-Package Codeer.Friendly.Windows
+    PM> Install-Package Selenium.CefSharp.Driver
 https://www.nuget.org/packages/Codeer.Friendly.Windows/
 
 # What problem can this solve?
