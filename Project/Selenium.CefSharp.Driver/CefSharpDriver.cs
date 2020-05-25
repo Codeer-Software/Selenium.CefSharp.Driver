@@ -161,7 +161,7 @@ namespace Selenium.CefSharp.Driver
             if(!(bool)execResult.Success)
             {
                 var errorMessage = (string)execResult.Message;
-                // TODO: なんかパターン化する
+                // TODO: Somehow make a pattern.
                 var formattedErrorMessage = errorMessage.Split('\n')[0].Substring("Uncaught".Length).Trim();
                 if(formattedErrorMessage == "EntriedElementNotFound")
                 {
@@ -267,7 +267,7 @@ return val;
             {
                 var result = list.Select(i => ConvertExecuteScriptResult(i)).ToList();
 
-                //TODO 石川さん ChromeDriverと全く同じ型で返却されるのがベストです。で、これが動くタイミングが分からんかったがいけると思うので残しときます。
+                //TODO
                 var webElements = result.OfType<IWebElement>().ToList();
                 if (0 < webElements.Count && webElements.Count == result.Count)
                 {

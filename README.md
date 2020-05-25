@@ -80,6 +80,8 @@ namespace SampleTest
             //create driver.
             var driver = new CefSharpDriver(_nextDialog.Dynamic()._browser);
 
+            //manipulate by interface of Selenium.
+
             //set url.
             driver.Url = _htmlPath;
          
