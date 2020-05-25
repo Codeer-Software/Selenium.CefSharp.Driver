@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace CefSharpWinFormsSample.Properties
+namespace SampleApp.Properties
 {
 
 

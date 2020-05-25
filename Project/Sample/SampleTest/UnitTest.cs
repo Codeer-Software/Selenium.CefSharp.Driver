@@ -1,31 +1,4 @@
-Selenium.CefSharp.Driver
-======================
-
-## Features ...
-It is a library for operating ChromiumWebBrowser with the interface of Selenium.
-Supports WinForms & WPF.
-
-## Getting Started
-Install Friendly.Windows from NuGet
-
-    PM> Install-Package Codeer.Friendly.Windows
-https://www.nuget.org/packages/Codeer.Friendly.Windows/
-
-# What problem can this solve?
-Chrome driver is able to manipulate apps that are configured only with CefSharp, but it can't manipulate apps that used CefSharp for only part of it.
-This problem will be solved by using CefSharpDriver.
-
-# Another process manuplation.
-This library is a layer on top of Friendly, so you must learn that first. But it is very easy to learn.<br>
-https://github.com/Codeer-Software/Friendly.Windows
-
-# Sample
-Sample App.<br>
- ![Sample App.](Img/SampleApp.png)
-
-Code.<br>
-```cs  
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using Codeer.Friendly;
 using Codeer.Friendly.Dynamic;
@@ -96,7 +69,3 @@ namespace SampleTest
         }
     }
 }
-```
-
-
-

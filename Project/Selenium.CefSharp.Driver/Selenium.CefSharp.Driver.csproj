@@ -84,4 +84,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>if $(ConfigurationName) == Release "../../../.nuget/nuget" pack "../../../.nuget/Selenium.CefSharp.Driver.nuspec"
+</PostBuildEvent>
+  </PropertyGroup>
 </Project>

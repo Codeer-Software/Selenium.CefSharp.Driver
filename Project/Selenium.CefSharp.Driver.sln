@@ -9,6 +9,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Selenium.CefSharp.Driver.In
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{ED3FF6AE-91E8-4CDB-B6D6-44DF0A2CC712}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{26AD8B74-3D23-4510-8FEB-7EC3FE309B75}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\Selenium.CefSharp.Driver.nuspec = .nuget\Selenium.CefSharp.Driver.nuspec
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -40,7 +40,7 @@ namespace Test
             //start process.
             var dir = typeof(CefSelemiumCompareTestForCefWinForms).Assembly.Location;
             for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
-            var processPath = Path.Combine(dir, @"CefSharpWinFormsSample\bin\x86\Debug\CefSharpWinFormsSample.exe");
+            var processPath = Path.Combine(dir, @"CefSharpWinFormsTarget\bin\x86\Debug\CefSharpWinFormsTarget.exe");
             var process = Process.Start(processPath);
 
             //attach by friendly.
@@ -94,7 +94,7 @@ namespace Test
             //start process.
             var dir = typeof(CefSelemiumCompareTestForCefWPF).Assembly.Location;
             for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
-            var processPath = Path.Combine(dir, @"CefSharpWPFSample\bin\x86\Debug\CefSharpWPFSample.exe");
+            var processPath = Path.Combine(dir, @"CefSharpWPFTarget\bin\x86\Debug\CefSharpWPFTarget.exe");
             var process = Process.Start(processPath);
 
             //attach by friendly.

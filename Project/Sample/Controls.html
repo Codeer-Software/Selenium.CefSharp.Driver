@@ -1,0 +1,82 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>Controls for Test</title>
+	<script>
+	    function clickJS(){
+	    document.getElementById("textBoxName").value = "JS";
+	    }
+	</script>
+</head>
+<body>
+	<form id = "form" method="post" action="/courier/htm-form">
+		<!-- this is comment node -->
+		<label id="labelTitle">Title Controls</label><br />
+		<table>
+			<colgroup style="padding: 0.3em">
+				<col span="2" />
+			</colgroup>
+			<colgroup class="term"></colgroup>
+			<tbody>
+				<tr>
+					<td>Name：</td>
+					<td><input id="textBoxName" type="text" value="ABCDE" /></td>
+				</tr>
+				<tr>
+					<td>Date：</td>
+					<td><input id="date" type="date" /></td>
+				</tr>
+				<tr>
+					<td>Gender：</td>
+					<td>
+						<input id="radioMan" name="gender" type="radio" checked="checked" /> Man
+						<input id="radioWoman" name="gender" type="radio" /> Woman
+					</td>
+				</tr>
+				<tr>
+					<td>Personal belongings：</td>
+					<td>
+						<input id="checkBoxCellPhone" type="checkbox" /> Cell phone
+						<input id="checkBoxCar" type="checkbox" /> Casr
+						<input id="checkBoxCottage" type="checkbox" checked="checked" /> Cottage　
+					</td>
+				</tr>
+				<tr>
+					<td>Favorite fruit：</td>
+					<td>
+						<select id="dropDownFruit">
+							<option id="opt0">Apple</option>
+							<option id="opt1">Orange</option>
+							<option>Banana</option>
+							<option>Pinapple</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<textarea id="textareaFreeans" name="freeans" rows="4" cols="40">Please describe the free opinion</textarea>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<input id="testButton" type="button" value="JS" onClick="clickJS()" />
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</form>
+	<div class="bytest">
+		<input id="idtest" name="nametest" class="classtest" data-key="1" />
+		<input id="idtest" name="nametest" class="classtest dummy" data-key="2" />
+		<div>
+			<input id="idtest" name="nametest" class="classtest" data-key="3" />
+		</div>
+		<tagtest data-key="1"></tagtest>
+		<tagtest data-key="2"></tagtest>
+	</div>
+	<div>
+		<input id="disabletest" name="xxx" class="yyy" data-key="3" disabled />
+		<input id="not_displayed" name="xxx" class="yyy" data-key="4" style="display:none" />
+	</div>
+</body>
+</html>

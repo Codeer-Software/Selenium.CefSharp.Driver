@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace CefSharpWinFormsSample
+namespace CefSharpWinFormsTarget
 {
     public partial class MainForm : Form
     {

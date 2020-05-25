@@ -14,17 +14,15 @@ namespace Test
     public class BasicTestWPF : BasicTest
     {
         protected override string GetExePath(string dir)
-            => Path.Combine(dir, @"CefSharpWPFSample\bin\x86\Debug\CefSharpWPFSample.exe");
+            => Path.Combine(dir, @"CefSharpWPFTarget\bin\x86\Debug\CefSharpWPFTarget.exe");
     }
 
     [TestClass]
     public class BasicTestWinForms : BasicTest
     {
         protected override string GetExePath(string dir)
-            => Path.Combine(dir, @"CefSharpWinFormsSample\bin\x86\Debug\CefSharpWinFormsSample.exe");
+            => Path.Combine(dir, @"CefSharpWinFormsTarget\bin\x86\Debug\CefSharpWinFormsTarget.exe");
     }
-
-
 
     public abstract class BasicTest
     {

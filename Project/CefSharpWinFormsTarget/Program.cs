@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace CefSharpWinFormsSample
+namespace CefSharpWinFormsTarget
 {
     static class Program
     {

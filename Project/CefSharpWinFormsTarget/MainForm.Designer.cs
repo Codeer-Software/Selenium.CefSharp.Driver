@@ -1,4 +1,4 @@
-﻿namespace CefSharpWinFormsSample
+﻿namespace CefSharpWinFormsTarget
 {
     partial class MainForm
     {

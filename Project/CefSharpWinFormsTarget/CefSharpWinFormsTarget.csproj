@@ -10,8 +10,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{67DF412E-2D18-4489-99E7-0B68C3510394}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>CefSharpWinFormsSample</RootNamespace>
-    <AssemblyName>CefSharpWinFormsSample</AssemblyName>
+    <RootNamespace>CefSharpWinFormsTarget</RootNamespace>
+    <AssemblyName>CefSharpWinFormsTarget</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -93,6 +93,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
