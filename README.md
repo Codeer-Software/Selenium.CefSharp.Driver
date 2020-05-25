@@ -20,6 +20,7 @@ This library is a layer on top of Friendly, so you must learn that first. But it
 https://github.com/Codeer-Software/Friendly.Windows
 
 # Sample
+https://github.com/Codeer-Software/Selenium.CefSharp.Driver/tree/master/Project/Sample<br>
 Sample App.<br>
  ![Sample App.](Img/SampleApp.png)
 
@@ -83,10 +84,10 @@ namespace SampleTest
             driver.Url = _htmlPath;
          
             //find element.
-            var buttonJs = driver.FindElement(By.Id("testButton"));
+            var buttonTest = driver.FindElement(By.Id("testButton"));
 
             //click.
-            buttonJs.Click();
+            buttonTest.Click();
 
             //find element.
             var textBoxName = driver.FindElement(By.Id("textBoxName"));

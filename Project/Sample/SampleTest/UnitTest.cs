@@ -56,10 +56,10 @@ namespace SampleTest
             driver.Url = _htmlPath;
          
             //find element.
-            var buttonJs = driver.FindElement(By.Id("testButton"));
+            var buttonTest = driver.FindElement(By.Id("testButton"));
 
             //click.
-            buttonJs.Click();
+            buttonTest.Click();
 
             //find element.
             var textBoxName = driver.FindElement(By.Id("textBoxName"));
