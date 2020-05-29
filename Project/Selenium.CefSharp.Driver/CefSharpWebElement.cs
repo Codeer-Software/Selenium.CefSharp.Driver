@@ -1,14 +1,17 @@
 ﻿using Codeer.Friendly.Windows.KeyMouse;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Internal;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 
 namespace Selenium.CefSharp.Driver
 {
-    public class CefSharpWebElement : IWebElement
-    {
-        private CefSharpDriver _driver;
+    public class CefSharpWebElement : IWebElement, IWrapsDriver
+    {   
+        readonly CefSharpDriver _driver;
+     
         internal int Id { get; }
 
         public CefSharpWebElement(CefSharpDriver driver, int index)
@@ -16,6 +19,8 @@ namespace Selenium.CefSharp.Driver
             _driver = driver;
             Id = index;
         }
+
+        public IWebDriver WrappedDriver => _driver;
 
         public string TagName => (_driver.ExecuteScript(JS.GetTagName(this.Id)) as string)?.ToLower();
 
@@ -29,9 +34,9 @@ namespace Selenium.CefSharp.Driver
         {
             get
             {
-                var x = (long)_driver.ExecuteScript(JS.GetBoundingClientRectX(this.Id));
-                var y = (long)_driver.ExecuteScript(JS.GetBoundingClientRectY(this.Id));
-                return new Point((int)x, (int)y);
+                var x = ToInt(_driver.ExecuteScript(JS.GetBoundingClientRectX(this.Id)));
+                var y = ToInt(_driver.ExecuteScript(JS.GetBoundingClientRectY(this.Id)));
+                return new Point(x, y);
             }
         }
 
@@ -39,9 +44,21 @@ namespace Selenium.CefSharp.Driver
         {
             get
             {
-                var w = (long)_driver.ExecuteScript(JS.GetBoundingClientRectWidth(this.Id));
-                var h = (long)_driver.ExecuteScript(JS.GetBoundingClientRectHeight(this.Id));
-                return new Size((int)w, (int)h);
+                var w = ToInt(_driver.ExecuteScript(JS.GetBoundingClientRectWidth(this.Id)));
+                var h = ToInt(_driver.ExecuteScript(JS.GetBoundingClientRectHeight(this.Id)));
+                return new Size(w, h);
+            }
+        }
+
+        static int ToInt(object src)
+        {
+            switch (src)
+            {
+                case int val: return val;
+                case long val: return (int)val;
+                case float val: return (int)val;
+                case double val: return (int)val;
+                default: throw new NotSupportedException();
             }
         }
 
@@ -51,7 +68,13 @@ namespace Selenium.CefSharp.Driver
             => _driver.ExecuteScript(JS.SetAttribute(this.Id, "value", string.Empty));
 
         public void Click()
-            => _driver.ExecuteScript(JS.Click(Id));
+        {
+            _driver.ExecuteScriptInternal(JS.Focus(Id));
+            var pos = Location;
+            var size = Size;
+            pos.Offset(size.Width / 2, size.Height / 2);
+            _driver.Click(MouseButtonType.Left, pos);
+        }
 
         public string GetAttribute(string attributeName)
             => _driver.ExecuteScript(JS.GetAttribute(this.Id, attributeName)) as string;

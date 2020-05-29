@@ -11,19 +11,46 @@ using System.Linq;
 using System.Collections.Generic;
 using Selenium.CefSharp.Driver.InTarget;
 using Codeer.Friendly.DotNetExecutor;
+using System.Drawing;
+using Codeer.TestAssistant.GeneratorToolKit;
 
 namespace Selenium.CefSharp.Driver
 {
+    [ControlDriver(TypeFullName = "CefSharp.Wpf.ChromiumWebBrowser|CefSharp.WinForms.ChromiumWebBrowser")]
     public class CefSharpDriver :
         IAppVarOwner,
         IWebDriver,
-        IJavaScriptExecutor
+        IJavaScriptExecutor,
+        IUIObject
     {
         public WindowsAppFriend App => (WindowsAppFriend)AppVar.App;
 
         internal dynamic WebBrowserExtensions { get; }
 
         public AppVar AppVar { get; }
+
+        public Size Size
+        {
+            get
+            {
+                if (IsWPF)
+                {
+                    var size = this.Dynamic().RenderSize;
+                    return new Size((int)(double)size.Width, (int)(double)size.Height);
+                }
+                return new WindowControl(AppVar).Size;
+            }
+        }
+    
+        public Point PointToScreen(Point clientPoint)
+        {
+            if (IsWPF)
+            {
+                var pos = this.Dynamic().PointToScreen(App.Type("System.Windows.Point")((double)clientPoint.X, (double)clientPoint.Y));
+                return new System.Drawing.Point((int)(double)pos.X, (int)(double)pos.Y);
+            }
+            return new WindowControl(AppVar).PointToScreen(clientPoint);
+        }
 
         public string Url
         {
