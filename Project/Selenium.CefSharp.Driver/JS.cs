@@ -34,6 +34,14 @@
                     throw 'EntriedElementNotFound';
                 }
                 return result;
+            },
+            getElementsByXPath(xpath, contextNode) {
+                const result = document.evaluate(xpath, contextNode || document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+                const nodes = [];
+                for(let i = 0; i < result.snapshotLength; i++) {
+                    nodes.push(result.snapshotItem(i));
+                }
+                return nodes;
             }
         };
     })();

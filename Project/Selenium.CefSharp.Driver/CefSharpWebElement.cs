@@ -132,6 +132,12 @@ return element.querySelector(""{text.Substring("By.CssSelector:".Length).Trim()}
 const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
 return element.getElementsByTagName('{text.Substring("By.TagName:".Length).Trim()}')[0];";
             }
+            if (text.StartsWith("By.XPath:"))
+            {
+                script = $@"
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
+return window.__seleniumCefSharpDriver.getElementsByXPath('{text.Substring("By.XPath:".Length).Trim()}', element)[0];";
+            }
             if (!(_driver.ExecuteScript(script) is CefSharpWebElement result))
             {
                 throw new NoSuchElementException($"Element not found: {text}");
@@ -172,6 +178,12 @@ return element.querySelectorAll(""{text.Substring("By.CssSelector:".Length).Trim
                 script = $@"
 const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
 return element.getElementsByTagName('{text.Substring("By.TagName:".Length).Trim()}');";
+            }
+            if (text.StartsWith("By.XPath:"))
+            {
+                script = $@"
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
+return window.__seleniumCefSharpDriver.getElementsByXPath('{text.Substring("By.XPath:".Length).Trim()}', element);";
             }
             if (!(_driver.ExecuteScript(script) is ReadOnlyCollection<IWebElement> result))
             {
