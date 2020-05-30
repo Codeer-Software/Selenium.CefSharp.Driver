@@ -524,10 +524,43 @@ const callback = arguments[arguments.length - 1];
 const param1 = arguments[0];
 window.setTimeout(() => {{
     callback(param1 + "" world"");
-}}, {1000});
+}}, {100});
 ", "Hello");
             //timeout.TotalMilliseconds + 1000
             Assert.AreEqual("Hello world", result);
+        }
+
+        [TestMethod]
+        public void ExecuteAsyncScript_DictionalyParameterShouldPassedInObject()
+        {
+            var param = new Dictionary<string, object>()
+            {
+                { "key1", 123 }, { "key2", "ABCD" }, { "key3", true }
+            };
+            var result = GetExecutor().ExecuteAsyncScript($@"
+const callback = arguments[arguments.length - 1];
+const param = arguments[0];
+window.setTimeout(() => {{
+    callback(param.key1 === 123 && param.key2 === 'ABCD' && param.key3);
+}}, {100});
+", param);
+            result.Is(true);
+        }
+
+        [TestMethod]
+        public void ExecuteAsyncScript_ShouldReturnDicitionaryWhenReturnObjectFromScript()
+        {
+            var value = GetExecutor().ExecuteAsyncScript($@"
+const callback = arguments[arguments.length - 1];
+window.setTimeout(() => {{
+    callback({{A:'a', B:123, C: false}});
+}}, {100});
+");
+            Assert.AreEqual(typeof(Dictionary<string, object>), value.GetType());
+            var resultValue = (Dictionary<string, object>)value;
+            Assert.AreEqual("a", resultValue["A"]);
+            Assert.AreEqual(123L, resultValue["B"]);
+            Assert.AreEqual(false, resultValue["C"]);
         }
     }
 }

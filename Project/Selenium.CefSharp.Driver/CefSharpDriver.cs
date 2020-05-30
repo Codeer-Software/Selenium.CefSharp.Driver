@@ -241,7 +241,7 @@ namespace Selenium.CefSharp.Driver
             => $@"
 (function() {{
     CefSharp.BindObjectAsync('{scriptId}').then(() => {{
-        (function() {{ {script} }})({ConvertScriptParameters(args)}, (result) => {{
+        (function() {{ {script} }})({(args != null && args.Length > 0 ? (ConvertScriptParameters(args) + ",") : "")} (result) => {{
             {scriptId}.complete({ConvertResultInJavaScriptString});
         }});
     }});
