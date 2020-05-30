@@ -17,7 +17,7 @@ namespace Test
         public static AppWithDriver RunWinFormApp()
         {
             //start process.
-            var dir = typeof(CefSelemiumCompareTestForCefWinForms).Assembly.Location;
+            var dir = typeof(AppRunner).Assembly.Location;
             for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
             var processPath = Path.Combine(dir, @"CefSharpWinFormsTarget\bin\x86\Debug\CefSharpWinFormsTarget.exe");
             var process = Process.Start(processPath);
@@ -35,7 +35,7 @@ namespace Test
         public static AppWithDriver RunWpfApp()
         {
             //start process.
-            var dir = typeof(CefSelemiumCompareTestForCefWPF).Assembly.Location;
+            var dir = typeof(AppRunner).Assembly.Location;
             for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
             var processPath = Path.Combine(dir, @"CefSharpWPFTarget\bin\x86\Debug\CefSharpWPFTarget.exe");
             var process = Process.Start(processPath);

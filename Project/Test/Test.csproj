@@ -86,8 +86,9 @@
     <Compile Include="ChainingAssertion.MSTest.cs" />
     <Compile Include="CompareTestBase.cs" />
     <Compile Include="HtmlServer.cs" />
+    <Compile Include="JavaScriptExecutorTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="CefSeleniumCompareTestBase.cs" />
+    <Compile Include="WebDriverTestBase.cs" />
     <Compile Include="WebElementTest.cs" />
   </ItemGroup>
   <ItemGroup>
