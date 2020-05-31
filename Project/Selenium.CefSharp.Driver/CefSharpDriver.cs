@@ -83,6 +83,9 @@ namespace Selenium.CefSharp.Driver
 
         public void Dispose() => AppVar.Dispose();
 
+        public void ShowDevTools()
+            => WebBrowserExtensions.ShowDevTools(this);
+
         public IWebElement FindElement(By by)
         {
             var text = by.ToString();

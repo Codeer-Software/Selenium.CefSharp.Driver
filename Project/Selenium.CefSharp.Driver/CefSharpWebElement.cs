@@ -88,11 +88,8 @@ namespace Selenium.CefSharp.Driver
         public void SendKeys(string text)
         {
             _driver.ExecuteScriptInternal(JS.Focus(Id));
-
-            //TODO adjust text spec.
-
             _driver.Activate();
-            _driver.App.SendKeys(text);
+            KeySpec.SendKeys(_driver.App, text);
         }
 
         public void Submit()
