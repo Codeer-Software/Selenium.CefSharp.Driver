@@ -67,13 +67,42 @@ namespace Selenium.CefSharp.Driver
         public void Clear()
             => _driver.ExecuteScript(JS.SetAttribute(this.Id, "value", string.Empty));
 
+        private void Focus()
+            => _driver.ExecuteScriptInternal(JS.Focus(this.Id));
+
         public void Click()
         {
-            _driver.ExecuteScriptInternal(JS.Focus(Id));
-            var pos = Location;
-            var size = Size;
-            pos.Offset(size.Width / 2, size.Height / 2);
-            _driver.Click(MouseButtonType.Left, pos);
+            if(this.TagName.Equals("OPTION", StringComparison.InvariantCultureIgnoreCase))
+            {
+                var parent = (CefSharpWebElement)_driver.ExecuteScript(JS.GetParentElement(this.Id));
+                //TODO: emulate mouse down / up
+                //https://www.w3.org/TR/webdriver/#element-click
+
+                parent.Focus();
+                if(!parent.Enabled)
+                {
+                    return;
+                }
+                var script = $@"
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
+element.selected = true";
+
+                if (parent.GetProperty("multiple").Equals("true", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    script = $@"
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
+element.selected = !element.selected";
+                }
+                _driver.ExecuteScriptInternal(script);
+            }
+            else
+            {
+                _driver.ExecuteScriptInternal(JS.ScrollIntoView(Id));
+                var pos = Location;
+                var size = Size;
+                pos.Offset(size.Width / 2, size.Height / 2);
+                _driver.Click(MouseButtonType.Left, pos);
+            }
         }
 
         public string GetAttribute(string attributeName)

@@ -45,23 +45,23 @@ namespace Test
             ClassCleanupBase();
         }
 
-        [Ignore("clickの挙動を作り込んだうえで対応")]
-        public override void SelectByIndex()
-        {
-            throw new NotImplementedException();
-        }
+        //[Ignore("clickの挙動を作り込んだうえで対応")]
+        //public override void SelectByIndex()
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        [Ignore("clickの挙動を作り込んだうえで対応")]
-        public override void SelectByText()
-        {
-            throw new NotImplementedException();
-        }
+        //[Ignore("clickの挙動を作り込んだうえで対応")]
+        //public override void SelectByText()
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        [Ignore("clickの挙動を作り込んだうえで対応")]
-        public override void SelectByValue()
-        {
-            throw new NotImplementedException();
-        }
+        //[Ignore("clickの挙動を作り込んだうえで対応")]
+        //public override void SelectByValue()
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 
     [TestClass]
@@ -94,23 +94,23 @@ namespace Test
             ClassCleanupBase();
         }
 
-        [Ignore("clickの挙動を作り込んだうえで対応")]
-        public override void SelectByIndex()
-        {
-            throw new NotImplementedException();
-        }
+        //[Ignore("clickの挙動を作り込んだうえで対応")]
+        //public override void SelectByIndex()
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        [Ignore("clickの挙動を作り込んだうえで対応")]
-        public override void SelectByText()
-        {
-            throw new NotImplementedException();
-        }
+        //[Ignore("clickの挙動を作り込んだうえで対応")]
+        //public override void SelectByText()
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        [Ignore("clickの挙動を作り込んだうえで対応")]
-        public override void SelectByValue()
-        {
-            throw new NotImplementedException();
-        }
+        //[Ignore("clickの挙動を作り込んだうえで対応")]
+        //public override void SelectByValue()
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 
     [TestClass]

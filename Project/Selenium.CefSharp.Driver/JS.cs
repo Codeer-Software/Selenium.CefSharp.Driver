@@ -71,7 +71,11 @@ return elem.setAttribute('{attrName}', '{value}');";
 
         public static string GetProperty(int id, string propName) => $@"
 const elem = {FindElementByEntryIdScriptBody(id)};
-return elem['{propName}'];";
+const value = elem['{propName}'];
+if(window.__seleniumCefSharpDriver.isUndefOrNull(value)) {{
+    return;
+}}
+return value + '';";
 
         public static string Click(int index)
             => $@"
@@ -85,6 +89,12 @@ element.click();
 const element = {FindElementByEntryIdScriptBody(index)};
 window.__seleniumCefSharpDriver.showAndSelectElement(element);
 ";
+
+        public static string ScrollIntoView(int index) => $@"
+const element = {FindElementByEntryIdScriptBody(index)};
+element.scrollIntoView(true);
+";
+
         public static string GetTagName(int index)
     => $@"
 const element = {FindElementByEntryIdScriptBody(index)};
@@ -174,5 +184,10 @@ const element = {FindElementByEntryIdScriptBody(index)};
 element.submit();
 ";
 
+        public static string GetParentElement(int index)
+            => $@"
+const element = {FindElementByEntryIdScriptBody(index)};
+return element.parentElement;
+";
     }
 }
