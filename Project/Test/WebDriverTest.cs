@@ -16,7 +16,7 @@ using Codeer.Friendly.Windows.Grasp;
 namespace Test
 {
     [TestClass]
-    public class WinFormWebDriverTest : WebDriverTestBase
+    public class WebDriverTestWinForm : WebDriverTestBase
     {
         static WindowsAppFriend _app;
         static CefSharpDriver _driver;
@@ -48,7 +48,7 @@ namespace Test
     }
 
     [TestClass]
-    public class WpfWebDriverTest : WebDriverTestBase
+    public class WebDriverTestWPF : WebDriverTestBase
     {
         static WindowsAppFriend _app;
         static CefSharpDriver _driver;
@@ -79,7 +79,7 @@ namespace Test
     }
 
     [TestClass]
-    public class SeleniumWebDriverTest : WebDriverTestBase
+    public class WebDriverTestSelenium : WebDriverTestBase
     {
         static IWebDriver _driver;
 
