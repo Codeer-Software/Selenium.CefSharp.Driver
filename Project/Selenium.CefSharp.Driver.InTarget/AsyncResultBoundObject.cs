@@ -4,7 +4,7 @@
     {
         public void Complete(object value)
         {
-            this.Value = value;
+            this.Value = JSResultConverter.ConvertToSelializable(value);
             this.IsCompleted = true;
         }
 

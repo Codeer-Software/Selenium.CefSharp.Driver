@@ -1,5 +1,4 @@
-﻿using Codeer.Friendly.Dynamic;
-using Codeer.Friendly.Windows;
+﻿using Codeer.Friendly.Windows;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -8,15 +7,15 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
-using Codeer.Friendly.Windows.Grasp;
+using System.Threading.Tasks;
 
 namespace Test
 {
     [TestClass]
-    public class CefSelemiumCompareTestForCefWinForms : CefSeleniumCompareTestBase
+    public class WinFormJavaScriptExecutorTest : JavaScriptExecutorTest
     {
         static WindowsAppFriend _app;
         static CefSharpDriver _driver;
@@ -29,26 +28,14 @@ namespace Test
             _driver.Url = this.GetHtmlUrl();
         }
 
-        //[TestCleanup]
-        //public void TestCleanup() => Process.GetProcessById(_app.ProcessId).Kill();
-
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
             ClassInitBase();
 
-            //start process.
-            var dir = typeof(CefSelemiumCompareTestForCefWinForms).Assembly.Location;
-            for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
-            var processPath = Path.Combine(dir, @"CefSharpWinFormsTarget\bin\x86\Debug\CefSharpWinFormsTarget.exe");
-            var process = Process.Start(processPath);
-
-            //attach by friendly.
-            _app = new WindowsAppFriend(process);
-            var main = _app.WaitForIdentifyFromWindowText("MainWindow");
-
-            //create driver.
-            _driver = new CefSharpDriver(main.Dynamic()._browser);
+            var appWithDriver = AppRunner.RunWinFormApp();
+            _app = appWithDriver.App;
+            _driver = appWithDriver.Driver;
         }
 
         [ClassCleanup]
@@ -70,7 +57,7 @@ namespace Test
     }
 
     [TestClass]
-    public class CefSelemiumCompareTestForCefWPF : CefSeleniumCompareTestBase
+    public class WpfJavaScriptExecutorTest : JavaScriptExecutorTest
     {
         static WindowsAppFriend _app;
         static CefSharpDriver _driver;
@@ -83,26 +70,13 @@ namespace Test
             _driver.Url = this.GetHtmlUrl();
         }
 
-        //[TestCleanup]
-        //public void TestCleanup() => Process.GetProcessById(_app.ProcessId).Kill();
-
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
             ClassInitBase();
-
-            //start process.
-            var dir = typeof(CefSelemiumCompareTestForCefWPF).Assembly.Location;
-            for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
-            var processPath = Path.Combine(dir, @"CefSharpWPFTarget\bin\x86\Debug\CefSharpWPFTarget.exe");
-            var process = Process.Start(processPath);
-
-            //attach by friendly.
-            _app = new WindowsAppFriend(process);
-            var main = _app.WaitForIdentifyFromWindowText("MainWindow");
-
-            //create driver.
-            _driver = new CefSharpDriver(main.Dynamic()._browser);
+            var appWithDriver = AppRunner.RunWpfApp();
+            _app = appWithDriver.App;
+            _driver = appWithDriver.Driver;
         }
 
         [ClassCleanup]
@@ -124,7 +98,7 @@ namespace Test
     }
 
     [TestClass]
-    public class CefSelemiumCompareTestForSelenium : CefSeleniumCompareTestBase
+    public class SeleniumJavaScriptExecutorTest : JavaScriptExecutorTest
     {
         static IWebDriver _driver;
 
@@ -155,26 +129,8 @@ namespace Test
         }
     }
 
-    public abstract class CefSeleniumCompareTestBase
+    public abstract class JavaScriptExecutorTest : CompareTestBase
     {
-        protected static HtmlServer server = null;
-
-        protected static void ClassInitBase()
-        {
-            server = HtmlServer.CreateFromFile("Controls.html");
-        }
-
-        protected static void ClassCleanupBase()
-        {
-            if (server != null) server.Close();
-        }
-
-        public abstract IWebDriver GetDriver();
-
-        private IJavaScriptExecutor GetExecutor() => (IJavaScriptExecutor)GetDriver();
-
-        protected string GetHtmlUrl() => server?.Url;
-
         [TestMethod]
         public void ShouldReturnSameStringWhenExecuteReturnSingleQuotationStringJavaScript()
         {
@@ -412,201 +368,6 @@ return f;");
                 ".filter(n => n.nodeType !== Node.ELEMENT_NODE)[0]"));
         }
 
-        //FindElement(s)ById
-
-        [TestMethod]
-        public void ShouldGetFirstElementWhenUsedFindElementById()
-        {
-            var element = GetDriver().FindElement(By.Id("idtest"));
-            var dataKey = element.GetAttribute("data-key");
-            Assert.AreEqual("1", dataKey);
-        }
-
-        [TestMethod]
-        public void ShouldThrowExceptionWhenMissingElementUsedFindElementById()
-        {
-            Assert.ThrowsException<NoSuchElementException>(() => GetDriver().FindElement(By.Id("idtest_no")));
-        }
-
-        [TestMethod]
-        public void ShouldGetAllElementWhenUsedFindElementsById()
-        {
-            var elements = GetDriver().FindElements(By.Id("idtest"));
-            Assert.AreEqual(3, elements.Count);
-            Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
-            Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
-            Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
-        }
-
-        [TestMethod]
-        public void ShouldIgnoreQuerySelectorNameWhenUsedFindElementsById()
-        {
-            var elements = GetDriver().FindElements(By.Id("form .term"));
-            Assert.AreEqual(0, elements.Count);
-        }
-
-        [TestMethod]
-        public void ShouldReturnEmptyWhenMissingElementsUsedByFindElementsById()
-        {
-            var elements = GetDriver().FindElements(By.Id("idtest_no"));
-            Assert.AreEqual(0, elements.Count);
-        }
-
-        //FindElement(s)ByName
-
-        [TestMethod]
-        public void ShouldGetFirstElementWhenUsedFindElementByName()
-        {
-            var element = GetDriver().FindElement(By.Name("nametest"));
-            var dataKey = element.GetAttribute("data-key");
-            Assert.AreEqual("1", dataKey);
-        }
-
-        [TestMethod]
-        public void ShouldThrowExceptionWhenMissingElementUsedFindElementByName()
-        {
-            Assert.ThrowsException<NoSuchElementException>(() => GetDriver().FindElement(By.Name("nametest_no")));
-        }
-
-        [TestMethod]
-        public void ShouldGetAllElementWhenUsedFindElementsByName()
-        {
-            var elements = GetDriver().FindElements(By.Name("nametest"));
-            Assert.AreEqual(3, elements.Count);
-            Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
-            Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
-            Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
-        }
-
-        [TestMethod]
-        public void ShouldReturnEmptyWhenMissingElementsUsedByFindElementsByName()
-        {
-            var elements = GetDriver().FindElements(By.Name("nametest_no"));
-            Assert.AreEqual(0, elements.Count);
-        }
-
-        //FindElement(s)ByClassName
-
-        [TestMethod]
-        public void ShouldGetFirstElementWhenUsedFindElementByClassName()
-        {
-            var element = GetDriver().FindElement(By.ClassName("classtest"));
-            var dataKey = element.GetAttribute("data-key");
-            Assert.AreEqual("1", dataKey);
-        }
-
-        [TestMethod]
-        public void ShouldThrowExceptionWhenMissingElementUsedFindElementByClassName()
-        {
-            Assert.ThrowsException<NoSuchElementException>(() => GetDriver().FindElement(By.ClassName("classtest_no")));
-        }
-
-        [TestMethod]
-        public void ShouldGetAllElementWhenUsedFindElementsByClassName()
-        {
-            var elements = GetDriver().FindElements(By.ClassName("classtest"));
-            Assert.AreEqual(3, elements.Count);
-            Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
-            Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
-            Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
-        }
-
-        [TestMethod]
-        public void ShouldReturnEmptyWhenMissingElementsUsedByFindElementsByClassName()
-        {
-            var elements = GetDriver().FindElements(By.ClassName("classtest_no"));
-            Assert.AreEqual(0, elements.Count);
-        }
-
-        //FindElement(s)ByCssSelector
-
-        [TestMethod]
-        public void ShouldGetFirstElementWhenUsedFindElementByCssSelector()
-        {
-            var element = GetDriver().FindElement(By.CssSelector(".bytest > #idtest[name='nametest']"));
-            var dataKey = element.GetAttribute("data-key");
-            Assert.AreEqual("1", dataKey);
-        }
-
-        [TestMethod]
-        public void ShouldThrowExceptionWhenMissingElementUsedFindElementByCssSelector()
-        {
-            Assert.ThrowsException<NoSuchElementException>(() => GetDriver().FindElement(By.CssSelector(".bytest > #idtest_no[name='nametest']")));
-        }
-
-        [TestMethod]
-        public void ShouldGetAllElementWhenUsedFindElementsByCssSelector()
-        {
-            var elements = GetDriver().FindElements(By.CssSelector(".bytest > #idtest[name='nametest']"));
-            Assert.AreEqual(2, elements.Count);
-            Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
-            Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
-        }
-
-        [TestMethod]
-        public void ShouldReturnEmptyWhenMissingElementsUsedByFindElementsByCssSelector()
-        {
-            var elements = GetDriver().FindElements(By.CssSelector(".bytest > #idtest[name='nametest_no']"));
-            Assert.AreEqual(0, elements.Count);
-        }
-
-        //FindElement(s)ByTagName
-
-        [TestMethod]
-        public void ShouldGetFirstElementWhenUsedFindElementByTagName()
-        {
-            var element = GetDriver().FindElement(By.TagName("tagtest"));
-            var dataKey = element.GetAttribute("data-key");
-            Assert.AreEqual("1", dataKey);
-        }
-
-        [TestMethod]
-        public void ShouldThrowExceptionWhenMissingElementUsedFindElementByTagName()
-        {
-            Assert.ThrowsException<NoSuchElementException>(() => GetDriver().FindElement(By.TagName("tagtest_no")));
-        }
-
-        [TestMethod]
-        public void ShouldGetAllElementWhenUsedFindElementsByTagName()
-        {
-            var elements = GetDriver().FindElements(By.TagName("tagtest"));
-            Assert.AreEqual(2, elements.Count);
-            Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
-            Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
-        }
-
-        [TestMethod]
-        public void ShouldReturnEmptyWhenMissingElementsUsedByFindElementsByTagName()
-        {
-            var elements = GetDriver().FindElements(By.TagName("tagtest_no"));
-            Assert.AreEqual(0, elements.Count);
-        }
-
-        // Other
-
-        [TestMethod]
-        public void ShouldThrowExceptionWhenReferenceTheRemovedElement()
-        {
-            var element = GetDriver().FindElement(By.Id("textBoxName"));
-            Assert.IsInstanceOfType(element, typeof(IWebElement));
-            element.SendKeys("ABC");
-            GetExecutor().ExecuteScript("const elem = document.querySelector('#textBoxName'); elem.parentNode.removeChild(elem);");
-            Assert.ThrowsException<StaleElementReferenceException>(() => element.SendKeys("DEF"));
-
-            GetExecutor().ExecuteScript(@"
-const elem = document.createElement('input');
-elem.setAttribute('id', 'textBoxName');
-document.body.appendChild(elem);");
-
-            Assert.ThrowsException<StaleElementReferenceException>(() => element.SendKeys("DEF"));
-
-            element = GetDriver().FindElement(By.Id("textBoxName"));
-            Assert.IsInstanceOfType(element, typeof(IWebElement));
-            element.SendKeys("ABC");
-        }
-
-        // Parameter
-
         private void SetupParameterCheckScript()
         {
             GetExecutor().ExecuteScript(@"window._paramcheck = function(params) {
@@ -639,7 +400,7 @@ document.body.appendChild(elem);");
             Assert.AreEqual("[object Number]", value[0].type);
             Assert.AreEqual(123L, value[0].value);
         }
-        
+
         [TestMethod]
         public void MultiParametersShouldPassedMultiArguments()
         {
@@ -666,7 +427,7 @@ document.body.appendChild(elem);");
             Assert.AreEqual("[object Null]", value[0].type);
             Assert.IsNull(value[0].value);
         }
-        
+
         [TestMethod]
         public void StringTypeParamterShouldPassedInStringType()
         {
@@ -753,215 +514,6 @@ document.body.appendChild(elem);");
             Assert.AreEqual(newvalue, input.GetProperty("value"));
         }
 
-        [TestMethod]
-        public void TagName()
-        {
-            var element = GetDriver().FindElement(By.Id("textBoxName"));
-            element.TagName.Is("input");
-        }
-
-        [TestMethod]
-        public void Text()
-        {
-            var element = GetDriver().FindElement(By.Id("labelTitle"));
-            element.Text.Is("Title Controls");
-        }
-
-        [TestMethod]
-        public void Enabled()
-        {
-            GetDriver().FindElement(By.Id("textBoxName")).Enabled.IsTrue();
-            GetDriver().FindElement(By.Id("disabletest")).Enabled.IsFalse();
-        }
-
-        [TestMethod]
-        public void Selected()
-        {
-            var checkBox = GetDriver().FindElement(By.Id("checkBoxCellPhone"));
-            checkBox.Selected.IsFalse();
-            checkBox.Click();
-            checkBox.Selected.IsTrue();
-
-            GetDriver().FindElement(By.Id("opt0")).Selected.IsTrue();
-            GetDriver().FindElement(By.Id("opt1")).Selected.IsFalse();
-
-            GetDriver().FindElement(By.Id("radioMan")).Selected.IsTrue();
-            GetDriver().FindElement(By.Id("radioWoman")).Selected.IsFalse();
-        }
-
-        [TestMethod]
-        public void Location()
-        {
-            var element = GetDriver().FindElement(By.Id("textBoxName"));
-            var x = element.Location;
-
-            //Different from browser
-        }
-
-        [TestMethod]
-        public void Size()
-        {
-            var element = GetDriver().FindElement(By.Id("textBoxName"));
-            var size = element.Size;
-
-            //Different from browser
-        }
-
-        [TestMethod]
-        public void Displayed()
-        {
-            GetDriver().FindElement(By.Id("disabletest")).Displayed.IsTrue();
-            GetDriver().FindElement(By.Id("not_displayed")).Displayed.IsFalse();
-        }
-
-        [TestMethod]
-        public void Clear()
-        {
-            var element = GetDriver().FindElement(By.Id("textBoxName"));
-            element.GetAttribute("value").Is("ABCDE");
-            element.Clear();
-            element.GetAttribute("value").Is("");
-        }
-
-        [TestMethod]
-        public void GetCssValue()
-        {
-            var element = GetDriver().FindElement(By.Id("not_displayed"));
-            element.GetCssValue("display").Is("none");
-        }
-
-        [TestMethod]
-        public void Submit()
-        {
-            var element = GetDriver().FindElement(By.Id("form"));
-            element.Submit();
-        }
-
-        [TestMethod]
-        public void ShouldGetFirstElementWhenUsedFindElementByIdFromElement()
-        {
-            var element = GetDriver().FindElement(By.ClassName("bytest")).FindElement(By.Id("idtest"));
-            var dataKey = element.GetAttribute("data-key");
-            Assert.AreEqual("1", dataKey);
-        }
-
-
-        [TestMethod]
-        public void ShouldGetFirstElementWhenUsedFindElementByNameFromElement()
-        {
-            var element = GetDriver().FindElement(By.ClassName("bytest")).FindElement(By.Name("nametest"));
-            var dataKey = element.GetAttribute("data-key");
-            Assert.AreEqual("1", dataKey);
-        }
-
-        [TestMethod]
-        public void ShouldGetFirstElementWhenUsedFindElementByClassNameFromElement()
-        {
-            var element = GetDriver().FindElement(By.ClassName("bytest")).FindElement(By.ClassName("classtest"));
-            var dataKey = element.GetAttribute("data-key");
-            Assert.AreEqual("1", dataKey);
-        }
-
-        [TestMethod]
-        public void ShouldGetFirstElementWhenUsedFindElementByTagNameFromElement()
-        {
-            var element = GetDriver().FindElement(By.ClassName("bytest")).FindElement(By.TagName("tagtest"));
-            var dataKey = element.GetAttribute("data-key");
-            Assert.AreEqual("1", dataKey);
-        }
-
-        [TestMethod]
-        public void ShouldGetFirstElementWhenUsedFindElementByCssSelectorFromElement()
-        {
-            var element = GetDriver().FindElement(By.ClassName("bytest")).FindElement(By.CssSelector("#idtest[name='nametest']"));
-            var dataKey = element.GetAttribute("data-key");
-            Assert.AreEqual("1", dataKey);
-        }
-
-        [TestMethod]
-        public void ShouldGetAllElementWhenUsedFindElementsByIdFromElement()
-        {
-            var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.Id("idtest"));
-            Assert.AreEqual(3, elements.Count);
-            Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
-            Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
-            Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
-        }
-
-        [TestMethod]
-        public void ShouldReturnEmptyWhenMissingElementsUsedByFindElementsByIdFromElement()
-        {
-            var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.Id("idtest_no"));
-            Assert.AreEqual(0, elements.Count);
-        }
-
-        [TestMethod]
-        public void ShouldGetAllElementWhenUsedFindElementsByNameFromElement()
-        {
-            var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.Name("nametest"));
-            Assert.AreEqual(3, elements.Count);
-            Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
-            Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
-            Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
-        }
-
-        [TestMethod]
-        public void ShouldReturnEmptyWhenMissingElementsUsedByFindElementsByNameFromElement()
-        {
-            var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.Name("nametest_no"));
-            Assert.AreEqual(0, elements.Count);
-        }
-
-        [TestMethod]
-        public void ShouldGetAllElementWhenUsedFindElementsByClassNameFromElement()
-        {
-            var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.ClassName("classtest"));
-            Assert.AreEqual(3, elements.Count);
-            Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
-            Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
-            Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
-        }
-
-        [TestMethod]
-        public void ShouldReturnEmptyWhenMissingElementsUsedByFindElementsByClassNameFromElement()
-        {
-            var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.ClassName("classtest_no"));
-            Assert.AreEqual(0, elements.Count);
-        }
-
-        [TestMethod]
-        public void ShouldGetAllElementWhenUsedFindElementsByCssSelectorFromElement()
-        {
-            var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.CssSelector("#idtest[name='nametest']"));
-            Assert.AreEqual(3, elements.Count);
-            Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
-            Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
-            Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
-        }
-
-        [TestMethod]
-        public void ShouldReturnEmptyWhenMissingElementsUsedByFindElementsByCssSelectorFromElement()
-        {
-            var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.CssSelector("#idtest[name='nametest_no']"));
-            Assert.AreEqual(0, elements.Count);
-        }
-
-        [TestMethod]
-        public void ShouldGetAllElementWhenUsedFindElementsByTagNameFromElement()
-        {
-            var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.TagName("tagtest"));
-
-            Assert.AreEqual(2, elements.Count);
-            Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
-            Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
-        }
-
-        [TestMethod]
-        public void ShouldReturnEmptyWhenMissingElementsUsedByFindElementsByTagNameFromElement()
-        {
-            var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.TagName("tagtest_no"));
-            Assert.AreEqual(0, elements.Count);
-        }
 
         [TestMethod]
         public void ShouldGetAsyncCallbackResult()
@@ -972,10 +524,43 @@ const callback = arguments[arguments.length - 1];
 const param1 = arguments[0];
 window.setTimeout(() => {{
     callback(param1 + "" world"");
-}}, {1000});
+}}, {100});
 ", "Hello");
             //timeout.TotalMilliseconds + 1000
             Assert.AreEqual("Hello world", result);
+        }
+
+        [TestMethod]
+        public void ExecuteAsyncScript_DictionalyParameterShouldPassedInObject()
+        {
+            var param = new Dictionary<string, object>()
+            {
+                { "key1", 123 }, { "key2", "ABCD" }, { "key3", true }
+            };
+            var result = GetExecutor().ExecuteAsyncScript($@"
+const callback = arguments[arguments.length - 1];
+const param = arguments[0];
+window.setTimeout(() => {{
+    callback(param.key1 === 123 && param.key2 === 'ABCD' && param.key3);
+}}, {100});
+", param);
+            result.Is(true);
+        }
+
+        [TestMethod]
+        public void ExecuteAsyncScript_ShouldReturnDicitionaryWhenReturnObjectFromScript()
+        {
+            var value = GetExecutor().ExecuteAsyncScript($@"
+const callback = arguments[arguments.length - 1];
+window.setTimeout(() => {{
+    callback({{A:'a', B:123, C: false}});
+}}, {100});
+");
+            Assert.AreEqual(typeof(Dictionary<string, object>), value.GetType());
+            var resultValue = (Dictionary<string, object>)value;
+            Assert.AreEqual("a", resultValue["A"]);
+            Assert.AreEqual(123L, resultValue["B"]);
+            Assert.AreEqual(false, resultValue["C"]);
         }
     }
 }
