@@ -42,6 +42,9 @@
                     nodes.push(result.snapshotItem(i));
                 }
                 return nodes;
+            },
+            isUndefOrNull(value) {
+                return typeof value === 'undefined' || value === null;
             }
         };
     })();
@@ -56,7 +59,11 @@
 
         public static string GetAttribute(int id, string attrName) => $@"
 const elem = {FindElementByEntryIdScriptBody(id)};
-return elem.getAttribute('{attrName}');";
+const value = elem['{attrName}'];
+if(window.__seleniumCefSharpDriver.isUndefOrNull(value)) {{
+    return elem.getAttribute('{attrName}');
+}}
+return value + '';";
 
         public static string SetAttribute(int id, string attrName, string value) => $@"
 const elem = {FindElementByEntryIdScriptBody(id)};

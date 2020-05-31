@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Automation.Peers;
 
 namespace Test
 {
@@ -353,5 +354,76 @@ namespace Test
             elements.Count.Is(0);
         }
 
+        private void InitAttr()
+        {
+            GetExecutor().ExecuteScript(@"delete document.getElementById('attrTestInput').bar;
+delete document.getElementById('attrTestInput').foo;");
+        }
+
+        [TestMethod]
+        public void GetAttribute_ShouldReturnAttributeValue()
+        {
+            InitAttr();
+            var elem = GetDriver().FindElement(By.Id("attrTestInput"));
+            var value = elem.GetAttribute("foo");
+            value.Is("fooattr");
+        }
+
+        [TestMethod]
+        public void GetAttribute_ShouldReturnPropertyValueIfHasNotAttribute()
+        {
+            InitAttr();
+            GetExecutor().ExecuteScript("document.getElementById('attrTestInput').bar = 'barprop';");
+            var elem = GetDriver().FindElement(By.Id("attrTestInput"));
+            var value = elem.GetAttribute("bar");
+            value.Is("barprop");
+        }
+
+        [TestMethod]
+        public void GetAttribute_PorpValueShouldBeReturndByOverwritingAttrValue()
+        {
+            InitAttr();
+            GetExecutor().ExecuteScript("document.getElementById('attrTestInput').foo = 'foodynamic';");
+            var attrValue = GetExecutor().ExecuteScript("return document.getElementById('attrTestInput').getAttribute('foo');");
+            var elem = GetDriver().FindElement(By.Id("attrTestInput"));
+            var value = elem.GetAttribute("foo");
+
+            // selenium は attribute と property を混同して扱っている模様。
+            // property の値を先に返している。
+
+            attrValue.Is("fooattr");
+            value.Is("foodynamic");
+        }
+
+        [TestMethod]
+        public void GetAttribute_IfPropetyIsNull_ReturnAttributeValue()
+        {
+            InitAttr();
+            GetExecutor().ExecuteScript("document.getElementById('attrTestInput').foo = null;");
+            var elem = GetDriver().FindElement(By.Id("attrTestInput"));
+            var value = elem.GetAttribute("foo");
+            // selenium は attribute と property を混同して扱っている模様。
+            // property の値がnullの場合は attribute の値を返している。
+            value.Is("fooattr");
+        }
+
+        [TestMethod]
+        public void GetProperty_ShouldNotReturnAttributeValue()
+        {
+            InitAttr();
+            var elem = GetDriver().FindElement(By.Id("attrTestInput"));
+            var value = elem.GetProperty("foo");
+            value.IsNull();
+        }
+
+        [TestMethod]
+        public void GetProperty_ShouldReturnPropertyValue()
+        {
+            InitAttr();
+            GetExecutor().ExecuteScript("document.getElementById('attrTestInput').foo = 'foodynamic';");
+            var elem = GetDriver().FindElement(By.Id("attrTestInput"));
+            var value = elem.GetProperty("foo");
+            value.Is("foodynamic");
+        }
     }
 }
