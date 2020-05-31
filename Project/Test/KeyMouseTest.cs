@@ -5,11 +5,14 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using Selenium.CefSharp.Driver;
 using OpenQA.Selenium.Chrome;
+using System.Windows.Documents;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace Test
 {
     [TestClass]
-    public class BasicTestWinForms : BasicTest
+    public class KeyMouseTestWinForms : KeyMouseTest
     {
         static WindowsAppFriend _app;
         static CefSharpDriver _driver;
@@ -38,7 +41,7 @@ namespace Test
     }
 
     [TestClass]
-    public class BasicTestWpf : BasicTest
+    public class KeyMouseTestWpf : KeyMouseTest
     {
         static WindowsAppFriend _app;
         static CefSharpDriver _driver;
@@ -67,7 +70,7 @@ namespace Test
     }
 
     [TestClass]
-    public class BasicTestWeb : BasicTest
+    public class KeyMouseTestWeb : KeyMouseTest
     {
         static IWebDriver _driver;
 
@@ -76,7 +79,6 @@ namespace Test
         [TestInitialize]
         public void initialize()
         {
-            _driver.Url = "https://github.com/Codeer-Software/Selenium.CefSharp.Driver";
             _driver.Url = this.GetHtmlUrl();
         }
 
@@ -93,7 +95,7 @@ namespace Test
         }
     }
 
-    public abstract class BasicTest
+    public abstract class KeyMouseTest
     {
         public abstract IWebDriver GetDriver();
 
@@ -105,30 +107,66 @@ namespace Test
         }
 
         [TestMethod]
-        public void TestTitle()
+        public void Click()
         {
-            GetDriver().Title.Is("Controls for Test");
+            var buttonJs = GetDriver().FindElement(By.Id("inputJS"));
+            buttonJs.Click();
+            var textBoxName = GetDriver().FindElement(By.Id("textBoxName"));
+            textBoxName.GetAttribute("value").Is("JS");
         }
 
         [TestMethod]
-        public void TestPageSource()
+        public void SendKey()
         {
-            //check only not to throw exception.
-            var pageSource = GetDriver().PageSource;
+            var textBoxName = GetDriver().FindElement(By.Id("textBoxName"));
+            textBoxName.SendKeys(Keys.Control + "a");
+            textBoxName.SendKeys("abc");
+            textBoxName.GetAttribute("value").Is("abc");
+            textBoxName.SendKeys(Keys.Control + "a");
+            textBoxName.SendKeys(Keys.Shift + "abc");
+            textBoxName.GetAttribute("value").Is("ABC");
         }
 
         [TestMethod]
-        public void TestNavigation()
+        public void SendKeyModifyKeys()
         {
-            var navigate = GetDriver().Navigate();
-            navigate.Back();
-            GetDriver().Url.Contains("Selenium.CefSharp.Driver").IsTrue();
-            navigate.Forward();
-            GetDriver().Url.Contains("Controls").IsTrue();
-            navigate.GoToUrl("https://github.com/Codeer-Software/Selenium.CefSharp.Driver");
-            GetDriver().Url.Contains("Selenium.CefSharp.Driver").IsTrue();
-            navigate.Refresh();
-            GetDriver().Url.Contains("Selenium.CefSharp.Driver").IsTrue();
+            var keyTest = GetDriver().FindElement(By.Id("keyTest"));
+
+            keyTest.SendKeys(Keys.Alt + Keys.Control + "g");
+
+            var ret1 = PopKeyLog();
+            ret1.Is(new[] 
+            {
+                "Alt[alt]",
+                "Control[control][alt]",
+                "g[control][alt]",
+            });
+
+            keyTest.SendKeys(Keys.Shift + Keys.Alt + Keys.Control + "g");
+            var ret2 = PopKeyLog();
+
+            //Allow the case that the key taken by keydown when pressing shift key is different in case.
+            ret2[3] = ret2[3].ToLower();
+
+            ret2.Is(new[]
+            {
+                "Shift[shift]",
+                "Alt[shift][alt]" ,
+                "Control[control][shift][alt]",
+                "g[control][shift][alt]"  ,
+            });
+        }
+
+        string[] PopKeyLog()
+        {
+            dynamic ret = ((IJavaScriptExecutor)GetDriver()).ExecuteScript("return window.keylog;");
+            ((IJavaScriptExecutor)GetDriver()).ExecuteScript("window.keylog = [];");
+            var list = new List<string>();
+            foreach (var e in ret)
+            {
+                list.Add(e);
+            }
+            return list.ToArray();
         }
     }
 }

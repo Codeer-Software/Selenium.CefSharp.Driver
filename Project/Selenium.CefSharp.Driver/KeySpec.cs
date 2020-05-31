@@ -3,13 +3,28 @@ using Codeer.Friendly.Windows.KeyMouse;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace Selenium.CefSharp.Driver
 {
     static class KeySpec
     {
-        static Dictionary<string, Action<WindowsAppFriend, List<Keys>>> SpecialKeys = new Dictionary<string, Action<WindowsAppFriend, List<Keys>>>();
+        enum KeyAction
+        { 
+            Down,
+            Up,
+            DownUp
+        }
+
+        static Dictionary<Keys, string> WinFormsSendKeysModifyText = new Dictionary<Keys, string>
+        {
+            { Keys.Menu, "%"},
+            { Keys.ControlKey, "^"},
+            { Keys.ShiftKey, "+"},
+        };
+
+        static Dictionary<string, Action<KeyAction, WindowsAppFriend, List<Keys>>> SpecialKeys = new Dictionary<string, Action<KeyAction, WindowsAppFriend, List<Keys>>>();
 
         static KeySpec()
         {
@@ -17,32 +32,83 @@ namespace Selenium.CefSharp.Driver
             {
                 if (Enum.TryParse<Keys>(e.Name, out var result))
                 {
-                    SpecialKeys[(string)e.GetValue(null)] = (app, modifyKeys) => SendModifyAndKey(app, result, modifyKeys);
+                    SpecialKeys[(string)e.GetValue(null)] = (keyAction, app, modifyKeys) => SendSpecialKey(keyAction, app, result, modifyKeys);
                 }
             }
 
-            SpecialKeys[OpenQA.Selenium.Keys.Backspace] = (app, modifyKeys) => SendModifyAndKey(app, Keys.Back, modifyKeys);
-            SpecialKeys[OpenQA.Selenium.Keys.Semicolon] = (app, modifyKeys) => SendModifyAndKey(app, Keys.OemSemicolon, modifyKeys);
-            SpecialKeys[OpenQA.Selenium.Keys.NumberPad0] = (app, modifyKeys) => SendModifyAndKey(app, Keys.NumPad0, modifyKeys);
-            SpecialKeys[OpenQA.Selenium.Keys.NumberPad1] = (app, modifyKeys) => SendModifyAndKey(app, Keys.NumPad1, modifyKeys);
-            SpecialKeys[OpenQA.Selenium.Keys.NumberPad2] = (app, modifyKeys) => SendModifyAndKey(app, Keys.NumPad2, modifyKeys);
-            SpecialKeys[OpenQA.Selenium.Keys.NumberPad3] = (app, modifyKeys) => SendModifyAndKey(app, Keys.NumPad3, modifyKeys);
-            SpecialKeys[OpenQA.Selenium.Keys.NumberPad4] = (app, modifyKeys) => SendModifyAndKey(app, Keys.NumPad4, modifyKeys);
-            SpecialKeys[OpenQA.Selenium.Keys.NumberPad5] = (app, modifyKeys) => SendModifyAndKey(app, Keys.NumPad5, modifyKeys);
-            SpecialKeys[OpenQA.Selenium.Keys.NumberPad6] = (app, modifyKeys) => SendModifyAndKey(app, Keys.NumPad6, modifyKeys);
-            SpecialKeys[OpenQA.Selenium.Keys.NumberPad7] = (app, modifyKeys) => SendModifyAndKey(app, Keys.NumPad7, modifyKeys);
-            SpecialKeys[OpenQA.Selenium.Keys.NumberPad8] = (app, modifyKeys) => SendModifyAndKey(app, Keys.NumPad8, modifyKeys);
-            SpecialKeys[OpenQA.Selenium.Keys.NumberPad9] = (app, modifyKeys) => SendModifyAndKey(app, Keys.NumPad9, modifyKeys);
-            SpecialKeys[OpenQA.Selenium.Keys.LeftShift] = (app, modifyKeys) => modifyKeys.Add(Keys.Shift);
-            SpecialKeys[OpenQA.Selenium.Keys.LeftControl] = (app, modifyKeys) => modifyKeys.Add(Keys.Control);
-            SpecialKeys[OpenQA.Selenium.Keys.LeftAlt] = (app, modifyKeys) => modifyKeys.Add(Keys.Alt);
-            SpecialKeys[OpenQA.Selenium.Keys.Null] = (_, __) => { };
-            SpecialKeys[OpenQA.Selenium.Keys.Equal] = (_, __) => { };
-            SpecialKeys[OpenQA.Selenium.Keys.Meta] = (_, __) => { };
-            SpecialKeys[OpenQA.Selenium.Keys.Command] = (_, __) => { };
+            SpecialKeys[OpenQA.Selenium.Keys.Backspace] = (keyAction, app, modifyKeys) => SendSpecialKey(keyAction, app, Keys.Back, modifyKeys);
+            SpecialKeys[OpenQA.Selenium.Keys.Semicolon] = (keyAction, app, modifyKeys) => SendSpecialKey(keyAction, app, Keys.OemSemicolon, modifyKeys);
+            SpecialKeys[OpenQA.Selenium.Keys.NumberPad0] = (keyAction, app, modifyKeys) => SendSpecialKey(keyAction, app, Keys.NumPad0, modifyKeys);
+            SpecialKeys[OpenQA.Selenium.Keys.NumberPad1] = (keyAction, app, modifyKeys) => SendSpecialKey(keyAction, app, Keys.NumPad1, modifyKeys);
+            SpecialKeys[OpenQA.Selenium.Keys.NumberPad2] = (keyAction, app, modifyKeys) => SendSpecialKey(keyAction, app, Keys.NumPad2, modifyKeys);
+            SpecialKeys[OpenQA.Selenium.Keys.NumberPad3] = (keyAction, app, modifyKeys) => SendSpecialKey(keyAction, app, Keys.NumPad3, modifyKeys);
+            SpecialKeys[OpenQA.Selenium.Keys.NumberPad4] = (keyAction, app, modifyKeys) => SendSpecialKey(keyAction, app, Keys.NumPad4, modifyKeys);
+            SpecialKeys[OpenQA.Selenium.Keys.NumberPad5] = (keyAction, app, modifyKeys) => SendSpecialKey(keyAction, app, Keys.NumPad5, modifyKeys);
+            SpecialKeys[OpenQA.Selenium.Keys.NumberPad6] = (keyAction, app, modifyKeys) => SendSpecialKey(keyAction, app, Keys.NumPad6, modifyKeys);
+            SpecialKeys[OpenQA.Selenium.Keys.NumberPad7] = (keyAction, app, modifyKeys) => SendSpecialKey(keyAction, app, Keys.NumPad7, modifyKeys);
+            SpecialKeys[OpenQA.Selenium.Keys.NumberPad8] = (keyAction, app, modifyKeys) => SendSpecialKey(keyAction, app, Keys.NumPad8, modifyKeys);
+            SpecialKeys[OpenQA.Selenium.Keys.NumberPad9] = (keyAction, app, modifyKeys) => SendSpecialKey(keyAction, app, Keys.NumPad9, modifyKeys);
+            SpecialKeys[OpenQA.Selenium.Keys.LeftShift] = (keyAction, app, modifyKeys) => SendModifyKey(keyAction, app, modifyKeys, Keys.ShiftKey);
+            SpecialKeys[OpenQA.Selenium.Keys.LeftControl] = (keyAction, app, modifyKeys) => SendModifyKey(keyAction, app, modifyKeys, Keys.ControlKey);
+            SpecialKeys[OpenQA.Selenium.Keys.LeftAlt] = (keyAction, app, modifyKeys) => SendModifyKey(keyAction, app, modifyKeys, Keys.Menu);
+            SpecialKeys[OpenQA.Selenium.Keys.Null] = (_, __, ___) => { };
+            SpecialKeys[OpenQA.Selenium.Keys.Equal] = (_, __, ___) => { };
+            SpecialKeys[OpenQA.Selenium.Keys.Meta] = (_, __, ___) => { };
+            SpecialKeys[OpenQA.Selenium.Keys.Command] = (_, __, ___) => { };
         }
 
         internal static void SendKeys(WindowsAppFriend app, string keys)
+        {
+            if (IsSimpleModify(keys))
+            {
+                //For alphanumeric characters and modifier keys only, make the key up / down order closer to human operation
+                SendSimpleModifyKeys(app, keys);
+            }
+            else
+            {
+                //If the modifier key is not included, it works the same as selenium. However, if the modifier keys and non-alphanumeric characters are mixed, they will not be exactly the same.
+                keys = SendKeysCore(app, keys);
+            }
+        }
+
+        static void SendSimpleModifyKeys(WindowsAppFriend app, string keys)
+        {
+            var modifyKeyUp = new List<Action>();
+            foreach (var e in keys)
+            {
+                if (SpecialKeys.TryGetValue(e.ToString(), out var sendSpecialKey))
+                {
+                    sendSpecialKey(KeyAction.Down, app, new List<Keys>());
+                    modifyKeyUp.Add(() => sendSpecialKey(KeyAction.Up, app, new List<Keys>()));
+                }
+                else
+                {
+                    var keyCode = (Keys)e.ToString().ToUpper()[0];
+                    app.KeyDown(keyCode);
+                    app.KeyUp(keyCode);
+                }
+            }
+            modifyKeyUp.Reverse();
+            modifyKeyUp.ForEach(e => e());
+        }
+
+        static void SendModifyKey(KeyAction keyAction, WindowsAppFriend app, List<Keys> modifyKeys, Keys key)
+        {
+            switch (keyAction)
+            {
+                case KeyAction.Down:
+                    app.KeyDown(key);
+                    break;
+                case KeyAction.Up:
+                    app.KeyUp(key);
+                    break;
+                case KeyAction.DownUp:
+                    modifyKeys.Add(key);
+                    break;
+            }
+        }
+
+        static string SendKeysCore(WindowsAppFriend app, string keys)
         {
             var modifyed = new List<Keys>();
             int f(int n) => n >= 1 ? n * f(n - 1) : 1;
@@ -59,19 +125,36 @@ namespace Selenium.CefSharp.Driver
                 var before = keys.Substring(0, special.index);
                 if (!string.IsNullOrEmpty(before))
                 {
-                    app.SendKeys(before);
+                    ModifyAndAdjustSendKeys(app, before, modifyed);
                 }
 
-                special.execute(app, modifyed);
+                special.execute(KeyAction.DownUp, app, modifyed);
 
                 keys = keys.Substring(special.index + special.Key.Length);
             }
 
-            modifyed.ForEach(e => app.KeyUp(e));
+            return keys;
         }
 
-        static void SendModifyAndKey(WindowsAppFriend app, Keys key, List<Keys> modifyKeys)
-            => app.SendModifyAndKey(modifyKeys.Contains(Keys.Control), modifyKeys.Contains(Keys.Shift), modifyKeys.Contains(Keys.Alt), key);
+        static void SendSpecialKey(KeyAction keyAction, WindowsAppFriend app, Keys key, List<Keys> modifyKeys)
+        {
+            switch (keyAction)
+            {
+                case KeyAction.Down:
+                    app.KeyDown(key);
+                    break;
+                case KeyAction.Up:
+                    app.KeyUp(key);
+                    break;
+                case KeyAction.DownUp:
+                    var modifyKeysDistinct = modifyKeys.Distinct().ToList();
+                    modifyKeysDistinct.ForEach(e => app.KeyDown(e));
+                    app.SendKey(key);
+                    modifyKeysDistinct.Reverse();
+                    modifyKeysDistinct.ForEach(e => app.KeyUp(e));
+                    break;
+            }
+        }
 
         static void ModifyAndAdjustSendKeys(WindowsAppFriend app, string keys, List<Keys> modifyKeys)
         {
@@ -84,13 +167,19 @@ namespace Selenium.CefSharp.Driver
             keys = keys.Replace("^", "{^}");
 
             //modify
-            var modify = string.Empty;
-            if (modifyKeys.Contains(Keys.Alt)) modify += "%";
-            if (modifyKeys.Contains(Keys.Control)) modify += "^";
-            if (modifyKeys.Contains(Keys.Shift)) modify += "+";
+            var modify = string.Join(string.Empty, modifyKeys.Select(e => WinFormsSendKeysModifyText[e]));
             if (!string.IsNullOrEmpty(modify)) keys = modify + "(" + keys + ")";
 
             app.SendKeys(keys);
+        }
+
+        public static bool IsSimpleModify(string target)
+        {
+            foreach (var e in SpecialKeys)
+            {
+                target = target.Replace(e.Key, string.Empty);
+            }
+            return !Regex.IsMatch(target, @"[^a-zA-z0-9]");
         }
     }
 }

@@ -2,14 +2,9 @@
 <html>
 <head>
 	<title>Controls for Test</title>
-	<script>
-	    function clickJS(){
-	    document.getElementById("textBoxName").value = "JS";
-	    }
-	</script>
 </head>
 <body>
-	<form id = "form" method="post" action="/courier/htm-form">
+	<form id="form" method="post" action="/courier/htm-form">
 		<!-- this is comment node -->
 		<label id="labelTitle">Title Controls</label><br />
 		<table>
@@ -18,6 +13,11 @@
 			</colgroup>
 			<colgroup class="term"></colgroup>
 			<tbody>
+				<tr>
+					<td>Key Test：</td>
+					<td><input id="keyTest" type="text" value="" /></td>
+				</tr>
+
 				<tr>
 					<td>Name：</td>
 					<td><input id="textBoxName" type="text" value="ABCDE" /></td>
@@ -105,5 +105,30 @@
 	<div class="attr-test">
 		<input id="attrTestInput" foo="fooattr" value="init" />
 	</div>
+	<script>
+		function clickJS() {
+			document.getElementById("textBoxName").value = "JS";
+		}
+
+        keyTest.addEventListener('keydown', (event) => {
+			if (window.keylog == null) {
+				window.keylog = [];
+			}
+
+			let key = event.key;
+
+			if (event.ctrlKey) {
+				key += "[control]";
+			}
+			if (event.shiftKey) {
+				key += "[shift]";
+			} 
+            if (event.altKey) {
+                key += "[alt]";
+            }
+			window.keylog.push(key);
+		});
+	</script>
 </body>
+
 </html>
