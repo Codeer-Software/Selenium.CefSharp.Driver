@@ -69,7 +69,7 @@ namespace Selenium.CefSharp.Driver
             }
         }
 
-        public string Title => IsWPF ? this.Dynamic().Title : this.Dynamic().Text;
+        public string Title => (string)ExecuteScript("return document.title;");
 
         public string PageSource => WebBrowserExtensions.GetSourceAsync(this).Result;
 
