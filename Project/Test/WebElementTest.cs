@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace Test
 {
     [TestClass]
-    public class WinFormWebElementTest : WebElementTestBase
+    public class WebElementTestWinForm : WebElementTestBase
     {
         static WindowsAppFriend _app;
         static CefSharpDriver _driver;
@@ -45,7 +45,7 @@ namespace Test
     }
 
     [TestClass]
-    public class WpfWebElementTest : WebElementTestBase
+    public class WebElementTestWPF : WebElementTestBase
     {
         static WindowsAppFriend _app;
         static CefSharpDriver _driver;
@@ -76,7 +76,7 @@ namespace Test
     }
 
     [TestClass]
-    public class SeleniumWebElementTest : WebElementTestBase
+    public class WebElementTestSelenium : WebElementTestBase
     {
         static IWebDriver _driver;
 

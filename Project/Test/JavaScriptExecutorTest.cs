@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace Test
 {
     [TestClass]
-    public class WinFormJavaScriptExecutorTest : JavaScriptExecutorTest
+    public class JavaScriptExecutorTestWinForm : JavaScriptExecutorTestBase
     {
         static WindowsAppFriend _app;
         static CefSharpDriver _driver;
@@ -57,7 +57,7 @@ namespace Test
     }
 
     [TestClass]
-    public class WpfJavaScriptExecutorTest : JavaScriptExecutorTest
+    public class JavaScriptExecutorTestWPF : JavaScriptExecutorTestBase
     {
         static WindowsAppFriend _app;
         static CefSharpDriver _driver;
@@ -98,7 +98,7 @@ namespace Test
     }
 
     [TestClass]
-    public class SeleniumJavaScriptExecutorTest : JavaScriptExecutorTest
+    public class JavaScriptExecutorTestSelenium : JavaScriptExecutorTestBase
     {
         static IWebDriver _driver;
 
@@ -129,7 +129,7 @@ namespace Test
         }
     }
 
-    public abstract class JavaScriptExecutorTest : CompareTestBase
+    public abstract class JavaScriptExecutorTestBase : CompareTestBase
     {
         [TestMethod]
         public void ShouldReturnSameStringWhenExecuteReturnSingleQuotationStringJavaScript()

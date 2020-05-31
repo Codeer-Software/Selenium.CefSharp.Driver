@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace Test
 {
     [TestClass]
-    public class WinFormSelectElementTest : SelectElementTestBase
+    public class SelectElementTestWinForm : SelectElementTestBase
     {
         static WindowsAppFriend _app;
         static CefSharpDriver _driver;
@@ -46,7 +46,7 @@ namespace Test
     }
 
     [TestClass]
-    public class WpfSelectElementTest : SelectElementTestBase
+    public class SelectElementTestWPF : SelectElementTestBase
     {
         static WindowsAppFriend _app;
         static CefSharpDriver _driver;
@@ -77,7 +77,7 @@ namespace Test
     }
 
     [TestClass]
-    public class SeleniumSelectElementTest : SelectElementTestBase
+    public class SelectElementTestSelenium : SelectElementTestBase
     {
         static IWebDriver _driver;
 
