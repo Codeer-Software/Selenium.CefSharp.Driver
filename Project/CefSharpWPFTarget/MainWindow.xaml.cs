@@ -38,6 +38,12 @@ namespace CefSharpWPFTarget
             base.OnKeyDown(e);
 
             if (Keyboard.Modifiers != ModifierKeys.Control) return;
+
+            if (e.Key == Key.W)
+            {
+                _browser.ShowDevTools();
+            }
+
             if (e.Key == Key.Q)
             {
                 _browser.Address = @"C:\GitHub\Selenium.CefSharp.Driver\Project\Test\Controls.html";
