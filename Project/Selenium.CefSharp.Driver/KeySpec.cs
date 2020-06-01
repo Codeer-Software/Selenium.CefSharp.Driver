@@ -48,13 +48,16 @@ namespace Selenium.CefSharp.Driver
             SpecialKeys[OpenQA.Selenium.Keys.NumberPad7] = (keyAction, app, modifyKeys) => SendSpecialKey(keyAction, app, Keys.NumPad7, modifyKeys);
             SpecialKeys[OpenQA.Selenium.Keys.NumberPad8] = (keyAction, app, modifyKeys) => SendSpecialKey(keyAction, app, Keys.NumPad8, modifyKeys);
             SpecialKeys[OpenQA.Selenium.Keys.NumberPad9] = (keyAction, app, modifyKeys) => SendSpecialKey(keyAction, app, Keys.NumPad9, modifyKeys);
+            SpecialKeys[OpenQA.Selenium.Keys.Shift] = (keyAction, app, modifyKeys) => SendModifyKey(keyAction, app, modifyKeys, Keys.ShiftKey);
             SpecialKeys[OpenQA.Selenium.Keys.LeftShift] = (keyAction, app, modifyKeys) => SendModifyKey(keyAction, app, modifyKeys, Keys.ShiftKey);
+            SpecialKeys[OpenQA.Selenium.Keys.Control] = (keyAction, app, modifyKeys) => SendModifyKey(keyAction, app, modifyKeys, Keys.ControlKey);
             SpecialKeys[OpenQA.Selenium.Keys.LeftControl] = (keyAction, app, modifyKeys) => SendModifyKey(keyAction, app, modifyKeys, Keys.ControlKey);
+            SpecialKeys[OpenQA.Selenium.Keys.Alt] = (keyAction, app, modifyKeys) => SendModifyKey(keyAction, app, modifyKeys, Keys.Menu);
             SpecialKeys[OpenQA.Selenium.Keys.LeftAlt] = (keyAction, app, modifyKeys) => SendModifyKey(keyAction, app, modifyKeys, Keys.Menu);
             SpecialKeys[OpenQA.Selenium.Keys.Null] = (_, __, ___) => { };
-            SpecialKeys[OpenQA.Selenium.Keys.Equal] = (_, __, ___) => { };
-            SpecialKeys[OpenQA.Selenium.Keys.Meta] = (_, __, ___) => { };
-            SpecialKeys[OpenQA.Selenium.Keys.Command] = (_, __, ___) => { };
+            SpecialKeys[OpenQA.Selenium.Keys.Equal] = (_, __, ___) => throw new NotSupportedException("Keys.Equal is not supprted. Please use \"=\".");
+            SpecialKeys[OpenQA.Selenium.Keys.Meta] = (_, __, ___) => throw new NotSupportedException("Keys.Meta is not supprted. Please don't use it.");
+            SpecialKeys[OpenQA.Selenium.Keys.Command] = (_, __, ___) => throw new NotSupportedException("Keys.Command is not supprted. Please don't use it.");
         }
 
         internal static void SendKeys(WindowsAppFriend app, string keys)
