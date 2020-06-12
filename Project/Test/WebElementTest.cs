@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Internal;
 using Selenium.CefSharp.Driver;
 using System;
 using System.Collections.Generic;
@@ -194,139 +195,186 @@ namespace Test
             element.Submit();
         }
 
+        //TODO LinkText, PartialLinkText
+
         [TestMethod]
         public void FindElementById_ShouldReturnFirstElement()
         {
-            var element = GetDriver().FindElement(By.ClassName("bytest")).FindElement(By.Id("idtest"));
-            var dataKey = element.GetAttribute("data-key");
-            Assert.AreEqual("1", dataKey);
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var element in new[] { context.FindElement(By.Id("idtest")), ((IFindsById)context).FindElementById("idtest") })
+            {
+                var dataKey = element.GetAttribute("data-key");
+                Assert.AreEqual("1", dataKey);
+            }
         }
-
 
         [TestMethod]
         public void FindElementByName_ShouldReturnFirstElement()
         {
-            var element = GetDriver().FindElement(By.ClassName("bytest")).FindElement(By.Name("nametest"));
-            var dataKey = element.GetAttribute("data-key");
-            Assert.AreEqual("1", dataKey);
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var element in new[] { context.FindElement(By.Name("nametest")), ((IFindsByName)context).FindElementByName("nametest") })
+            {
+                var dataKey = element.GetAttribute("data-key");
+                Assert.AreEqual("1", dataKey);
+            }
         }
 
         [TestMethod]
         public void FindElementByClassName_ShouldReturnFirstElement()
         {
-            var element = GetDriver().FindElement(By.ClassName("bytest")).FindElement(By.ClassName("classtest"));
-            var dataKey = element.GetAttribute("data-key");
-            Assert.AreEqual("1", dataKey);
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var element in new[] { context.FindElement(By.ClassName("classtest")), ((IFindsByClassName)context).FindElementByClassName("classtest") })
+            {
+                var dataKey = element.GetAttribute("data-key");
+                Assert.AreEqual("1", dataKey);
+            }
         }
 
         [TestMethod]
         public void FindElementByTagName_ShouldReturnFirstElement()
         {
-            var element = GetDriver().FindElement(By.ClassName("bytest")).FindElement(By.TagName("tagtest"));
-            var dataKey = element.GetAttribute("data-key");
-            Assert.AreEqual("1", dataKey);
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var element in new[] { context.FindElement(By.TagName("tagtest")), ((IFindsByTagName)context).FindElementByTagName("tagtest") })
+            {
+                var dataKey = element.GetAttribute("data-key");
+                Assert.AreEqual("1", dataKey);
+            }
         }
 
         [TestMethod]
         public void FindElementByCssSelector_ShouldReturnFirstElement()
         {
-            var element = GetDriver().FindElement(By.ClassName("bytest")).FindElement(By.CssSelector("#idtest[name='nametest']"));
-            var dataKey = element.GetAttribute("data-key");
-            Assert.AreEqual("1", dataKey);
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var element in new[] { context.FindElement(By.CssSelector("#idtest[name='nametest']")), ((IFindsByCssSelector)context).FindElementByCssSelector("#idtest[name='nametest']") })
+            {
+                var dataKey = element.GetAttribute("data-key");
+                Assert.AreEqual("1", dataKey);
+            }
         }
 
         [TestMethod]
         public void FindElementsById_ShouldReturnAllElements()
         {
-            var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.Id("idtest"));
-            Assert.AreEqual(3, elements.Count);
-            Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
-            Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
-            Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var elements in new[] { context.FindElements(By.Id("idtest")), ((IFindsById)context).FindElementsById("idtest") })
+            {
+                Assert.AreEqual(3, elements.Count);
+                Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
+                Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
+                Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
+            }
         }
 
         [TestMethod]
         public void FindElementsById_ShouldReturnEmptyWhenElementsNotFound()
         {
-            var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.Id("idtest_no"));
-            Assert.AreEqual(0, elements.Count);
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var elements in new[] { context.FindElements(By.Id("idtest_no")), ((IFindsById)context).FindElementsById("idtest_no") })
+            {
+                Assert.AreEqual(0, elements.Count);
+            }
         }
 
         [TestMethod]
         public void FindElementsByName_ShouldReturnAllElements()
         {
-            var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.Name("nametest"));
-            Assert.AreEqual(3, elements.Count);
-            Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
-            Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
-            Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var elements in new[] { context.FindElements(By.Name("nametest")), ((IFindsByName)context).FindElementsByName("nametest") })
+            {
+                Assert.AreEqual(3, elements.Count);
+                Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
+                Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
+                Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
+            }
         }
 
         [TestMethod]
         public void FindElementsByName_ShouldReturnEmptyWhenElementsNotFound()
         {
-            var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.Name("nametest_no"));
-            Assert.AreEqual(0, elements.Count);
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var elements in new[] { context.FindElements(By.Name("nametest_no")), ((IFindsByName)context).FindElementsByName("nametest_no") })
+            {
+                Assert.AreEqual(0, elements.Count);
+            }
         }
 
         [TestMethod]
         public void FindElementsByClassName_ShouldReturnAllElements()
         {
-            var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.ClassName("classtest"));
-            Assert.AreEqual(3, elements.Count);
-            Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
-            Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
-            Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var elements in new[] { context.FindElements(By.ClassName("classtest")), ((IFindsByClassName)context).FindElementsByClassName("classtest") })
+            {
+                Assert.AreEqual(3, elements.Count);
+                Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
+                Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
+                Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
+            }
         }
 
         [TestMethod]
         public void FindElementsByClassName_ShouldReturnEmptyWhenElementsNotFound()
         {
-            var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.ClassName("classtest_no"));
-            Assert.AreEqual(0, elements.Count);
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var elements in new[] { context.FindElements(By.ClassName("classtest_no")), ((IFindsByClassName)context).FindElementsByClassName("classtest_no") })
+            {
+                Assert.AreEqual(0, elements.Count);
+            }
         }
 
         [TestMethod]
         public void FindElementsByCssSelector_ShouldReturnAllElements()
         {
-            var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.CssSelector("#idtest[name='nametest']"));
-            Assert.AreEqual(3, elements.Count);
-            Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
-            Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
-            Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var elements in new[] { context.FindElements(By.CssSelector("#idtest[name='nametest']")), ((IFindsByCssSelector)context).FindElementsByCssSelector("#idtest[name='nametest']") })
+            {
+                Assert.AreEqual(3, elements.Count);
+                Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
+                Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
+                Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
+            }
         }
 
         [TestMethod]
         public void FindElementsByCssSelector_ShouldReturnEmptyWhenElementsNotFound()
         {
-            var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.CssSelector("#idtest[name='nametest_no']"));
-            Assert.AreEqual(0, elements.Count);
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var elements in new[] { context.FindElements(By.CssSelector("#idtest[name='nametest_no']")), ((IFindsByCssSelector)context).FindElementsByCssSelector("#idtest[name='nametest_no']") })
+            {
+                Assert.AreEqual(0, elements.Count);
+            }
         }
 
         [TestMethod]
         public void FindElementsByTagName_ShouldReturnAllElements()
         {
-            var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.TagName("tagtest"));
-
-            Assert.AreEqual(2, elements.Count);
-            Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
-            Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var elements in new[] { context.FindElements(By.TagName("tagtest")), ((IFindsByTagName)context).FindElementsByTagName("tagtest") })
+            {
+                Assert.AreEqual(2, elements.Count);
+                Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
+                Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
+            }
         }
 
         [TestMethod]
         public void FindElementsByTagName_ShouldReturnEmptyWhenElementsNotFound()
         {
-            var elements = GetDriver().FindElement(By.ClassName("bytest")).FindElements(By.TagName("tagtest_no"));
-            Assert.AreEqual(0, elements.Count);
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var elements in new[] { context.FindElements(By.TagName("tagtest_no")), ((IFindsByTagName)context).FindElementsByTagName("tagtest_no") })
+            {
+                Assert.AreEqual(0, elements.Count);
+            }
         }
 
         [TestMethod]
         public void FindElementByXPath_ShouldReturnFirstElement()
         {
             var context = GetDriver().FindElement(By.XPath("/html/body/div[1]"));
-            var element = context.FindElement(By.XPath("tagtest"));
-            var dataKey = element.GetAttribute("data-key");
-            dataKey.Is("1");
+            foreach (var element in new[] { context.FindElement(By.XPath("tagtest")), ((IFindsByXPath)context).FindElementByXPath("tagtest") })
+            {
+                var dataKey = element.GetAttribute("data-key");
+                dataKey.Is("1");
+            }
         }
 
         [TestMethod]
@@ -334,24 +382,29 @@ namespace Test
         {
             var context = GetDriver().FindElement(By.XPath("/html/body/div[1]"));
             Assert.ThrowsException<NoSuchElementException>(() => context.FindElement(By.XPath("tagtest1")));
+            Assert.ThrowsException<NoSuchElementException>(() => ((IFindsByXPath)context).FindElementByXPath("tagtest1"));
         }
 
         [TestMethod]
         public void FindElementsByXPath_ShouldReturnAllElements()
         {
             var context = GetDriver().FindElement(By.XPath("/html/body/div[1]"));
-            var elements = context.FindElements(By.XPath("tagtest"));
-            elements.Count.Is(2);
-            elements[0].GetAttribute("data-key").Is("1");
-            elements[1].GetAttribute("data-key").Is("2");
+            foreach (var elements in new[] { context.FindElements(By.XPath("tagtest")), ((IFindsByXPath)context).FindElementsByXPath("tagtest") })
+            {
+                elements.Count.Is(2);
+                elements[0].GetAttribute("data-key").Is("1");
+                elements[1].GetAttribute("data-key").Is("2");
+            }
         }
 
         [TestMethod]
         public void FindElementsByXPath_ShouldReturnEmptyWhenElementsNotFound()
         {
             var context = GetDriver().FindElement(By.XPath("/html/body/div[1]"));
-            var elements = context.FindElements(By.XPath("tagtest_no"));
-            elements.Count.Is(0);
+            foreach (var elements in new[] { context.FindElements(By.XPath("tagtest_no")), ((IFindsByXPath)context).FindElementsByXPath("tagtest_no") })
+            {
+                elements.Count.Is(0);
+            }
         }
 
         private void InitAttr()

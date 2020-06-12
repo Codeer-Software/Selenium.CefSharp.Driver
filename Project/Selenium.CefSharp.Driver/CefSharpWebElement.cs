@@ -1,14 +1,29 @@
 ﻿using Codeer.Friendly.Windows.KeyMouse;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Interactions.Internal;
 using OpenQA.Selenium.Internal;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 
 namespace Selenium.CefSharp.Driver
 {
-    public class CefSharpWebElement : IWebElement, IWrapsDriver
+    public class CefSharpWebElement :
+        IWebElement, 
+        IWrapsDriver,
+        IFindsById,
+        IFindsByClassName,
+        IFindsByLinkText,
+        IFindsByName,
+        IFindsByTagName,
+        IFindsByXPath,
+        IFindsByPartialLinkText,
+        IFindsByCssSelector,
+        ITakesScreenshot,
+        ILocatable
     {   
         readonly CefSharpDriver _driver;
      
@@ -217,5 +232,56 @@ return window.__seleniumCefSharpDriver.getElementsByXPath('{text.Substring("By.X
             }
             return result;
         }
+
+        public IWebElement FindElementById(string id) => FindElement(By.Id(id));
+
+        public ReadOnlyCollection<IWebElement> FindElementsById(string id) => FindElements(By.Id(id));
+
+        public IWebElement FindElementByClassName(string className) => FindElement(By.ClassName(className));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByClassName(string className) => FindElements(By.ClassName(className));
+
+        public IWebElement FindElementByLinkText(string linkText) => FindElement(By.LinkText(linkText));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByLinkText(string linkText) => FindElements(By.LinkText(linkText));
+
+        public IWebElement FindElementByName(string name) => FindElement(By.Name(name));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByName(string name) => FindElements(By.Name(name));
+
+        public IWebElement FindElementByTagName(string tagName) => FindElement(By.TagName(tagName));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByTagName(string tagName) => FindElements(By.TagName(tagName));
+
+        public IWebElement FindElementByXPath(string xpath) => FindElement(By.XPath(xpath));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByXPath(string xpath) => FindElements(By.XPath(xpath));
+
+        public IWebElement FindElementByPartialLinkText(string partialLinkText) => FindElement(By.PartialLinkText(partialLinkText));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByPartialLinkText(string partialLinkText) => FindElements(By.PartialLinkText(partialLinkText));
+
+        public IWebElement FindElementByCssSelector(string cssSelector) => FindElement(By.CssSelector(cssSelector));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByCssSelector(string cssSelector) => FindElements(By.CssSelector(cssSelector));
+
+        public Screenshot GetScreenshot()
+        {
+            var size = Size;
+            using (var bmp = new Bitmap(size.Width, size.Height))
+            using (var g = Graphics.FromImage(bmp))
+            {
+                g.CopyFromScreen(_driver.PointToScreen(Location), new Point(0, 0), bmp.Size);
+                using (var ms = new MemoryStream())
+                {
+                    bmp.Save(ms, ImageFormat.Bmp);
+                    return new Screenshot(Convert.ToBase64String(ms.ToArray()));
+                }
+            }
+        }
+
+        public Point LocationOnScreenOnceScrolledIntoView => throw new NotImplementedException();
+
+        public ICoordinates Coordinates => throw new NotImplementedException();
     }
 }

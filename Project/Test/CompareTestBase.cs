@@ -23,6 +23,8 @@ namespace Test
 
         public abstract IWebDriver GetDriver();
 
+        public T GetDriver<T>() => (T)GetDriver();
+
         protected IJavaScriptExecutor GetExecutor() => (IJavaScriptExecutor)GetDriver();
 
         protected string GetHtmlUrl() => server?.Url;
