@@ -1,93 +1,90 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using Codeer.Friendly.Windows;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using Selenium.CefSharp.Driver;
 using OpenQA.Selenium.Chrome;
+using NUnit.Framework;
 
 namespace Test
 {
-    [TestClass]
     public class BasicTestWinForms : BasicTest
     {
-        static WindowsAppFriend _app;
-        static CefSharpDriver _driver;
+        WindowsAppFriend _app;
+        CefSharpDriver _driver;
 
         public override IWebDriver GetDriver() => _driver;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _driver.Url = this.GetHtmlUrl();
         }
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        [OneTimeSetUp]
+        public void ClassInit()
         {
             var appWithDriver = AppRunner.RunWinFormApp();
             _app = appWithDriver.App;
             _driver = appWithDriver.Driver;
         }
 
-        [ClassCleanup]
-        public static void ClassCleanup()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             Process.GetProcessById(_app.ProcessId).Kill();
         }
     }
 
-    [TestClass]
     public class BasicTestWpf : BasicTest
     {
-        static WindowsAppFriend _app;
-        static CefSharpDriver _driver;
+        WindowsAppFriend _app;
+        CefSharpDriver _driver;
 
         public override IWebDriver GetDriver() => _driver;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _driver.Url = this.GetHtmlUrl();
         }
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        [OneTimeSetUp]
+        public void ClassInit()
         {
             var appWithDriver = AppRunner.RunWpfApp();
             _app = appWithDriver.App;
             _driver = appWithDriver.Driver;
         }
 
-        [ClassCleanup]
-        public static void ClassCleanup()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             Process.GetProcessById(_app.ProcessId).Kill();
         }
     }
 
-    [TestClass]
     public class BasicTestWeb : BasicTest
     {
-        static IWebDriver _driver;
+        IWebDriver _driver;
 
         public override IWebDriver GetDriver() => _driver;
 
-        [TestInitialize]
+        [SetUp]
         public void initialize()
         {
             _driver.Url = "https://github.com/Codeer-Software/Selenium.CefSharp.Driver";
             _driver.Url = this.GetHtmlUrl();
         }
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        [OneTimeSetUp]
+        public void ClassInit()
         {
             _driver = new ChromeDriver();
         }
 
-        [ClassCleanup]
-        public static void ClassCleanup()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             _driver.Dispose();
         }
@@ -104,20 +101,20 @@ namespace Test
             return Path.Combine(dir, @"Test\Controls.html");
         }
 
-        [TestMethod]
+        [Test]
         public void TestTitle()
         {
             GetDriver().Title.Is("Controls for Test");
         }
 
-        [TestMethod]
+        [Test]
         public void TestPageSource()
         {
             //check only not to throw exception.
             var pageSource = GetDriver().PageSource;
         }
 
-        [TestMethod]
+        [Test]
         public void TestNavigation()
         {
             var navigate = GetDriver().Navigate();

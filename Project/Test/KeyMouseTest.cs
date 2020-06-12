@@ -1,94 +1,91 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using Codeer.Friendly.Windows;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using Selenium.CefSharp.Driver;
 using OpenQA.Selenium.Chrome;
 using System.Collections.Generic;
 using Codeer.Friendly.Windows.KeyMouse;
+using NUnit.Framework;
 
 namespace Test
 {
-    [TestClass]
     public class KeyMouseTestWinForms : KeyMouseTest
     {
-        static WindowsAppFriend _app;
-        static CefSharpDriver _driver;
+        WindowsAppFriend _app;
+        CefSharpDriver _driver;
 
         public override IWebDriver GetDriver() => _driver;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _driver.Url = this.GetHtmlUrl();
         }
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        [OneTimeSetUp]
+        public void ClassInit()
         {
             var appWithDriver = AppRunner.RunWinFormApp();
             _app = appWithDriver.App;
             _driver = appWithDriver.Driver;
         }
 
-        [ClassCleanup]
-        public static void ClassCleanup()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             Process.GetProcessById(_app.ProcessId).Kill();
         }
     }
 
-    [TestClass]
     public class KeyMouseTestWpf : KeyMouseTest
     {
-        static WindowsAppFriend _app;
-        static CefSharpDriver _driver;
+        WindowsAppFriend _app;
+        CefSharpDriver _driver;
 
         public override IWebDriver GetDriver() => _driver;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _driver.Url = this.GetHtmlUrl();
         }
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        [OneTimeSetUp]
+        public void ClassInit()
         {
             var appWithDriver = AppRunner.RunWpfApp();
             _app = appWithDriver.App;
             _driver = appWithDriver.Driver;
         }
 
-        [ClassCleanup]
-        public static void ClassCleanup()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             Process.GetProcessById(_app.ProcessId).Kill();
         }
     }
 
-    [TestClass]
     public class KeyMouseTestWeb : KeyMouseTest
     {
-        static IWebDriver _driver;
+        IWebDriver _driver;
 
         public override IWebDriver GetDriver() => _driver;
 
-        [TestInitialize]
+        [SetUp]
         public void initialize()
         {
             _driver.Url = this.GetHtmlUrl();
         }
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        [OneTimeSetUp]
+        public void ClassInit()
         {
             _driver = new ChromeDriver();
         }
 
-        [ClassCleanup]
-        public static void ClassCleanup()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             _driver.Dispose();
         }
@@ -105,7 +102,7 @@ namespace Test
             return Path.Combine(dir, @"Test\Controls.html");
         }
 
-        [TestMethod]
+        [Test]
         public void Click()
         {
             var buttonJs = GetDriver().FindElement(By.Id("inputJS"));
@@ -114,7 +111,7 @@ namespace Test
             textBoxName.GetAttribute("value").Is("JS");
         }
 
-        [TestMethod]
+        [Test]
         public void SendKey()
         {
             var textBoxName = GetDriver().FindElement(By.Id("textBoxName"));
@@ -126,7 +123,7 @@ namespace Test
             textBoxName.GetAttribute("value").Is("ABC");
         }
 
-        [TestMethod]
+        [Test]
         public void SendKeySeleniumSpecialKey_BackSpace()
         {
             var textBoxName = GetDriver().FindElement(By.Id("textBoxName"));
@@ -136,7 +133,7 @@ namespace Test
             textBoxName.GetAttribute("value").Is("ab");
         }
 
-        [TestMethod]
+        [Test]
         public void SendKeySeleniumSpecialKeyNull()
         {
             var keyTest = GetDriver().FindElement(By.Id("keyTest"));
@@ -147,7 +144,7 @@ namespace Test
         }
 
         //TODO F10 doesn't work well with .net apps. 
-        //[TestMethod]
+        //[Test]
         //public void SendKeySeleniumSpecialKeyF10()
         //{
         //    var keyTest = GetDriver().FindElement(By.Id("keyTest"));
@@ -164,7 +161,7 @@ namespace Test
         //    }
         //}
 
-        [TestMethod]
+        [Test]
         public void SendKeySeleniumSpecialKey()
         {
             var keyTest = GetDriver().FindElement(By.Id("keyTest"));
@@ -281,7 +278,7 @@ namespace Test
             ret[i++].Is("Escape");
         }
 
-        [TestMethod]
+        [Test]
         public void SendKeyWinFormsSpecialKey()
         {
             var textBoxName = GetDriver().FindElement(By.Id("textBoxName"));
@@ -292,7 +289,7 @@ namespace Test
             //TODO {^} -> & why? 
         }
 
-        [TestMethod]
+        [Test]
         public void SendKeyNotModifiedAndSpecialKeyAndText()
         {
             var textBoxName = GetDriver().FindElement(By.Id("textBoxName"));
@@ -301,7 +298,7 @@ namespace Test
             textBoxName.GetAttribute("value").Is("abcdexyzg");
         }
 
-        [TestMethod]
+        [Test]
         public void SendKeyModifiedAndSpecialKeyAndText全角()
         {
             var textBoxName = GetDriver().FindElement(By.Id("textBoxName"));
@@ -310,7 +307,7 @@ namespace Test
             textBoxName.GetAttribute("value").Is("あBCDEFXYZ");
         }
 
-        [TestMethod]
+        [Test]
         public void SendKeyModifyKeys()
         {
             var keyTest = GetDriver().FindElement(By.Id("keyTest"));
@@ -340,7 +337,7 @@ namespace Test
             });
         }
 
-        [TestMethod]
+        [Test]
         public void SendKeyModifyKeysLeft()
         {
             var keyTest = GetDriver().FindElement(By.Id("keyTest"));

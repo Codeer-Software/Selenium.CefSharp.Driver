@@ -1,5 +1,5 @@
 ﻿using Codeer.Friendly.Windows;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Internal;
@@ -14,22 +14,21 @@ using System.Windows.Automation.Peers;
 
 namespace Test
 {
-    [TestClass]
     public class WebElementTestWinForm : WebElementTestBase
     {
-        static WindowsAppFriend _app;
-        static CefSharpDriver _driver;
+        WindowsAppFriend _app;
+        CefSharpDriver _driver;
 
         public override IWebDriver GetDriver() => _driver;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _driver.Url = this.GetHtmlUrl();
         }
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        [OneTimeSetUp]
+        public void ClassInit()
         {
             ClassInitBase();
 
@@ -38,30 +37,29 @@ namespace Test
             _driver = appWithDriver.Driver;
         }
 
-        [ClassCleanup]
-        public static void ClassCleanup()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             Process.GetProcessById(_app.ProcessId).Kill();
             ClassCleanupBase();
         }
     }
 
-    [TestClass]
     public class WebElementTestWPF : WebElementTestBase
     {
-        static WindowsAppFriend _app;
-        static CefSharpDriver _driver;
+        WindowsAppFriend _app;
+        CefSharpDriver _driver;
 
         public override IWebDriver GetDriver() => _driver;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _driver.Url = this.GetHtmlUrl();
         }
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        [OneTimeSetUp]
+        public void ClassInit()
         {
             ClassInitBase();
             var appWithDriver = AppRunner.RunWpfApp();
@@ -69,40 +67,39 @@ namespace Test
             _driver = appWithDriver.Driver;
         }
 
-        [ClassCleanup]
-        public static void ClassCleanup()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             Process.GetProcessById(_app.ProcessId).Kill();
             ClassCleanupBase();
         }
     }
 
-    [TestClass]
     public class WebElementTestSelenium : WebElementTestBase
     {
-        static IWebDriver _driver;
+        IWebDriver _driver;
 
         public override IWebDriver GetDriver() => _driver;
 
-        [TestInitialize]
+        [SetUp]
         public void initialize()
         {
             _driver.Url = this.GetHtmlUrl();
         }
 
-        [TestCleanup]
-        public void TestCleanup()
+        [TearDown]
+        public void TearDown()
         {
         }
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        [OneTimeSetUp]
+        public void ClassInit()
         {
             ClassInitBase();
             _driver = new ChromeDriver();
         }
-        [ClassCleanup]
-        public static void ClassCleanup()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             _driver.Dispose();
             ClassCleanupBase();
@@ -111,28 +108,28 @@ namespace Test
 
     public abstract class WebElementTestBase: CompareTestBase
     {
-        [TestMethod]
+        [Test]
         public void TagName()
         {
             var element = GetDriver().FindElement(By.Id("textBoxName"));
             element.TagName.Is("input");
         }
 
-        [TestMethod]
+        [Test]
         public void Text()
         {
             var element = GetDriver().FindElement(By.Id("labelTitle"));
             element.Text.Is("Title Controls");
         }
 
-        [TestMethod]
+        [Test]
         public void Enabled()
         {
             GetDriver().FindElement(By.Id("textBoxName")).Enabled.IsTrue();
             GetDriver().FindElement(By.Id("disabletest")).Enabled.IsFalse();
         }
 
-        [TestMethod]
+        [Test]
         public void Selected()
         {
             var checkBox = GetDriver().FindElement(By.Id("checkBoxCellPhone"));
@@ -147,7 +144,7 @@ namespace Test
             GetDriver().FindElement(By.Id("radioWoman")).Selected.IsFalse();
         }
 
-        [TestMethod]
+        [Test]
         public void Location()
         {
             var element = GetDriver().FindElement(By.Id("textBoxName"));
@@ -156,7 +153,7 @@ namespace Test
             //Different from browser
         }
 
-        [TestMethod]
+        [Test]
         public void Size()
         {
             var element = GetDriver().FindElement(By.Id("textBoxName"));
@@ -165,14 +162,14 @@ namespace Test
             //Different from browser
         }
 
-        [TestMethod]
+        [Test]
         public void Displayed()
         {
             GetDriver().FindElement(By.Id("disabletest")).Displayed.IsTrue();
             GetDriver().FindElement(By.Id("not_displayed")).Displayed.IsFalse();
         }
 
-        [TestMethod]
+        [Test]
         public void Clear()
         {
             var element = GetDriver().FindElement(By.Id("textBoxName"));
@@ -181,14 +178,14 @@ namespace Test
             element.GetAttribute("value").Is("");
         }
 
-        [TestMethod]
+        [Test]
         public void GetCssValue()
         {
             var element = GetDriver().FindElement(By.Id("not_displayed"));
             element.GetCssValue("display").Is("none");
         }
 
-        [TestMethod]
+        [Test]
         public void Submit()
         {
             var element = GetDriver().FindElement(By.Id("form"));
@@ -197,7 +194,7 @@ namespace Test
 
         //TODO LinkText, PartialLinkText
 
-        [TestMethod]
+        [Test]
         public void FindElementById_ShouldReturnFirstElement()
         {
             var context = GetDriver().FindElement(By.ClassName("bytest"));
@@ -208,7 +205,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void FindElementByName_ShouldReturnFirstElement()
         {
             var context = GetDriver().FindElement(By.ClassName("bytest"));
@@ -219,7 +216,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void FindElementByClassName_ShouldReturnFirstElement()
         {
             var context = GetDriver().FindElement(By.ClassName("bytest"));
@@ -230,7 +227,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void FindElementByTagName_ShouldReturnFirstElement()
         {
             var context = GetDriver().FindElement(By.ClassName("bytest"));
@@ -241,7 +238,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void FindElementByCssSelector_ShouldReturnFirstElement()
         {
             var context = GetDriver().FindElement(By.ClassName("bytest"));
@@ -252,7 +249,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void FindElementsById_ShouldReturnAllElements()
         {
             var context = GetDriver().FindElement(By.ClassName("bytest"));
@@ -265,7 +262,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void FindElementsById_ShouldReturnEmptyWhenElementsNotFound()
         {
             var context = GetDriver().FindElement(By.ClassName("bytest"));
@@ -275,7 +272,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void FindElementsByName_ShouldReturnAllElements()
         {
             var context = GetDriver().FindElement(By.ClassName("bytest"));
@@ -288,7 +285,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void FindElementsByName_ShouldReturnEmptyWhenElementsNotFound()
         {
             var context = GetDriver().FindElement(By.ClassName("bytest"));
@@ -298,7 +295,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void FindElementsByClassName_ShouldReturnAllElements()
         {
             var context = GetDriver().FindElement(By.ClassName("bytest"));
@@ -311,7 +308,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void FindElementsByClassName_ShouldReturnEmptyWhenElementsNotFound()
         {
             var context = GetDriver().FindElement(By.ClassName("bytest"));
@@ -321,7 +318,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void FindElementsByCssSelector_ShouldReturnAllElements()
         {
             var context = GetDriver().FindElement(By.ClassName("bytest"));
@@ -334,7 +331,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void FindElementsByCssSelector_ShouldReturnEmptyWhenElementsNotFound()
         {
             var context = GetDriver().FindElement(By.ClassName("bytest"));
@@ -344,7 +341,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void FindElementsByTagName_ShouldReturnAllElements()
         {
             var context = GetDriver().FindElement(By.ClassName("bytest"));
@@ -356,7 +353,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void FindElementsByTagName_ShouldReturnEmptyWhenElementsNotFound()
         {
             var context = GetDriver().FindElement(By.ClassName("bytest"));
@@ -366,7 +363,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void FindElementByXPath_ShouldReturnFirstElement()
         {
             var context = GetDriver().FindElement(By.XPath("/html/body/div[1]"));
@@ -377,15 +374,15 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void FindElementByXPath_ShouldThrowExceptionWhenElementNotFound()
         {
             var context = GetDriver().FindElement(By.XPath("/html/body/div[1]"));
-            Assert.ThrowsException<NoSuchElementException>(() => context.FindElement(By.XPath("tagtest1")));
-            Assert.ThrowsException<NoSuchElementException>(() => ((IFindsByXPath)context).FindElementByXPath("tagtest1"));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => context.FindElement(By.XPath("tagtest1")));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => ((IFindsByXPath)context).FindElementByXPath("tagtest1"));
         }
 
-        [TestMethod]
+        [Test]
         public void FindElementsByXPath_ShouldReturnAllElements()
         {
             var context = GetDriver().FindElement(By.XPath("/html/body/div[1]"));
@@ -397,7 +394,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void FindElementsByXPath_ShouldReturnEmptyWhenElementsNotFound()
         {
             var context = GetDriver().FindElement(By.XPath("/html/body/div[1]"));
@@ -413,7 +410,7 @@ namespace Test
 delete document.getElementById('attrTestInput').foo;");
         }
 
-        [TestMethod]
+        [Test]
         public void GetAttribute_ShouldReturnAttributeValue()
         {
             InitAttr();
@@ -422,7 +419,7 @@ delete document.getElementById('attrTestInput').foo;");
             value.Is("fooattr");
         }
 
-        [TestMethod]
+        [Test]
         public void GetAttribute_ShouldReturnPropertyValueIfHasNotAttribute()
         {
             InitAttr();
@@ -432,7 +429,7 @@ delete document.getElementById('attrTestInput').foo;");
             value.Is("barprop");
         }
 
-        [TestMethod]
+        [Test]
         public void GetAttribute_PorpValueShouldBeReturndByOverwritingAttrValue()
         {
             InitAttr();
@@ -448,7 +445,7 @@ delete document.getElementById('attrTestInput').foo;");
             value.Is("foodynamic");
         }
 
-        [TestMethod]
+        [Test]
         public void GetAttribute_IfPropetyIsNull_ReturnAttributeValue()
         {
             InitAttr();
@@ -460,7 +457,7 @@ delete document.getElementById('attrTestInput').foo;");
             value.Is("fooattr");
         }
 
-        [TestMethod]
+        [Test]
         public void GetProperty_ShouldNotReturnAttributeValue()
         {
             InitAttr();
@@ -469,7 +466,7 @@ delete document.getElementById('attrTestInput').foo;");
             value.IsNull();
         }
 
-        [TestMethod]
+        [Test]
         public void GetProperty_ShouldReturnPropertyValue()
         {
             InitAttr();

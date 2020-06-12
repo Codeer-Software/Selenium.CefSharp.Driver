@@ -1,5 +1,5 @@
 ﻿using Codeer.Friendly.Windows;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using Selenium.CefSharp.Driver;
@@ -14,22 +14,21 @@ using System.Threading.Tasks;
 
 namespace Test
 {
-    [TestClass]
     public class JavaScriptExecutorTestWinForm : JavaScriptExecutorTestBase
     {
-        static WindowsAppFriend _app;
-        static CefSharpDriver _driver;
+        WindowsAppFriend _app;
+        CefSharpDriver _driver;
 
         public override IWebDriver GetDriver() => _driver;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _driver.Url = this.GetHtmlUrl();
         }
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        [OneTimeSetUp]
+        public void ClassInit()
         {
             ClassInitBase();
 
@@ -38,8 +37,8 @@ namespace Test
             _driver = appWithDriver.Driver;
         }
 
-        [ClassCleanup]
-        public static void ClassCleanup()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             Process.GetProcessById(_app.ProcessId).Kill();
             ClassCleanupBase();
@@ -56,22 +55,21 @@ namespace Test
         }
     }
 
-    [TestClass]
     public class JavaScriptExecutorTestWPF : JavaScriptExecutorTestBase
     {
-        static WindowsAppFriend _app;
-        static CefSharpDriver _driver;
+        WindowsAppFriend _app;
+        CefSharpDriver _driver;
 
         public override IWebDriver GetDriver() => _driver;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _driver.Url = this.GetHtmlUrl();
         }
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        [OneTimeSetUp]
+        public void ClassInit()
         {
             ClassInitBase();
             var appWithDriver = AppRunner.RunWpfApp();
@@ -79,8 +77,8 @@ namespace Test
             _driver = appWithDriver.Driver;
         }
 
-        [ClassCleanup]
-        public static void ClassCleanup()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             Process.GetProcessById(_app.ProcessId).Kill();
             ClassCleanupBase();
@@ -97,32 +95,31 @@ namespace Test
         }
     }
 
-    [TestClass]
     public class JavaScriptExecutorTestSelenium : JavaScriptExecutorTestBase
     {
-        static IWebDriver _driver;
+        IWebDriver _driver;
 
         public override IWebDriver GetDriver() => _driver;
 
-        [TestInitialize]
+        [SetUp]
         public void initialize()
         {
             _driver.Url = this.GetHtmlUrl();
         }
 
-        [TestCleanup]
-        public void TestCleanup()
+        [TearDown]
+        public void TearDown()
         {
         }
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        [OneTimeSetUp]
+        public void ClassInit()
         {
             ClassInitBase();
             _driver = new ChromeDriver();
         }
-        [ClassCleanup]
-        public static void ClassCleanup()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             _driver.Dispose();
             ClassCleanupBase();
@@ -131,49 +128,49 @@ namespace Test
 
     public abstract class JavaScriptExecutorTestBase : CompareTestBase
     {
-        [TestMethod]
+        [Test]
         public void ShouldReturnSameStringWhenExecuteReturnSingleQuotationStringJavaScript()
         {
             var value = GetExecutor().ExecuteScript("return 'abcde'");
             Assert.AreEqual("abcde", value);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnSameStringWhenExecuteReturnDoubleQuotationStringJavaScript()
         {
             var value = GetExecutor().ExecuteScript("return \"abcde\"");
             Assert.AreEqual("abcde", value);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnSameStringWhenExecuteReturnBackQuotationStringJavaScript()
         {
             var value = GetExecutor().ExecuteScript("return `abcde`");
             Assert.AreEqual("abcde", value);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnLongValueWhenExecuteReturnIntegerJavaScript()
         {
             var value = GetExecutor().ExecuteScript("return 12345");
             Assert.AreEqual(12345L, value);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnDoubleValueWhenExecuteReturnDecimalJavaScript()
         {
             var value = GetExecutor().ExecuteScript("return 12345.678");
             Assert.AreEqual(12345.678, value);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnBooleanValueWhenExecuteReturnBooleanJavaScript()
         {
             var value = GetExecutor().ExecuteScript("return false");
             Assert.IsFalse((bool)value);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnIsoDateStringWhenExecuteReturnDateJavaScript()
         {
             // selenium (のChrome Driver) は ISOString の結果を返す模様
@@ -182,7 +179,7 @@ namespace Test
             Assert.AreEqual(isoValue, value);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnNullValueWhenExecuteReturnInvalidJavaScript()
         {
             // selenium (のChrome Driver) は Invalid Date は null を返す模様
@@ -190,35 +187,35 @@ namespace Test
             Assert.IsNull(value);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnNullValueWhenExecuteReturnUndefinedJavaScript()
         {
             var value = GetExecutor().ExecuteScript("return void 0");
             Assert.IsNull(value);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnNullValueWhenExecuteReturnPositiveInfinitJavaScript()
         {
             var value = GetExecutor().ExecuteScript("return Number.POSITIVE_INFINITY");
             Assert.IsNull(value);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnNullValueWhenExecuteReturnNegativeInfinitJavaScript()
         {
             var value = GetExecutor().ExecuteScript("return Number.NEGATIVE_INFINITY");
             Assert.IsNull(value);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnNullValueWhenExecuteReturnNaNJavaScript()
         {
             var value = GetExecutor().ExecuteScript("return Number.NaN");
             Assert.IsNull(value);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnReadOnlyCollectionObjectValueWhenExecuteReturnArrayJavaScript()
         {
             // selenium (のChrome Driver) は ReadOnlyCollection を返す模様
@@ -235,7 +232,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnTypeMoldeConvertedValueOfElementsInReadOnlyCollectionObjectValueWhenExecuteReturnArrayJavaScript()
         {
             var isoValue = GetExecutor().ExecuteScript("return new Date(2012,0,16,23,23,23,123).toISOString()");
@@ -252,7 +249,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnDictionalyStringObjectWhenExecuteReturnObjectJavaScript()
         {
             var value = GetExecutor().ExecuteScript("return {A:'a', B:123, C: false}");
@@ -264,14 +261,14 @@ namespace Test
             Assert.AreEqual(false, resultValue["C"]);
         }
 
-        [TestMethod]
+        [Test]
         public virtual void ShouldReturnPromiseResultWhenExecuteReturnSuccessPromiseJavaScript()
         {
             var result = GetExecutor().ExecuteScript("return new Promise((resolve, reject) => {  setTimeout(() => resolve(123), 1000); });");
             Assert.AreEqual(123L, result);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnLikeJavaScriptObjectResultWhenExecuteReturnFunctionJavaScript()
         {
             var value = GetExecutor().ExecuteScript(@"
@@ -284,71 +281,71 @@ f.B.AA = 'aa';
 f.B.BB = 345;
 return f;");
 
-            Assert.IsInstanceOfType(value, typeof(Dictionary<string, object>));
+            AssertCompatible.IsInstanceOfType(value, typeof(Dictionary<string, object>));
 
             var resultValue = (Dictionary<string, object>)value;
             Assert.AreEqual(2, resultValue.Count);
             Assert.AreEqual("a", resultValue["A"]);
 
-            Assert.IsInstanceOfType(resultValue["B"], typeof(Dictionary<string, object>));
+            AssertCompatible.IsInstanceOfType(resultValue["B"], typeof(Dictionary<string, object>));
             var bValue = (Dictionary<string, object>)resultValue["B"];
             Assert.AreEqual("aa", bValue["AA"]);
             Assert.AreEqual(345L, bValue["BB"]);
 
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldNotDefinedToGlobalScopeIfValiableDefinedJavaScript()
         {
             var funcName = "___test_define_func";
 
             GetExecutor().ExecuteScript($"function {funcName}() {{return 1;}}");
-            Assert.ThrowsException<WebDriverException>(() => GetExecutor().ExecuteScript($"return {funcName}();"),
+            AssertCompatible.ThrowsException<WebDriverException>(() => GetExecutor().ExecuteScript($"return {funcName}();"),
                 $"javascript error: {funcName} is not defined");
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldThisInstanceIsGlobalObjectInstance()
         {
             var isWindow = GetExecutor().ExecuteScript("return this === window");
             Assert.IsTrue((bool)isWindow);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnWebElementWhenExecuteReturnElementScript()
         {
             var value = GetExecutor().ExecuteScript("return document.querySelector('#textBoxName');");
-            Assert.IsInstanceOfType(value, typeof(IWebElement));
+            AssertCompatible.IsInstanceOfType(value, typeof(IWebElement));
         }
 
-        [TestMethod]
+        [Test]
         public virtual void ShouldReturnWebElementWhenExecuteReturnDocumentScript()
         {
             var value = GetExecutor().ExecuteScript("return document;");
-            Assert.IsInstanceOfType(value, typeof(IWebElement));
+            AssertCompatible.IsInstanceOfType(value, typeof(IWebElement));
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldRaiseExceptionWhenExecuteReturnWindowScript()
         {
-            Assert.ThrowsException<WebDriverException>(() => GetExecutor().ExecuteScript("return window;"));
+            AssertCompatible.ThrowsException<WebDriverException>(() => GetExecutor().ExecuteScript("return window;"));
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnReadOnlyCollectionWithWebElementWhenReturnExecuteReturnNodeList()
         {
             var value = GetExecutor().ExecuteScript("return document.querySelectorAll('input');");
             Assert.AreEqual(typeof(ReadOnlyCollection<IWebElement>), value.GetType());
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnReadOnlyCollectionWithWebElementWhenReturnExecuteReturnHTMLCollection()
         {
             var value = GetExecutor().ExecuteScript("return document.getElementsByTagName('input');");
             Assert.AreEqual(typeof(ReadOnlyCollection<IWebElement>), value.GetType());
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnReadOnlyCollectionWithObjectWhenReturnExecuteReturnArrayIncludeWithVariousTypes()
         {
             var value = GetExecutor().ExecuteScript("return [123, 'AAA', true, document.querySelector('input')];");
@@ -357,13 +354,13 @@ return f;");
             Assert.AreEqual(123L, results[0]);
             Assert.AreEqual("AAA", results[1]);
             Assert.AreEqual(true, results[2]);
-            Assert.IsInstanceOfType(results[3], typeof(IWebElement));
+            AssertCompatible.IsInstanceOfType(results[3], typeof(IWebElement));
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldThrowExeceptionWhenReturnNonElementNode()
         {
-            Assert.ThrowsException<WebDriverException>(() => GetExecutor().ExecuteScript(
+            AssertCompatible.ThrowsException<WebDriverException>(() => GetExecutor().ExecuteScript(
                 "return Array.prototype.slice.call(document.querySelector('form').childNodes)" +
                 ".filter(n => n.nodeType !== Node.ELEMENT_NODE)[0]"));
         }
@@ -392,7 +389,7 @@ return f;");
             return ToCheckResult(GetExecutor().ExecuteScript("return window._paramcheck(arguments);", args));
         }
 
-        [TestMethod]
+        [Test]
         public void IntTypeParameterShouldPassedInNumberType()
         {
             var value = ExecuteParameterCheckString(123);
@@ -401,14 +398,14 @@ return f;");
             Assert.AreEqual(123L, value[0].value);
         }
 
-        [TestMethod]
+        [Test]
         public void MultiParametersShouldPassedMultiArguments()
         {
             var value = ExecuteParameterCheckString(123, true, "ABC", 456, 354.234);
             Assert.AreEqual(5, value.Count);
         }
 
-        [TestMethod]
+        [Test]
         public void BoolTypeParameterShouldPassedInBooleanType()
         {
             var value = ExecuteParameterCheckString(true, false);
@@ -419,7 +416,7 @@ return f;");
             Assert.AreEqual(false, value[1].value);
         }
 
-        [TestMethod]
+        [Test]
         public void NullParameterShouldPassedInNull()
         {
             var value = ExecuteParameterCheckString(new object[] { null });
@@ -428,7 +425,7 @@ return f;");
             Assert.IsNull(value[0].value);
         }
 
-        [TestMethod]
+        [Test]
         public void StringTypeParamterShouldPassedInStringType()
         {
             var paramValue = @"改行を含む文字列。
@@ -442,19 +439,19 @@ return f;");
             Assert.AreEqual(paramValue, value[0].value);
         }
 
-        [TestMethod]
+        [Test]
         public void ArrayTypeParameterShouldPassedInArrayType()
         {
             IEnumerableParameterShouldPassedInArrayType(new object[] { 1, true, "text" });
         }
 
-        [TestMethod]
+        [Test]
         public void ListTypeParameterShouldPassedInArrayType()
         {
             IEnumerableParameterShouldPassedInArrayType(new List<object> { 1, true, "text" });
         }
 
-        [TestMethod]
+        [Test]
         public void ReadOnlyCollectionParameterShouldPassedInArrayType()
         {
             IEnumerableParameterShouldPassedInArrayType(new ReadOnlyCollection<object>(new List<object> { 1, true, "text" }));
@@ -467,7 +464,7 @@ return f;");
             Assert.AreEqual(1, value.Count);
             Assert.AreEqual("[object Array]", value[0].type);
 
-            Assert.IsInstanceOfType(value[0].value, typeof(ReadOnlyCollection<object>));
+            AssertCompatible.IsInstanceOfType(value[0].value, typeof(ReadOnlyCollection<object>));
 
             var values = value[0].value as ReadOnlyCollection<object>;
             var param = paramValue.ToList();
@@ -476,7 +473,7 @@ return f;");
             Assert.AreEqual(param[2], values[2]);
         }
 
-        [TestMethod]
+        [Test]
         public void DictionalyParameterShouldPassedInObjectType()
         {
             var param = new Dictionary<string, object>()
@@ -495,14 +492,14 @@ return f;");
             Assert.AreEqual(param["key3"], values["key3"]);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldThrowExceptionWhenPassedUnsupportedParameterType()
         {
             var paramValue = new Regex("[ABC]");
-            Assert.ThrowsException<ArgumentException>(() => ExecuteParameterCheckString(paramValue));
+            AssertCompatible.ThrowsException<ArgumentException>(() => ExecuteParameterCheckString(paramValue));
         }
 
-        [TestMethod]
+        [Test]
         public void WebElementParameterShouldPassedInElement()
         {
             var input = GetDriver().FindElement(By.Id("textBoxName"));
@@ -515,7 +512,7 @@ return f;");
         }
 
 
-        [TestMethod]
+        [Test]
         public void ShouldGetAsyncCallbackResult()
         {
             // var timeout = GetDriver().Manage().Timeouts().AsynchronousJavaScript;
@@ -530,7 +527,7 @@ window.setTimeout(() => {{
             Assert.AreEqual("Hello world", result);
         }
 
-        [TestMethod]
+        [Test]
         public void ExecuteAsyncScript_DictionalyParameterShouldPassedInObject()
         {
             var param = new Dictionary<string, object>()
@@ -547,7 +544,7 @@ window.setTimeout(() => {{
             result.Is(true);
         }
 
-        [TestMethod]
+        [Test]
         public void ExecuteAsyncScript_ShouldReturnDicitionaryWhenReturnObjectFromScript()
         {
             var value = GetExecutor().ExecuteAsyncScript($@"

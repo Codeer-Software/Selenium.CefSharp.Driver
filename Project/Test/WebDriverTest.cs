@@ -1,6 +1,5 @@
 ﻿using Codeer.Friendly.Dynamic;
 using Codeer.Friendly.Windows;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using Selenium.CefSharp.Driver;
@@ -13,25 +12,25 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Codeer.Friendly.Windows.Grasp;
 using OpenQA.Selenium.Internal;
+using NUnit.Framework;
 
 namespace Test
 {
-    [TestClass]
     public class WebDriverTestWinForm : WebDriverTestBase
     {
-        static WindowsAppFriend _app;
-        static CefSharpDriver _driver;
+        WindowsAppFriend _app;
+        CefSharpDriver _driver;
 
         public override IWebDriver GetDriver() => _driver;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _driver.Url = this.GetHtmlUrl();
         }
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        [OneTimeSetUp]
+        public void ClassInit()
         {
             ClassInitBase();
             
@@ -40,30 +39,29 @@ namespace Test
             _driver = appWithDriver.Driver;
         }
 
-        [ClassCleanup]
-        public static void ClassCleanup()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             Process.GetProcessById(_app.ProcessId).Kill();
             ClassCleanupBase();
         }
     }
 
-    [TestClass]
     public class WebDriverTestWPF : WebDriverTestBase
     {
-        static WindowsAppFriend _app;
-        static CefSharpDriver _driver;
+        WindowsAppFriend _app;
+        CefSharpDriver _driver;
 
         public override IWebDriver GetDriver() => _driver;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _driver.Url = this.GetHtmlUrl();
         }
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        [OneTimeSetUp]
+        public void ClassInit()
         {
             ClassInitBase();
             var appWithDriver = AppRunner.RunWpfApp();
@@ -71,40 +69,39 @@ namespace Test
             _driver = appWithDriver.Driver;
         }
 
-        [ClassCleanup]
-        public static void ClassCleanup()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             Process.GetProcessById(_app.ProcessId).Kill();
             ClassCleanupBase();
         }
     }
 
-    [TestClass]
     public class WebDriverTestSelenium : WebDriverTestBase
     {
-        static IWebDriver _driver;
+        IWebDriver _driver;
 
         public override IWebDriver GetDriver() => _driver;
 
-        [TestInitialize]
+        [SetUp]
         public void initialize()
         {
             _driver.Url = this.GetHtmlUrl();
         }
 
-        [TestCleanup]
-        public void TestCleanup()
+        [TearDown]
+        public void TearDown()
         {
         }
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        [OneTimeSetUp]
+        public void ClassInit()
         {
             ClassInitBase();
             _driver = new ChromeDriver();
         }
-        [ClassCleanup]
-        public static void ClassCleanup()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             _driver.Dispose();
             ClassCleanupBase();
@@ -117,7 +114,7 @@ namespace Test
 
         //FindElement(s)ById
 
-        [TestMethod]
+        [Test]
         public void ShouldGetFirstElementWhenUsedFindElementById()
         {
             foreach (var element in new[] { GetDriver().FindElement(By.Id("idtest")), GetDriver<IFindsById>().FindElementById("idtest") })
@@ -127,14 +124,14 @@ namespace Test
             } 
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldThrowExceptionWhenMissingElementUsedFindElementById()
         {
-            Assert.ThrowsException<NoSuchElementException>(() => GetDriver().FindElement(By.Id("idtest_no")));
-            Assert.ThrowsException<NoSuchElementException>(() => GetDriver<IFindsById>().FindElementById("idtest_no"));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => GetDriver().FindElement(By.Id("idtest_no")));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => GetDriver<IFindsById>().FindElementById("idtest_no"));
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldGetAllElementWhenUsedFindElementsById()
         {
             foreach (var elements in new[] { GetDriver().FindElements(By.Id("idtest")), GetDriver<IFindsById>().FindElementsById("idtest") })
@@ -146,7 +143,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldIgnoreQuerySelectorNameWhenUsedFindElementsById()
         {
             foreach (var elements in new[] { GetDriver().FindElements(By.Id("form .term")), GetDriver<IFindsById>().FindElementsById("form .term") })
@@ -155,7 +152,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnEmptyWhenMissingElementsUsedByFindElementsById()
         {
             foreach (var elements in new[] { GetDriver().FindElements(By.Id("idtest_no")), GetDriver<IFindsById>().FindElementsById("idtest_no") })
@@ -166,7 +163,7 @@ namespace Test
 
         //FindElement(s)ByName
 
-        [TestMethod]
+        [Test]
         public void ShouldGetFirstElementWhenUsedFindElementByName()
         {
             foreach (var element in new[] { GetDriver().FindElement(By.Name("nametest")), GetDriver<IFindsByName>().FindElementByName("nametest") })
@@ -176,14 +173,14 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldThrowExceptionWhenMissingElementUsedFindElementByName()
         {
-            Assert.ThrowsException<NoSuchElementException>(() => GetDriver().FindElement(By.Name("nametest_no")));
-            Assert.ThrowsException<NoSuchElementException>(() => GetDriver<IFindsByName>().FindElementByName("nametest_no"));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => GetDriver().FindElement(By.Name("nametest_no")));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => GetDriver<IFindsByName>().FindElementByName("nametest_no"));
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldGetAllElementWhenUsedFindElementsByName()
         {
             foreach (var elements in new[] { GetDriver().FindElements(By.Name("nametest")), GetDriver<IFindsByName>().FindElementsByName("nametest") })
@@ -195,7 +192,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnEmptyWhenMissingElementsUsedByFindElementsByName()
         {
             foreach (var elements in new[] { GetDriver().FindElements(By.Name("nametest_no")), GetDriver<IFindsByName>().FindElementsByName("nametest_no") })
@@ -204,7 +201,7 @@ namespace Test
 
         //FindElement(s)ByClassName
 
-        [TestMethod]
+        [Test]
         public void ShouldGetFirstElementWhenUsedFindElementByClassName()
         {
             foreach (var element in new[] { GetDriver().FindElement(By.ClassName("classtest")), GetDriver<IFindsByClassName>().FindElementByClassName("classtest") })
@@ -214,14 +211,14 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldThrowExceptionWhenMissingElementUsedFindElementByClassName()
         {
-            Assert.ThrowsException<NoSuchElementException>(() => GetDriver().FindElement(By.ClassName("classtest_no")));
-            Assert.ThrowsException<NoSuchElementException>(() => GetDriver<IFindsByClassName>().FindElementByClassName("classtest_no"));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => GetDriver().FindElement(By.ClassName("classtest_no")));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => GetDriver<IFindsByClassName>().FindElementByClassName("classtest_no"));
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldGetAllElementWhenUsedFindElementsByClassName()
         {
             foreach (var elements in new[] { GetDriver().FindElements(By.ClassName("classtest")), GetDriver<IFindsByClassName>().FindElementsByClassName("classtest") })
@@ -233,7 +230,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnEmptyWhenMissingElementsUsedByFindElementsByClassName()
         {
             foreach (var elements in new[] { GetDriver().FindElements(By.ClassName("classtest_no")), GetDriver<IFindsByClassName>().FindElementsByClassName("classtest_no") })
@@ -244,7 +241,7 @@ namespace Test
 
         //FindElement(s)ByCssSelector
 
-        [TestMethod]
+        [Test]
         public void ShouldGetFirstElementWhenUsedFindElementByCssSelector()
         {
             foreach (var element in new[] { GetDriver().FindElement(By.CssSelector(".bytest > #idtest[name='nametest']")), GetDriver<IFindsByCssSelector>().FindElementByCssSelector(".bytest > #idtest[name='nametest']") })
@@ -254,14 +251,14 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldThrowExceptionWhenMissingElementUsedFindElementByCssSelector()
         {
-            Assert.ThrowsException<NoSuchElementException>(() => GetDriver().FindElement(By.CssSelector(".bytest > #idtest_no[name='nametest']")));
-            Assert.ThrowsException<NoSuchElementException>(() => GetDriver<IFindsByCssSelector>().FindElementByCssSelector(".bytest > #idtest_no[name='nametest']"));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => GetDriver().FindElement(By.CssSelector(".bytest > #idtest_no[name='nametest']")));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => GetDriver<IFindsByCssSelector>().FindElementByCssSelector(".bytest > #idtest_no[name='nametest']"));
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldGetAllElementWhenUsedFindElementsByCssSelector()
         {
             foreach (var elements in new[] { GetDriver().FindElements(By.CssSelector(".bytest > #idtest[name='nametest']")), GetDriver<IFindsByCssSelector>().FindElementsByCssSelector(".bytest > #idtest[name='nametest']") })
@@ -272,7 +269,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnEmptyWhenMissingElementsUsedByFindElementsByCssSelector()
         {
             foreach (var elements in new[] { GetDriver().FindElements(By.CssSelector(".bytest > #idtest[name='nametest_no']")), GetDriver<IFindsByCssSelector>().FindElementsByCssSelector(".bytest > #idtest[name='nametest_no']") })
@@ -283,7 +280,7 @@ namespace Test
 
         //FindElement(s)ByTagName
 
-        [TestMethod]
+        [Test]
         public void ShouldGetFirstElementWhenUsedFindElementByTagName()
         {
             foreach (var element in new[] { GetDriver().FindElement(By.TagName("tagtest")), GetDriver<IFindsByTagName>().FindElementByTagName("tagtest") })
@@ -293,14 +290,14 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldThrowExceptionWhenMissingElementUsedFindElementByTagName()
         {
-            Assert.ThrowsException<NoSuchElementException>(() => GetDriver().FindElement(By.TagName("tagtest_no")));
-            Assert.ThrowsException<NoSuchElementException>(() => GetDriver<IFindsByTagName>().FindElementByTagName("tagtest_no"));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => GetDriver().FindElement(By.TagName("tagtest_no")));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => GetDriver<IFindsByTagName>().FindElementByTagName("tagtest_no"));
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldGetAllElementWhenUsedFindElementsByTagName()
         {
             foreach (var elements in new[] { GetDriver().FindElements(By.TagName("tagtest")), GetDriver<IFindsByTagName>().FindElementsByTagName("tagtest") })
@@ -311,7 +308,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnEmptyWhenMissingElementsUsedByFindElementsByTagName()
         {
             foreach (var elements in new[] { GetDriver().FindElements(By.TagName("tagtest_no")), GetDriver<IFindsByTagName>().FindElementsByTagName("tagtest_no") })
@@ -321,7 +318,7 @@ namespace Test
         }
 
         //FindElement(s)ByXPath
-        [TestMethod]
+        [Test]
         public void ShouldGetFirstElementWhenUsedFindElementByXPath()
         {
             foreach (var element in new[] { GetDriver().FindElement(By.XPath("/html/body/div[1]/tagtest")), GetDriver<IFindsByXPath>().FindElementByXPath("/html/body/div[1]/tagtest") })
@@ -331,14 +328,14 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldThrowExceptionWhenMissingElementUsedFindElementByXPath()
         {
-            Assert.ThrowsException<NoSuchElementException>(() => GetDriver().FindElement(By.XPath("/html/body/div[1]/tagtest_no")));
-            Assert.ThrowsException<NoSuchElementException>(() => GetDriver<IFindsByXPath>().FindElementByXPath("/html/body/div[1]/tagtest_no"));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => GetDriver().FindElement(By.XPath("/html/body/div[1]/tagtest_no")));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => GetDriver<IFindsByXPath>().FindElementByXPath("/html/body/div[1]/tagtest_no"));
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldGetAllElementWhenUsedFindElementsByXPath()
         {
             foreach (var elements in new[] { GetDriver().FindElements(By.XPath("/html/body/div[1]/tagtest")), GetDriver<IFindsByXPath>().FindElementsByXPath("/html/body/div[1]/tagtest") })
@@ -349,7 +346,7 @@ namespace Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldReturnEmptyWhenMissingElementsUsedByFindElementsByXPath()
         {
             foreach (var elements in new[] { GetDriver().FindElements(By.XPath("/html/body/div[1]/tagtest_no")), GetDriver<IFindsByXPath>().FindElementsByXPath("/html/body/div[1]/tagtest_no") })
@@ -360,24 +357,24 @@ namespace Test
 
         // Other
 
-        [TestMethod]
+        [Test]
         public void ShouldThrowExceptionWhenReferenceTheRemovedElement()
         {
             var element = GetDriver().FindElement(By.Id("textBoxName"));
-            Assert.IsInstanceOfType(element, typeof(IWebElement));
+            AssertCompatible.IsInstanceOfType(element, typeof(IWebElement));
             element.SendKeys("ABC");
             GetExecutor().ExecuteScript("const elem = document.querySelector('#textBoxName'); elem.parentNode.removeChild(elem);");
-            Assert.ThrowsException<StaleElementReferenceException>(() => element.SendKeys("DEF"));
+            AssertCompatible.ThrowsException<StaleElementReferenceException>(() => element.SendKeys("DEF"));
 
             GetExecutor().ExecuteScript(@"
 const elem = document.createElement('input');
 elem.setAttribute('id', 'textBoxName');
 document.body.appendChild(elem);");
 
-            Assert.ThrowsException<StaleElementReferenceException>(() => element.SendKeys("DEF"));
+            AssertCompatible.ThrowsException<StaleElementReferenceException>(() => element.SendKeys("DEF"));
 
             element = GetDriver().FindElement(By.Id("textBoxName"));
-            Assert.IsInstanceOfType(element, typeof(IWebElement));
+            AssertCompatible.IsInstanceOfType(element, typeof(IWebElement));
             element.SendKeys("ABC");
         }
     }

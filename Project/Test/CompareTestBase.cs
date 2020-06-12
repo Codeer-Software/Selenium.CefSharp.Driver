@@ -1,22 +1,21 @@
 ﻿using OpenQA.Selenium;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace Test
 {
     public abstract class CompareTestBase
     {
-        protected static HtmlServer server = null;
+        protected HtmlServer server = null;
 
-        protected static void ClassInitBase()
+        protected void ClassInitBase()
         {
-            server = HtmlServer.CreateFromFile("Controls.html");
+            var dir = GetType().Assembly.Location;
+            for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
+            var path = Path.Combine(dir, @"Test\Controls.html");
+            server = HtmlServer.CreateFromFile(path);
         }
 
-        protected static void ClassCleanupBase()
+        protected void ClassCleanupBase()
         {
             if (server != null) server.Close();
         }

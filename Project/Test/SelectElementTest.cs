@@ -1,5 +1,5 @@
 ﻿using Codeer.Friendly.Windows;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
@@ -14,22 +14,21 @@ using System.Windows.Controls;
 
 namespace Test
 {
-    [TestClass]
     public class SelectElementTestWinForm : SelectElementTestBase
     {
-        static WindowsAppFriend _app;
-        static CefSharpDriver _driver;
+        WindowsAppFriend _app;
+        CefSharpDriver _driver;
 
         public override IWebDriver GetDriver() => _driver;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _driver.Url = this.GetHtmlUrl();
         }
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        [OneTimeSetUp]
+        public void ClassInit()
         {
             ClassInitBase();
 
@@ -38,8 +37,8 @@ namespace Test
             _driver = appWithDriver.Driver;
         }
 
-        [ClassCleanup]
-        public static void ClassCleanup()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             Process.GetProcessById(_app.ProcessId).Kill();
             ClassCleanupBase();
@@ -64,22 +63,21 @@ namespace Test
         //}
     }
 
-    [TestClass]
     public class SelectElementTestWPF : SelectElementTestBase
     {
-        static WindowsAppFriend _app;
-        static CefSharpDriver _driver;
+        WindowsAppFriend _app;
+        CefSharpDriver _driver;
 
         public override IWebDriver GetDriver() => _driver;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _driver.Url = this.GetHtmlUrl();
         }
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        [OneTimeSetUp]
+        public void ClassInit()
         {
             ClassInitBase();
             var appWithDriver = AppRunner.RunWpfApp();
@@ -87,8 +85,8 @@ namespace Test
             _driver = appWithDriver.Driver;
         }
 
-        [ClassCleanup]
-        public static void ClassCleanup()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             Process.GetProcessById(_app.ProcessId).Kill();
             ClassCleanupBase();
@@ -113,32 +111,31 @@ namespace Test
         //}
     }
 
-    [TestClass]
     public class SelectElementTestSelenium : SelectElementTestBase
     {
-        static IWebDriver _driver;
+        IWebDriver _driver;
 
         public override IWebDriver GetDriver() => _driver;
 
-        [TestInitialize]
+        [SetUp]
         public void initialize()
         {
             _driver.Url = this.GetHtmlUrl();
         }
 
-        [TestCleanup]
-        public void TestCleanup()
+        [TearDown]
+        public void TearDown()
         {
         }
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        [OneTimeSetUp]
+        public void ClassInit()
         {
             ClassInitBase();
             _driver = new ChromeDriver();
         }
-        [ClassCleanup]
-        public static void ClassCleanup()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             _driver.Dispose();
             ClassCleanupBase();
@@ -153,7 +150,7 @@ namespace Test
             GetExecutor().ExecuteScript("document.getElementById('multipleSelect').selectedIndex = -1");
         }
 
-        [TestMethod]
+        [Test]
         public void Options()
         {
             InitializeSelect();
@@ -170,7 +167,7 @@ namespace Test
             texts[5].Is("Z");
         }
 
-        [TestMethod]
+        [Test]
         public void IsMultiple_ShouldReturnFalseWhenSingleSelect()
         {
             InitializeSelect();
@@ -180,7 +177,7 @@ namespace Test
             elem.IsMultiple.IsFalse();
         }
 
-        [TestMethod]
+        [Test]
         public void IsMultiple_ShouldReturnTrueWhenMultipleSelect()
         {
             InitializeSelect();
@@ -190,7 +187,7 @@ namespace Test
             elem.IsMultiple.IsTrue();
         }
 
-        [TestMethod]
+        [Test]
         public void SelectedOption_ShouldReturnSelectedOption()
         {
             InitializeSelect();
@@ -203,17 +200,17 @@ namespace Test
             option.Text.Is("FGHIJ");
         }
 
-        [TestMethod]
+        [Test]
         public void SelectedOption_ShouldThrowExeceptionWhenHasNoSelected()
         {
             InitializeSelect();
             
             var select = GetDriver().FindElement(By.Id("singleSelect"));
             var elem = new SelectElement(select);
-            Assert.ThrowsException<NoSuchElementException>(() => elem.SelectedOption);
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => elem.SelectedOption);
         }
 
-        [TestMethod]
+        [Test]
         public void AllSelectedOptions_ShouldReturnEmptyWhenHasNoSelected()
         {
             InitializeSelect();
@@ -224,7 +221,7 @@ namespace Test
             selects.Count.Is(0);
         }
 
-        [TestMethod]
+        [Test]
         public void AllSelectedOptions_ShouldReturnSelectedOption_single()
         {
             InitializeSelect();
@@ -238,7 +235,7 @@ namespace Test
             selects[0].Text.Is("FGHIJ");
         }
 
-        [TestMethod]
+        [Test]
         public void AllSelectedOptions_ShouldReturnSelectedOption_multiple()
         {
             InitializeSelect();
@@ -256,7 +253,7 @@ namespace Test
             selects[2].Text.Is("Z");
         }
 
-        [TestMethod]
+        [Test]
         public void WrappedElement()
         {
             InitializeSelect();
@@ -267,7 +264,7 @@ namespace Test
             elem.WrappedElement.IsSameReferenceAs(select);
         }
 
-        [TestMethod]
+        [Test]
         public virtual void SelectByText()
         {
             InitializeSelect();
@@ -279,7 +276,7 @@ namespace Test
             selectedValue.Is("1");
         }
 
-        [TestMethod]
+        [Test]
         public virtual void SelectByIndex()
         {
             InitializeSelect();
@@ -291,7 +288,7 @@ namespace Test
             selectedValue.Is("5");
         }
 
-        [TestMethod]
+        [Test]
         public virtual void SelectByValue()
         {
             InitializeSelect();
