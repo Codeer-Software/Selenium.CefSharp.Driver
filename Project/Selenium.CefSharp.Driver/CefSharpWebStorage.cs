@@ -5,10 +5,10 @@ namespace Selenium.CefSharp.Driver
 {
     class CefSharpWebStorage : IWebStorage
     {
-        public CefSharpWebStorage(IJavaScriptExecutor jsExecutor)
+        public CefSharpWebStorage(IJavaScriptExecutor javaScriptExecutor)
         {
-            LocalStorage = new CefSharpStorag(jsExecutor, "localStorage");
-            SessionStorage = new CefSharpStorag(jsExecutor, "sessionStorage");
+            LocalStorage = new CefSharpStorag(javaScriptExecutor, "localStorage");
+            SessionStorage = new CefSharpStorag(javaScriptExecutor, "sessionStorage");
         }
 
         public ILocalStorage LocalStorage { get; }

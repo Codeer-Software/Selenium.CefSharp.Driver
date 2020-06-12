@@ -7,8 +7,8 @@ namespace Selenium.CefSharp.Driver
 {
     class CefSharpApplicationCache : IApplicationCache
     {
-        IJavaScriptExecutor _jsExecutor;
-        internal CefSharpApplicationCache(IJavaScriptExecutor jsExecutor) => _jsExecutor = jsExecutor;
-        public AppCacheStatus Status => (AppCacheStatus)Convert.ToInt32(_jsExecutor.ExecuteScript("window.applicationCache.status"), CultureInfo.InvariantCulture);
+        IJavaScriptExecutor _javaScriptExecutor;
+        internal CefSharpApplicationCache(IJavaScriptExecutor javaScriptExecutor) => _javaScriptExecutor = javaScriptExecutor;
+        public AppCacheStatus Status => (AppCacheStatus)Convert.ToInt32(_javaScriptExecutor.ExecuteScript("window.applicationCache.status"), CultureInfo.InvariantCulture);
     }
 }

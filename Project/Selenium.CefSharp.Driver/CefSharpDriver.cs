@@ -50,7 +50,7 @@ namespace Selenium.CefSharp.Driver
         IUIObject,
         ICefFunctions
     {
-        readonly IJavaScriptExecutor _jsExecutor;
+        readonly IJavaScriptExecutor _javaScriptExecutor;
         readonly ISearchContext _searchContext;
         readonly CotnrolAccessor _cotnrolAccessor;
 
@@ -60,7 +60,7 @@ namespace Selenium.CefSharp.Driver
 
         public AppVar AppVar { get; }
 
-        public dynamic TargetFrame => WebBrowserExtensions.GetMainFrame(this);
+        public dynamic Frame => WebBrowserExtensions.GetMainFrame(this);
 
         public dynamic JavascriptObjectRepository => this.Dynamic().JavascriptObjectRepository;
 
@@ -111,10 +111,10 @@ namespace Selenium.CefSharp.Driver
             AppVar = appVar;
             App.LoadAssembly(typeof(JSResultConverter).Assembly);
             WebBrowserExtensions = App.Type("CefSharp.WebBrowserExtensions");
-            _jsExecutor = new CefSharpJavaScriptExecutor(this);
-            _searchContext = new DocumentElementFinder(_jsExecutor);
-            ApplicationCache = new CefSharpApplicationCache(_jsExecutor);
-            WebStorage = new CefSharpWebStorage(_jsExecutor);
+            _javaScriptExecutor = new CefSharpJavaScriptExecutor(this);
+            _searchContext = new DocumentElementFinder(_javaScriptExecutor);
+            ApplicationCache = new CefSharpApplicationCache(_javaScriptExecutor);
+            WebStorage = new CefSharpWebStorage(_javaScriptExecutor);
             _cotnrolAccessor = new CotnrolAccessor(this);
             WaitForLoading();
         }
@@ -125,9 +125,9 @@ namespace Selenium.CefSharp.Driver
 
         public ReadOnlyCollection<IWebElement> FindElements(By by) => _searchContext.FindElements(by);
 
-        public object ExecuteScript(string script, params object[] args) => _jsExecutor.ExecuteScript(script, args);
+        public object ExecuteScript(string script, params object[] args) => _javaScriptExecutor.ExecuteScript(script, args);
 
-        public object ExecuteAsyncScript(string script, params object[] args) => _jsExecutor.ExecuteAsyncScript(script, args);
+        public object ExecuteAsyncScript(string script, params object[] args) => _javaScriptExecutor.ExecuteAsyncScript(script, args);
 
         public Screenshot GetScreenshot() => _cotnrolAccessor.GetScreenShot(new Point(0, 0), Size);
 

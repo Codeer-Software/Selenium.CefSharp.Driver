@@ -53,7 +53,7 @@ namespace Selenium.CefSharp.Driver
         }
 
         dynamic ExecuteScriptCore(string src, params object[] args)
-            => _cef.TargetFrame.EvaluateScriptAsync(ConvertCefSharpScript(src, args), "about:blank", 1, null).Result;
+            => _cef.Frame.EvaluateScriptAsync(ConvertCefSharpScript(src, args), "about:blank", 1, null).Result;
 
         dynamic ExecuteScriptAsyncInternal(string script, params object[] args)
         {
@@ -76,7 +76,7 @@ namespace Selenium.CefSharp.Driver
         }
 
         dynamic ExecuteScriptAsyncCore(string scriptId, string src, params object[] args)
-            => _cef.TargetFrame.EvaluateScriptAsync(ConvertCefSharpAsyncScript(scriptId, src, args), "about:blank", 1, null).Result;
+            => _cef.Frame.EvaluateScriptAsync(ConvertCefSharpAsyncScript(scriptId, src, args), "about:blank", 1, null).Result;
 
         string ConvertCefSharpScript(string script, object[] args)
             => $"(function() {{ const result = (function() {{ {script} }})({ConvertScriptParameters(args)}); \r\n return {ConvertResultInJavaScriptString} }})();";

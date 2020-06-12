@@ -6,10 +6,10 @@ namespace Selenium.CefSharp.Driver
 {
     class DocumentElementFinder : ISearchContext
     {
-        readonly IJavaScriptExecutor _jsExecutor;
+        readonly IJavaScriptExecutor _javaScriptExecutor;
 
-        internal DocumentElementFinder(IJavaScriptExecutor jsExecutor)
-            => _jsExecutor = jsExecutor;
+        internal DocumentElementFinder(IJavaScriptExecutor javaScriptExecutor)
+            => _javaScriptExecutor = javaScriptExecutor;
 
         public IWebElement FindElement(By by)
         {
@@ -39,7 +39,7 @@ namespace Selenium.CefSharp.Driver
             {
                 script = $"return window.__seleniumCefSharpDriver.getElementsByXPath('{text.Substring("By.XPath:".Length).Trim()}')[0];";
             }
-            if (!(_jsExecutor.ExecuteScript(script) is CefSharpWebElement result))
+            if (!(_javaScriptExecutor.ExecuteScript(script) is CefSharpWebElement result))
             {
                 throw new NoSuchElementException($"Element not found: {text}");
             }
@@ -74,7 +74,7 @@ namespace Selenium.CefSharp.Driver
             {
                 script = $"return window.__seleniumCefSharpDriver.getElementsByXPath('{text.Substring("By.XPath:".Length).Trim()}');";
             }
-            if (!(_jsExecutor.ExecuteScript(script) is ReadOnlyCollection<IWebElement> result))
+            if (!(_javaScriptExecutor.ExecuteScript(script) is ReadOnlyCollection<IWebElement> result))
             {
                 return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
             }
