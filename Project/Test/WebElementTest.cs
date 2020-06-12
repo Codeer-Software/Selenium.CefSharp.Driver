@@ -120,6 +120,20 @@ namespace Test
         }
 
         [Test]
+        public void Locatable()
+        {
+            var element = GetDriver().FindElement(By.Id("textBoxName"));
+            var locatable = (ILocatable)element;
+            var locationOnScreenOnceScrolledIntoView = locatable.LocationOnScreenOnceScrolledIntoView;
+            var coordinates = locatable.Coordinates;
+
+            var id = coordinates.AuxiliaryLocator;
+            var locationInDom = coordinates.LocationInDom;
+            var locationInViewport = coordinates.LocationInViewport;
+            AssertCompatible.ThrowsException<Exception>(()=> coordinates.LocationOnScreen);
+        }
+
+        [Test]
         public void TagName()
         {
             var element = GetDriver().FindElement(By.Id("textBoxName"));

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 
 namespace Selenium.CefSharp.Driver
@@ -282,8 +283,17 @@ return window.__seleniumCefSharpDriver.getElementsByXPath('{text.Substring("By.X
             }
         }
 
-        public Point LocationOnScreenOnceScrolledIntoView => throw new NotImplementedException();
+        public Point LocationOnScreenOnceScrolledIntoView
+        {
+            get
+            {
+                var rawLocation = (Dictionary<string, object>)_driver.ExecuteScript("var rect = arguments[0].getBoundingClientRect(); return {'x': rect.left, 'y': rect.top};", this);
+                int x = Convert.ToInt32(rawLocation["x"], CultureInfo.InvariantCulture);
+                int y = Convert.ToInt32(rawLocation["y"], CultureInfo.InvariantCulture);
+                return new Point(x, y);
+            }
+        }
 
-        public ICoordinates Coordinates => throw new NotImplementedException();
+        public ICoordinates Coordinates => new CefSharpCoordinates(this);
     }
 }
