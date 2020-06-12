@@ -73,13 +73,15 @@
   <ItemGroup>
     <Compile Include="CefSharpApplicationCache.cs" />
     <Compile Include="CefSharpDriver.cs" />
-    <Compile Include="CefSharpDriverCore.cs" />
+    <Compile Include="CefSharpJavaScriptExecutor.cs" />
     <Compile Include="CefSharpNavigationWebBrowser.cs" />
     <Compile Include="CefSharpStorag.cs" />
     <Compile Include="CefSharpTargetLocatorWebBrowser.cs" />
     <Compile Include="CefSharpWebElement.cs" />
     <Compile Include="CefSharpWebStorage.cs" />
     <Compile Include="CotnrolAccessor.cs" />
+    <Compile Include="DocumentElementFinder.cs" />
+    <Compile Include="ICefFunctions.cs" />
     <Compile Include="JS.cs" />
     <Compile Include="JsUtils.cs" />
     <Compile Include="KeySpec.cs" />
