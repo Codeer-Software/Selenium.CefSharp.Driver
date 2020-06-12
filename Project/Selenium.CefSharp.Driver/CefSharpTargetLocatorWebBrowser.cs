@@ -3,11 +3,11 @@ using System;
 
 namespace Selenium.CefSharp.Driver
 {
-    public class CefSharpTargetLocator : ITargetLocator
+    class CefSharpTargetLocatorWebBrowser : ITargetLocator
     {
         CefSharpDriver _driver;
 
-        public CefSharpTargetLocator(CefSharpDriver driver) => _driver = driver;
+        public CefSharpTargetLocatorWebBrowser(CefSharpDriver driver) => _driver = driver;
 
         public IWebDriver DefaultContent() => _driver;
 

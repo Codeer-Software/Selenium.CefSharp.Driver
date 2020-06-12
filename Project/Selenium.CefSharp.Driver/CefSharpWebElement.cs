@@ -1,14 +1,11 @@
-﻿using Codeer.Friendly.Windows.KeyMouse;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions.Internal;
 using OpenQA.Selenium.Internal;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Globalization;
-using System.IO;
 
 namespace Selenium.CefSharp.Driver
 {
@@ -28,33 +25,36 @@ namespace Selenium.CefSharp.Driver
         IFindsByCssSelector,
         ITakesScreenshot,
         ILocatable
-    {   
-        readonly CefSharpDriver _driver;
-     
+    {
+        readonly CotnrolAccessor _cotnrolAccessor;
+
         internal int Id { get; }
 
-        public CefSharpWebElement(CefSharpDriver driver, int index)
+        IJavaScriptExecutor JsExecutor => (IJavaScriptExecutor)WrappedDriver;
+
+        internal CefSharpWebElement(IWebDriver driver, int index)
         {
-            _driver = driver;
+            WrappedDriver = driver;
+            _cotnrolAccessor = new CotnrolAccessor(driver);
             Id = index;
         }
 
-        public IWebDriver WrappedDriver => _driver;
+        public IWebDriver WrappedDriver { get; }
 
-        public string TagName => (_driver.ExecuteScript(JS.GetTagName(this.Id)) as string)?.ToLower();
+        public string TagName => (JsExecutor.ExecuteScript(JS.GetTagName(this.Id)) as string)?.ToLower();
 
-        public string Text => _driver.ExecuteScript(JS.GetInnerHTML(this.Id)) as string;
+        public string Text => JsExecutor.ExecuteScript(JS.GetInnerHTML(this.Id)) as string;
 
-        public bool Enabled => !(bool)_driver.ExecuteScript(JS.GetDisabled(this.Id));
+        public bool Enabled => !(bool)JsExecutor.ExecuteScript(JS.GetDisabled(this.Id));
 
-        public bool Selected => (bool)_driver.ExecuteScript(JS.GetSelected(this.Id));
+        public bool Selected => (bool)JsExecutor.ExecuteScript(JS.GetSelected(this.Id));
 
         public Point Location
         {
             get
             {
-                var x = Convert.ToInt32(_driver.ExecuteScript(JS.GetBoundingClientRectX(this.Id)), CultureInfo.InvariantCulture);
-                var y = Convert.ToInt32(_driver.ExecuteScript(JS.GetBoundingClientRectY(this.Id)), CultureInfo.InvariantCulture);
+                var x = Convert.ToInt32(JsExecutor.ExecuteScript(JS.GetBoundingClientRectX(this.Id)), CultureInfo.InvariantCulture);
+                var y = Convert.ToInt32(JsExecutor.ExecuteScript(JS.GetBoundingClientRectY(this.Id)), CultureInfo.InvariantCulture);
                 return new Point(x, y);
             }
         }
@@ -63,25 +63,25 @@ namespace Selenium.CefSharp.Driver
         {
             get
             {
-                var w = Convert.ToInt32(_driver.ExecuteScript(JS.GetBoundingClientRectWidth(this.Id)), CultureInfo.InvariantCulture);
-                var h = Convert.ToInt32(_driver.ExecuteScript(JS.GetBoundingClientRectHeight(this.Id)), CultureInfo.InvariantCulture);
+                var w = Convert.ToInt32(JsExecutor.ExecuteScript(JS.GetBoundingClientRectWidth(this.Id)), CultureInfo.InvariantCulture);
+                var h = Convert.ToInt32(JsExecutor.ExecuteScript(JS.GetBoundingClientRectHeight(this.Id)), CultureInfo.InvariantCulture);
                 return new Size(w, h);
             }
         }
 
-        public bool Displayed => (bool)_driver.ExecuteScript(JS.GetDisplayed(this.Id));
+        public bool Displayed => (bool)JsExecutor.ExecuteScript(JS.GetDisplayed(this.Id));
 
         public void Clear()
-            => _driver.ExecuteScript(JS.SetAttribute(this.Id, "value", string.Empty));
+            => JsExecutor.ExecuteScript(JS.SetAttribute(this.Id, "value", string.Empty));
 
         private void Focus()
-            => _driver.ExecuteScriptInternal(JS.Focus(this.Id));
+            => JsExecutor.ExecuteScript(JS.Focus(this.Id));
 
         public void Click()
         {
             if(this.TagName.Equals("OPTION", StringComparison.InvariantCultureIgnoreCase))
             {
-                var parent = (CefSharpWebElement)_driver.ExecuteScript(JS.GetParentElement(this.Id));
+                var parent = (CefSharpWebElement)JsExecutor.ExecuteScript(JS.GetParentElement(this.Id));
                 //TODO: emulate mouse down / up
                 //https://www.w3.org/TR/webdriver/#element-click
 
@@ -100,36 +100,35 @@ element.selected = true";
 const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
 element.selected = !element.selected";
                 }
-                _driver.ExecuteScriptInternal(script);
+                JsExecutor.ExecuteScript(script);
             }
             else
             {
-                _driver.ExecuteScriptInternal(JS.ScrollIntoView(Id));
+                JsExecutor.ExecuteScript(JS.ScrollIntoView(Id));
                 var pos = Location;
                 var size = Size;
                 pos.Offset(size.Width / 2, size.Height / 2);
-                _driver.Click(MouseButtonType.Left, pos);
+                _cotnrolAccessor.Click(pos);
             }
         }
 
         public string GetAttribute(string attributeName)
-            => _driver.ExecuteScript(JS.GetAttribute(this.Id, attributeName)) as string;
+            => JsExecutor.ExecuteScript(JS.GetAttribute(this.Id, attributeName)) as string;
 
         public string GetCssValue(string propertyName)
-            => _driver.ExecuteScript(JS.GetCssValue(this.Id, propertyName)) as string;
+            => JsExecutor.ExecuteScript(JS.GetCssValue(this.Id, propertyName)) as string;
 
         public string GetProperty(string propertyName)
-            => _driver.ExecuteScript(JS.GetProperty(this.Id, propertyName)) as string;
+            => JsExecutor.ExecuteScript(JS.GetProperty(this.Id, propertyName)) as string;
 
         public void SendKeys(string text)
         {
-            _driver.ExecuteScriptInternal(JS.Focus(Id));
-            _driver.Activate();
-            KeySpec.SendKeys(_driver.App, text);
+            JsExecutor.ExecuteScript(JS.Focus(Id));
+            _cotnrolAccessor.SendKeys(text);
         }
 
         public void Submit()
-            => _driver.ExecuteScript(JS.Submit(this.Id));
+            => JsExecutor.ExecuteScript(JS.Submit(this.Id));
 
         public IWebElement FindElement(By by)
         {
@@ -171,7 +170,7 @@ return element.getElementsByTagName('{text.Substring("By.TagName:".Length).Trim(
 const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
 return window.__seleniumCefSharpDriver.getElementsByXPath('{text.Substring("By.XPath:".Length).Trim()}', element)[0];";
             }
-            if (!(_driver.ExecuteScript(script) is CefSharpWebElement result))
+            if (!(JsExecutor.ExecuteScript(script) is CefSharpWebElement result))
             {
                 throw new NoSuchElementException($"Element not found: {text}");
             }
@@ -218,7 +217,7 @@ return element.getElementsByTagName('{text.Substring("By.TagName:".Length).Trim(
 const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
 return window.__seleniumCefSharpDriver.getElementsByXPath('{text.Substring("By.XPath:".Length).Trim()}', element);";
             }
-            if (!(_driver.ExecuteScript(script) is ReadOnlyCollection<IWebElement> result))
+            if (!(JsExecutor.ExecuteScript(script) is ReadOnlyCollection<IWebElement> result))
             {
                 return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
             }
@@ -233,10 +232,6 @@ return window.__seleniumCefSharpDriver.getElementsByXPath('{text.Substring("By.X
 
         public ReadOnlyCollection<IWebElement> FindElementsByClassName(string className) => FindElements(By.ClassName(className));
 
-        public IWebElement FindElementByLinkText(string linkText) => FindElement(By.LinkText(linkText));
-
-        public ReadOnlyCollection<IWebElement> FindElementsByLinkText(string linkText) => FindElements(By.LinkText(linkText));
-
         public IWebElement FindElementByName(string name) => FindElement(By.Name(name));
 
         public ReadOnlyCollection<IWebElement> FindElementsByName(string name) => FindElements(By.Name(name));
@@ -249,36 +244,27 @@ return window.__seleniumCefSharpDriver.getElementsByXPath('{text.Substring("By.X
 
         public ReadOnlyCollection<IWebElement> FindElementsByXPath(string xpath) => FindElements(By.XPath(xpath));
 
-        public IWebElement FindElementByPartialLinkText(string partialLinkText) => FindElement(By.PartialLinkText(partialLinkText));
-
-        public ReadOnlyCollection<IWebElement> FindElementsByPartialLinkText(string partialLinkText) => FindElements(By.PartialLinkText(partialLinkText));
-
         public IWebElement FindElementByCssSelector(string cssSelector) => FindElement(By.CssSelector(cssSelector));
 
         public ReadOnlyCollection<IWebElement> FindElementsByCssSelector(string cssSelector) => FindElements(By.CssSelector(cssSelector));
 
+        //TODO 
+        public IWebElement FindElementByLinkText(string linkText) => FindElement(By.LinkText(linkText));
+        public ReadOnlyCollection<IWebElement> FindElementsByLinkText(string linkText) => FindElements(By.LinkText(linkText));
+        public IWebElement FindElementByPartialLinkText(string partialLinkText) => FindElement(By.PartialLinkText(partialLinkText));
+        public ReadOnlyCollection<IWebElement> FindElementsByPartialLinkText(string partialLinkText) => FindElements(By.PartialLinkText(partialLinkText));
+
         public Screenshot GetScreenshot()
         {
-            _driver.Activate();
-            _driver.ExecuteScriptInternal(JS.ScrollIntoView(Id));
-            var size = Size;
-            using (var bmp = new Bitmap(size.Width, size.Height))
-            using (var g = Graphics.FromImage(bmp))
-            {
-                g.CopyFromScreen(_driver.PointToScreen(Location), new Point(0, 0), bmp.Size);
-                using (var ms = new MemoryStream())
-                {
-                    bmp.Save(ms, ImageFormat.Bmp);
-                    return new Screenshot(Convert.ToBase64String(ms.ToArray()));
-                }
-            }
+            JsExecutor.ExecuteScript(JS.ScrollIntoView(Id));
+            return _cotnrolAccessor.GetScreenShot(Location, Size);
         }
 
         public Point LocationOnScreenOnceScrolledIntoView
         {
             get
             {
-                var rawLocation = (Dictionary<string, object>)_driver.ExecuteScript("var rect = arguments[0].getBoundingClientRect(); return {'x': rect.left, 'y': rect.top};", this);
+                var rawLocation = (Dictionary<string, object>)JsExecutor.ExecuteScript("var rect = arguments[0].getBoundingClientRect(); return {'x': rect.left, 'y': rect.top};", this);
                 int x = Convert.ToInt32(rawLocation["x"], CultureInfo.InvariantCulture);
                 int y = Convert.ToInt32(rawLocation["y"], CultureInfo.InvariantCulture);
                 return new Point(x, y);

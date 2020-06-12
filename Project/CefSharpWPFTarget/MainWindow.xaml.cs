@@ -30,7 +30,18 @@ namespace CefSharpWPFTarget
             _browser.Loaded += _browser_Loaded;
             _browser.FrameLoadStart += _browser_FrameLoadStart;
             _browser.FrameLoadEnd += _browser_FrameLoadEnd;
+
+           
+            /*
+            IFrame x;
+
+            x.Browser.GetFrame();
+
+            _browser.JavascriptObjectRepository
+
+            */
             
+        //   WebBrowserExtensions.GetPa
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -48,8 +59,20 @@ namespace CefSharpWPFTarget
             {
                 _browser.Address = @"C:\GitHub\Selenium.CefSharp.Driver\Project\Test\Controls.html";
             }
+            if (e.Key == Key.E)
+            {
+                var x = _browser.GetBrowser().GetFrame(_browser.GetBrowser().GetFrameIdentifiers()[2]);
 
-            if(e.Key == Key.B)
+                var z = _browser.GetBrowser().GetFrameNames();
+
+
+                var y1 = _browser.GetBrowser().GetFrameIdentifiers();
+                var y = x.Browser.GetFrameIdentifiers();
+
+                x.Browser.GoBack();
+            }
+
+            if (e.Key == Key.B)
             {
                 var callbackObj = new CallbackBoundObject();
                 _browser.JavascriptObjectRepository.Register("_asyncScriptBoundObject", callbackObj, true, BindingOptions.DefaultBinder);

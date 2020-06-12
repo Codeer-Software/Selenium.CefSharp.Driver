@@ -4,11 +4,11 @@ using System;
 
 namespace Selenium.CefSharp.Driver
 {
-    public class CefSharpNavigation : INavigation
+    class CefSharpNavigationWebBrowser : INavigation
     {
         CefSharpDriver _driver;
 
-        public CefSharpNavigation(CefSharpDriver driver) => _driver = driver;
+        public CefSharpNavigationWebBrowser(CefSharpDriver driver) => _driver = driver;
 
         public void Back()
         {

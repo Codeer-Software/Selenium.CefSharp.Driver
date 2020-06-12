@@ -105,12 +105,19 @@
 	<div class="attr-test">
 		<input id="attrTestInput" foo="fooattr" value="init" />
 	</div>
+
+
+			<iframe id="iframe" src="Frame.html" width="700", height="700">
+			</iframe>
+
+	
+
 	<script>
 		function clickJS() {
 			document.getElementById("textBoxName").value = "JS";
 		}
 
-        keyTest.addEventListener('keydown', (event) => {
+		keyTest.addEventListener('keydown', (event) => {
 			if (window.keylog == null) {
 				window.keylog = [];
 			}
@@ -122,13 +129,13 @@
 			}
 			if (event.shiftKey) {
 				key += "[shift]";
-			} 
-            if (event.altKey) {
-                key += "[alt]";
-            }
+			}
+			if (event.altKey) {
+				key += "[alt]";
+			}
 			window.keylog.push(key);
 		});
 	</script>
 </body>
 
-</html>
+	</html>

@@ -127,5 +127,14 @@ namespace Test
             navigate.Refresh();
             GetDriver().Url.Contains("Selenium.CefSharp.Driver").IsTrue();
         }
+
+      //  [Test]
+        public void XXX()
+        {
+            var x = GetDriver().SwitchTo().Frame(0);
+            var y = x.SwitchTo().Frame(0);
+        }
+
+
     }
 }
