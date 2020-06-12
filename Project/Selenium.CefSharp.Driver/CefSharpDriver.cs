@@ -22,7 +22,9 @@ using System.Globalization;
 namespace Selenium.CefSharp.Driver
 {
     /*
-    //Not supported. Use Friendly.Windows.KeyMouse for complex things.
+    //Not supported.
+    //You can't use OpenQA.Selenium.Interactions.Actions.
+    //Use Friendly.Windows.KeyMouse for complex things.
     IHasInputDevices, 
     IActionExecutor
 
@@ -30,6 +32,9 @@ namespace Selenium.CefSharp.Driver
     IHasCapabilities,
     IHasLocationContext,
     IHasSessionId,
+
+    //Under review.
+    IAllowsFileDetection
     */
 
     [ControlDriver(TypeFullName = "CefSharp.Wpf.ChromiumWebBrowser|CefSharp.WinForms.ChromiumWebBrowser")]
@@ -47,6 +52,7 @@ namespace Selenium.CefSharp.Driver
         IFindsByCssSelector,
         ITakesScreenshot,
         IHasApplicationCache,
+        IHasWebStorage,
         IUIObject
     {
         public WindowsAppFriend App => (WindowsAppFriend)AppVar.App;
@@ -99,12 +105,22 @@ namespace Selenium.CefSharp.Driver
 
         public string PageSource => WebBrowserExtensions.GetSourceAsync(this).Result;
 
+        public bool HasApplicationCache => true;
+
+        public IApplicationCache ApplicationCache { get; }
+
+        public bool HasWebStorage => true;
+
+        public IWebStorage WebStorage { get; }
+
         public CefSharpDriver(AppVar appVar)
         {
             AppVar = appVar;
             App.LoadAssembly(typeof(JSResultConverter).Assembly);
             WebBrowserExtensions = App.Type("CefSharp.WebBrowserExtensions");
             WaitForLoading();
+            ApplicationCache = new CefSharpApplicationCache(this);
+            WebStorage = new CefSharpWebStorage(this);
         }
 
         public void Dispose() => AppVar.Dispose();
@@ -495,10 +511,6 @@ return val;
             }
         }
 
-        public bool HasApplicationCache => true;
-
-        public IApplicationCache ApplicationCache => new CefSharpApplicationCache(this);
-
         //don't support.
         public string CurrentWindowHandle => throw new NotImplementedException();
         public ReadOnlyCollection<string> WindowHandles => throw new NotImplementedException();
@@ -506,4 +518,55 @@ return val;
         public void Quit() => throw new NotImplementedException();
         public IOptions Manage() => throw new NotImplementedException();
     }
+
+    class CefSharpWebStorage : IWebStorage
+    {
+        public CefSharpWebStorage(CefSharpDriver driver)
+        {
+            LocalStorage = new CefSharpStorag(driver, "localStorage");
+            SessionStorage = new CefSharpStorag(driver, "sessionStorage");
+        }
+
+        public ILocalStorage LocalStorage { get; }
+
+        public ISessionStorage SessionStorage { get; }
+    }
+
+    class CefSharpStorag : ILocalStorage, ISessionStorage
+    {
+        CefSharpDriver _driver;
+        string _storageName;
+
+        public CefSharpStorag(CefSharpDriver driver, string storageName)
+        {
+            _driver = driver;
+            _storageName = storageName;
+        }
+
+        public int Count => Convert.ToInt32(_driver.ExecuteScript($"return window.{_storageName}.length;"), CultureInfo.InvariantCulture);
+
+        public void Clear() => _driver.ExecuteScript($"window.{_storageName}.clear();");
+
+        public string GetItem(string key) => (string)_driver.ExecuteScript($"return window.{_storageName}.getItem('{key}');");
+
+        public ReadOnlyCollection<string> KeySet()
+        {
+            var list = new List<string>();
+            foreach (var e in (IEnumerable)_driver.ExecuteScript($"return Object.keys(window.{_storageName});"))
+            {
+                list.Add(e?.ToString());
+            }
+            return new ReadOnlyCollection<string>(list);
+        }
+
+        public string RemoveItem(string key)
+        {
+            var value = GetItem(key);
+            _driver.ExecuteScript($"window.{_storageName}.removeItem('{key}');");
+            return value;
+        }
+        
+        public void SetItem(string key, string value) => _driver.ExecuteScript($"window.{_storageName}.setItem('{key}', '{value}');");
+    }
+
 }

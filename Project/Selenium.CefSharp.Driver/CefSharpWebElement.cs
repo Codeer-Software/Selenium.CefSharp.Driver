@@ -12,6 +12,9 @@ using System.IO;
 
 namespace Selenium.CefSharp.Driver
 {
+    //Not supported.
+    //IWebElementReference
+
     public class CefSharpWebElement :
         IWebElement, 
         IWrapsDriver,

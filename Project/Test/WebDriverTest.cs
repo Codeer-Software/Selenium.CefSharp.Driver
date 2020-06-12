@@ -53,6 +53,36 @@ namespace Test
             _driver.HasApplicationCache.IsTrue();
             _driver.ApplicationCache.Status.Is(AppCacheStatus.Uncached);
         }
+
+        [Test]
+        public void WebStorageLocal()
+        {
+            _driver.HasWebStorage.IsTrue();
+            _driver.WebStorage.LocalStorage.Clear();
+            _driver.WebStorage.LocalStorage.SetItem("a", "x");
+            _driver.WebStorage.LocalStorage.Count.Is(1);
+            _driver.WebStorage.LocalStorage.GetItem("a").Is("x");
+            _driver.WebStorage.LocalStorage.SetItem("b", "y");
+            var keys = _driver.WebStorage.LocalStorage.KeySet().OrderBy(e => e).ToList();
+            keys.Count.Is(2);
+            keys[0].Is("a");
+            keys[1].Is("b");
+        }
+
+        [Test]
+        public void WebStorageSession()
+        {
+            _driver.HasWebStorage.IsTrue();
+            _driver.WebStorage.SessionStorage.Clear();
+            _driver.WebStorage.SessionStorage.SetItem("a", "x");
+            _driver.WebStorage.SessionStorage.Count.Is(1);
+            _driver.WebStorage.SessionStorage.GetItem("a").Is("x");
+            _driver.WebStorage.SessionStorage.SetItem("b", "y");
+            var keys = _driver.WebStorage.SessionStorage.KeySet().OrderBy(e => e).ToList();
+            keys.Count.Is(2);
+            keys[0].Is("a");
+            keys[1].Is("b");
+        }
     }
 
     public class WebDriverTestWPF : WebDriverTestBase
@@ -89,6 +119,36 @@ namespace Test
         {
             _driver.HasApplicationCache.IsTrue();
             _driver.ApplicationCache.Status.Is(AppCacheStatus.Uncached);
+        }
+
+        [Test]
+        public void WebStorageLocal()
+        {
+            _driver.HasWebStorage.IsTrue();
+            _driver.WebStorage.LocalStorage.Clear();
+            _driver.WebStorage.LocalStorage.SetItem("a", "x");
+            _driver.WebStorage.LocalStorage.Count.Is(1);
+            _driver.WebStorage.LocalStorage.GetItem("a").Is("x");
+            _driver.WebStorage.LocalStorage.SetItem("b", "y");
+            var keys = _driver.WebStorage.LocalStorage.KeySet().OrderBy(e => e).ToList();
+            keys.Count.Is(2);
+            keys[0].Is("a");
+            keys[1].Is("b");
+        }
+
+        [Test]
+        public void WebStorageSession()
+        {
+            _driver.HasWebStorage.IsTrue();
+            _driver.WebStorage.SessionStorage.Clear();
+            _driver.WebStorage.SessionStorage.SetItem("a", "x");
+            _driver.WebStorage.SessionStorage.Count.Is(1);
+            _driver.WebStorage.SessionStorage.GetItem("a").Is("x");
+            _driver.WebStorage.SessionStorage.SetItem("b", "y");
+            var keys = _driver.WebStorage.SessionStorage.KeySet().OrderBy(e => e).ToList();
+            keys.Count.Is(2);
+            keys[0].Is("a");
+            keys[1].Is("b");
         }
     }
 
