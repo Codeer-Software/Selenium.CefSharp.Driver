@@ -115,7 +115,7 @@ namespace Selenium.CefSharp.Driver
             _searchContext = new DocumentElementFinder(_javaScriptExecutor);
             ApplicationCache = new CefSharpApplicationCache(_javaScriptExecutor);
             WebStorage = new CefSharpWebStorage(_javaScriptExecutor);
-            _cotnrolAccessor = new CotnrolAccessor(this);
+            _cotnrolAccessor = new CotnrolAccessor(this, new Point());
             WaitForLoading();
         }
         
@@ -204,7 +204,7 @@ namespace Selenium.CefSharp.Driver
             this.Dynamic().Focus();
         }
 
-        public IWebElement CreateWebElement(int id) => new CefSharpWebElement(this, id);
+        public IWebElement CreateWebElement(int id) => new CefSharpWebElement(this, _cotnrolAccessor, id);
 
         bool IsWPF
         {

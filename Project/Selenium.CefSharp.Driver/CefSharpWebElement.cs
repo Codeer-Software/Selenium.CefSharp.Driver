@@ -32,10 +32,10 @@ namespace Selenium.CefSharp.Driver
 
         IJavaScriptExecutor JsExecutor => (IJavaScriptExecutor)WrappedDriver;
 
-        internal CefSharpWebElement(IWebDriver driver, int index)
+        internal CefSharpWebElement(IWebDriver driver, CotnrolAccessor cotnrolAccessor, int index)
         {
             WrappedDriver = driver;
-            _cotnrolAccessor = new CotnrolAccessor(driver);
+            _cotnrolAccessor = cotnrolAccessor;
             Id = index;
         }
 
