@@ -1,5 +1,9 @@
-﻿using OpenQA.Selenium;
+﻿using Codeer.Friendly.Windows;
+using Codeer.Friendly.Windows.Grasp;
+using Codeer.Friendly.Windows.KeyMouse;
+using OpenQA.Selenium;
 using System;
+using System.Linq;
 
 namespace Selenium.CefSharp.Driver
 {
@@ -11,12 +15,11 @@ namespace Selenium.CefSharp.Driver
 
         public IWebDriver DefaultContent() => _driver;
 
-        //TODO 
-        public IWebElement ActiveElement() => throw new NotImplementedException();
+        public IWebElement ActiveElement() => _driver.ExecuteScript("return document.activeElement;") as IWebElement;
 
-        //TODO Possible?
-        public IAlert Alert() => throw new NotImplementedException();
+        public IAlert Alert() => new CefSharpAlert(_driver);
 
+        //TODO
         public IWebDriver Frame(int frameIndex) => throw new NotImplementedException();
 
         public IWebDriver Frame(string frameName) => throw new NotImplementedException();

@@ -5,6 +5,7 @@ using OpenQA.Selenium;
 using Selenium.CefSharp.Driver;
 using OpenQA.Selenium.Chrome;
 using NUnit.Framework;
+using OpenQA.Selenium.Support.UI;
 
 namespace Test
 {
@@ -128,13 +129,34 @@ namespace Test
             GetDriver().Url.Contains("Selenium.CefSharp.Driver").IsTrue();
         }
 
-      //  [Test]
-        public void XXX()
+        [Test]
+        public void Alert()
         {
-            var x = GetDriver().SwitchTo().Frame(0);
-            var y = x.SwitchTo().Frame(0);
+            GetDriver().FindElement(By.Id("alertJS")).Click();
+
+            var wait = new WebDriverWait(GetDriver(), new System.TimeSpan(10000));
+
+#pragma warning disable CS0618 // 型またはメンバーが旧型式です
+            var alert = wait.Until(ExpectedConditions.AlertIsPresent());
+#pragma warning restore CS0618 // 型またはメンバーが旧型式です
+            alert.Text.Is("test");
+            alert.Accept();
+
+            GetDriver().FindElement(By.Id("confirmJS")).Click();
+
+#pragma warning disable CS0618 // 型またはメンバーが旧型式です
+            var confirm = wait.Until(ExpectedConditions.AlertIsPresent());
+#pragma warning restore CS0618 // 型またはメンバーが旧型式です
+            confirm.Text.Is("test");
+            confirm.Dismiss();
+
+            GetDriver().FindElement(By.Id("promptJS")).Click();
+
+#pragma warning disable CS0618 // 型またはメンバーが旧型式です
+            var prompt = wait.Until(ExpectedConditions.AlertIsPresent());
+#pragma warning restore CS0618 // 型またはメンバーが旧型式です
+            prompt.SendKeys("abc");
+            prompt.Accept();
         }
-
-
     }
 }

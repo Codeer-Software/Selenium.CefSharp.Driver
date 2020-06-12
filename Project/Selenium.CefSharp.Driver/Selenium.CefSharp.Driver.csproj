@@ -71,6 +71,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CefSharpAlert.cs" />
     <Compile Include="CefSharpApplicationCache.cs" />
     <Compile Include="CefSharpDriver.cs" />
     <Compile Include="CefSharpJavaScriptExecutor.cs" />
