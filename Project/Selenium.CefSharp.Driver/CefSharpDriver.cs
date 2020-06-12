@@ -14,12 +14,24 @@ using Codeer.Friendly.DotNetExecutor;
 using System.Drawing;
 using Codeer.TestAssistant.GeneratorToolKit;
 using OpenQA.Selenium.Internal;
-using System.Windows.Forms;
 using System.IO;
 using System.Drawing.Imaging;
+using OpenQA.Selenium.Html5;
+using System.Globalization;
 
 namespace Selenium.CefSharp.Driver
 {
+    /*
+    //Not supported. Use Friendly.Windows.KeyMouse for complex things.
+    IHasInputDevices, 
+    IActionExecutor
+
+    //Not supported. 
+    IHasCapabilities,
+    IHasLocationContext,
+    IHasSessionId,
+    */
+
     [ControlDriver(TypeFullName = "CefSharp.Wpf.ChromiumWebBrowser|CefSharp.WinForms.ChromiumWebBrowser")]
     public class CefSharpDriver :
         IAppVarOwner,
@@ -34,6 +46,7 @@ namespace Selenium.CefSharp.Driver
         IFindsByPartialLinkText, 
         IFindsByCssSelector,
         ITakesScreenshot,
+        IHasApplicationCache,
         IUIObject
     {
         public WindowsAppFriend App => (WindowsAppFriend)AppVar.App;
@@ -444,11 +457,6 @@ return val;
 
         public ReadOnlyCollection<IWebElement> FindElementsByClassName(string className) => FindElements(By.ClassName(className));
 
-        //TODO
-        public IWebElement FindElementByLinkText(string linkText) => FindElement(By.LinkText(linkText));
-
-        public ReadOnlyCollection<IWebElement> FindElementsByLinkText(string linkText) => FindElements(By.LinkText(linkText));
-
         public IWebElement FindElementByName(string name) => FindElement(By.Name(name));
 
         public ReadOnlyCollection<IWebElement> FindElementsByName(string name) => FindElements(By.Name(name));
@@ -461,14 +469,15 @@ return val;
 
         public ReadOnlyCollection<IWebElement> FindElementsByXPath(string xpath) => FindElements(By.XPath(xpath));
 
-        public IWebElement FindElementByPartialLinkText(string partialLinkText) => FindElement(By.PartialLinkText(partialLinkText));
-
-        //TODO
-        public ReadOnlyCollection<IWebElement> FindElementsByPartialLinkText(string partialLinkText) => FindElements(By.PartialLinkText(partialLinkText));
-
         public IWebElement FindElementByCssSelector(string cssSelector) => FindElement(By.CssSelector(cssSelector));
 
         public ReadOnlyCollection<IWebElement> FindElementsByCssSelector(string cssSelector) => FindElements(By.CssSelector(cssSelector));
+
+        //TODO
+        public IWebElement FindElementByLinkText(string linkText) => FindElement(By.LinkText(linkText));
+        public ReadOnlyCollection<IWebElement> FindElementsByLinkText(string linkText) => FindElements(By.LinkText(linkText));
+        public IWebElement FindElementByPartialLinkText(string partialLinkText) => FindElement(By.PartialLinkText(partialLinkText));
+        public ReadOnlyCollection<IWebElement> FindElementsByPartialLinkText(string partialLinkText) => FindElements(By.PartialLinkText(partialLinkText));
 
         public Screenshot GetScreenshot()
         {
@@ -485,6 +494,10 @@ return val;
                 }
             }
         }
+
+        public bool HasApplicationCache => true;
+
+        public IApplicationCache ApplicationCache => new CefSharpApplicationCache(this);
 
         //don't support.
         public string CurrentWindowHandle => throw new NotImplementedException();

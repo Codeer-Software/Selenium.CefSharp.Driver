@@ -71,6 +71,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CefSharpApplicationCache.cs" />
     <Compile Include="CefSharpDriver.cs" />
     <Compile Include="CefSharpNavigation.cs" />
     <Compile Include="CefSharpTargetLocator.cs" />

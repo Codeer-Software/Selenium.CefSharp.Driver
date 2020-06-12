@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using Codeer.Friendly.Windows.Grasp;
 using OpenQA.Selenium.Internal;
 using NUnit.Framework;
+using OpenQA.Selenium.Html5;
 
 namespace Test
 {
@@ -45,6 +46,13 @@ namespace Test
             Process.GetProcessById(_app.ProcessId).Kill();
             ClassCleanupBase();
         }
+
+        [Test]
+        public void ApplicationCache()
+        {
+            _driver.HasApplicationCache.IsTrue();
+            _driver.ApplicationCache.Status.Is(AppCacheStatus.Uncached);
+        }
     }
 
     public class WebDriverTestWPF : WebDriverTestBase
@@ -74,6 +82,13 @@ namespace Test
         {
             Process.GetProcessById(_app.ProcessId).Kill();
             ClassCleanupBase();
+        }
+
+        [Test]
+        public void ApplicationCache()
+        {
+            _driver.HasApplicationCache.IsTrue();
+            _driver.ApplicationCache.Status.Is(AppCacheStatus.Uncached);
         }
     }
 

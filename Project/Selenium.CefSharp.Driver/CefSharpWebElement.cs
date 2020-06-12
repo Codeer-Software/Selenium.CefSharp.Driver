@@ -50,8 +50,8 @@ namespace Selenium.CefSharp.Driver
         {
             get
             {
-                var x = ToInt(_driver.ExecuteScript(JS.GetBoundingClientRectX(this.Id)));
-                var y = ToInt(_driver.ExecuteScript(JS.GetBoundingClientRectY(this.Id)));
+                var x = Convert.ToInt32(_driver.ExecuteScript(JS.GetBoundingClientRectX(this.Id)), CultureInfo.InvariantCulture);
+                var y = Convert.ToInt32(_driver.ExecuteScript(JS.GetBoundingClientRectY(this.Id)), CultureInfo.InvariantCulture);
                 return new Point(x, y);
             }
         }
@@ -60,21 +60,9 @@ namespace Selenium.CefSharp.Driver
         {
             get
             {
-                var w = ToInt(_driver.ExecuteScript(JS.GetBoundingClientRectWidth(this.Id)));
-                var h = ToInt(_driver.ExecuteScript(JS.GetBoundingClientRectHeight(this.Id)));
+                var w = Convert.ToInt32(_driver.ExecuteScript(JS.GetBoundingClientRectWidth(this.Id)), CultureInfo.InvariantCulture);
+                var h = Convert.ToInt32(_driver.ExecuteScript(JS.GetBoundingClientRectHeight(this.Id)), CultureInfo.InvariantCulture);
                 return new Size(w, h);
-            }
-        }
-
-        static int ToInt(object src)
-        {
-            switch (src)
-            {
-                case int val: return val;
-                case long val: return (int)val;
-                case float val: return (int)val;
-                case double val: return (int)val;
-                default: throw new NotSupportedException();
             }
         }
 
