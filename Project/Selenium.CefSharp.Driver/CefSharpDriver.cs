@@ -472,6 +472,7 @@ return val;
 
         public Screenshot GetScreenshot()
         {
+            Activate();
             var size = Size;
             using (var bmp = new Bitmap(size.Width, size.Height))
             using (var g = Graphics.FromImage(bmp))

@@ -115,6 +115,15 @@ namespace Test
         //FindElement(s)ById
 
         [Test]
+        public void ScreenShot()
+        {
+            var screenShot = GetDriver<ITakesScreenshot>();
+            var path = Path.GetTempFileName();
+            screenShot.GetScreenshot().SaveAsFile(path, ScreenshotImageFormat.Png);
+            File.Delete(path);
+        }
+
+        [Test]
         public void ShouldGetFirstElementWhenUsedFindElementById()
         {
             foreach (var element in new[] { GetDriver().FindElement(By.Id("idtest")), GetDriver<IFindsById>().FindElementById("idtest") })

@@ -7,6 +7,7 @@ using Selenium.CefSharp.Driver;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -108,6 +109,16 @@ namespace Test
 
     public abstract class WebElementTestBase: CompareTestBase
     {
+        [Test]
+        public void ScreenShot()
+        {
+            var element = GetDriver().FindElement(By.Id("textBoxName"));
+            var screenShot = (ITakesScreenshot)element;
+            var path = Path.GetTempFileName();
+            screenShot.GetScreenshot().SaveAsFile(path, ScreenshotImageFormat.Png);
+            File.Delete(path);
+        }
+
         [Test]
         public void TagName()
         {

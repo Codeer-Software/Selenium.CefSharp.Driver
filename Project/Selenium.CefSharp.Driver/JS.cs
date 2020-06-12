@@ -15,9 +15,7 @@
         let id = 1;
         return {
             showAndSelectElement(element) {
-                const rect = element.getBoundingClientRect();
-                const elemtop = rect.top + window.pageYOffset;
-                document.documentElement.scrollTop = elemtop;
+                element.scrollIntoView(true);
                 element.focus();
             },
             entryElement(element) {

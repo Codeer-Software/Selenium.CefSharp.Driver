@@ -267,6 +267,8 @@ return window.__seleniumCefSharpDriver.getElementsByXPath('{text.Substring("By.X
 
         public Screenshot GetScreenshot()
         {
+            _driver.Activate();
+            _driver.ExecuteScriptInternal(JS.ScrollIntoView(Id));
             var size = Size;
             using (var bmp = new Bitmap(size.Width, size.Height))
             using (var g = Graphics.FromImage(bmp))
