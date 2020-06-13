@@ -137,13 +137,13 @@ return window.__seleniumCefSharpDriver.getElementsByXPath('{text.Substring("By.X
             {
                 script = $@"
 const element = window.__seleniumCefSharpDriver.getElementByEntryId({id});
-return window.__seleniumCefSharpDriver.getElementsByXPath('.//a[text()=""{text.Substring("By.LinkText:".Length).Trim()}""]', element);";
+return window.__seleniumCefSharpDriver.getElementsByXPath('.//a[text()=""{text.Substring("By.LinkText:".Length).Trim()}""]', element)[0];";
             }
             if (text.StartsWith("By.PartialLinkText:"))
             {
                 script = $@"
 const element = window.__seleniumCefSharpDriver.getElementByEntryId({id});
-return window.__seleniumCefSharpDriver.getElementsByXPath('.//a[contains(., ""{text.Substring("By.PartialLinkText:".Length).Trim()}"")]', element);";
+return window.__seleniumCefSharpDriver.getElementsByXPath('.//a[contains(., ""{text.Substring("By.PartialLinkText:".Length).Trim()}"")]', element)[0];";
             }
             if (!(js.ExecuteScript(script) is CefSharpWebElement result))
             {
@@ -191,6 +191,18 @@ return element.getElementsByTagName('{text.Substring("By.TagName:".Length).Trim(
                 script = $@"
 const element = window.__seleniumCefSharpDriver.getElementByEntryId({id});
 return window.__seleniumCefSharpDriver.getElementsByXPath('{text.Substring("By.XPath:".Length).Trim()}', element);";
+            }
+            if (text.StartsWith("By.LinkText:"))
+            {
+                script = $@"
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({id});
+return window.__seleniumCefSharpDriver.getElementsByXPath('.//a[text()=""{text.Substring("By.LinkText:".Length).Trim()}""]', element);";
+            }
+            if (text.StartsWith("By.PartialLinkText:"))
+            {
+                script = $@"
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({id});
+return window.__seleniumCefSharpDriver.getElementsByXPath('.//a[contains(., ""{text.Substring("By.PartialLinkText:".Length).Trim()}"")]', element);";
             }
             if (!(js.ExecuteScript(script) is ReadOnlyCollection<IWebElement> result))
             {
