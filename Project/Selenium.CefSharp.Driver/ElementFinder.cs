@@ -35,11 +35,11 @@ namespace Selenium.CefSharp.Driver
             {
                 script = $"return window.__seleniumCefSharpDriver.getElementsByXPath('{text.Substring("By.XPath:".Length).Trim()}')[0];";
             }
-            if (text.StartsWith("By.LinkText"))
+            if (text.StartsWith("By.LinkText:"))
             {
                 script = $"return window.__seleniumCefSharpDriver.getElementsByXPath('//a[text()=\"{text.Substring("By.LinkText:".Length).Trim()}\"]')[0];";
             }
-            if (text.StartsWith("By.PartialLinkText"))
+            if (text.StartsWith("By.PartialLinkText:"))
             {
                 script = $"return window.__seleniumCefSharpDriver.getElementsByXPath('//a[contains(., \"{text.Substring("By.PartialLinkText:".Length).Trim()}\")]')[0];";
             }
@@ -78,11 +78,11 @@ namespace Selenium.CefSharp.Driver
             {
                 script = $"return window.__seleniumCefSharpDriver.getElementsByXPath('{text.Substring("By.XPath:".Length).Trim()}');";
             }
-            if (text.StartsWith("By.LinkText"))
+            if (text.StartsWith("By.LinkText:"))
             {
                 script = $"return window.__seleniumCefSharpDriver.getElementsByXPath('//a[text()=\"{text.Substring("By.LinkText:".Length).Trim()}\"]');";
             }
-            if (text.StartsWith("By.PartialLinkText"))
+            if (text.StartsWith("By.PartialLinkText:"))
             {
                 script = $"return window.__seleniumCefSharpDriver.getElementsByXPath('//a[contains(., \"{text.Substring("By.PartialLinkText:".Length).Trim()}\")]');";
             }
@@ -132,6 +132,18 @@ return element.getElementsByTagName('{text.Substring("By.TagName:".Length).Trim(
                 script = $@"
 const element = window.__seleniumCefSharpDriver.getElementByEntryId({id});
 return window.__seleniumCefSharpDriver.getElementsByXPath('{text.Substring("By.XPath:".Length).Trim()}', element)[0];";
+            }
+            if (text.StartsWith("By.LinkText:"))
+            {
+                script = $@"
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({id});
+return window.__seleniumCefSharpDriver.getElementsByXPath('.//a[text()=""{text.Substring("By.LinkText:".Length).Trim()}""]', element);";
+            }
+            if (text.StartsWith("By.PartialLinkText:"))
+            {
+                script = $@"
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({id});
+return window.__seleniumCefSharpDriver.getElementsByXPath('.//a[contains(., ""{text.Substring("By.PartialLinkText:".Length).Trim()}"")]', element);";
             }
             if (!(js.ExecuteScript(script) is CefSharpWebElement result))
             {

@@ -465,10 +465,11 @@ namespace Test
                 GetDriver().FindElements(By.LinkText("Transfer to Frame.html")),
                 GetDriver<IFindsByLinkText>().FindElementsByLinkText("Transfer to Frame.html")})
             {
-                elements.Count.Is(2);
+                elements.Count.Is(3);
                 var orderd = elements.Select(e => e.GetAttribute("data-key")).OrderBy(v => v).ToList();
                 orderd[0].Is("1");
                 orderd[1].Is("2");
+                orderd[2].Is("4");
             }
         }
 
@@ -507,14 +508,14 @@ namespace Test
         public void ShouldGetAllElementWhenUsedFindElementsByPartialLinkText()
         {
             foreach (var elements in new[] {
-                GetDriver().FindElements(By.PartialLinkText("Frame")),
-                GetDriver<IFindsByPartialLinkText>().FindElementsByPartialLinkText("Frame")})
+                GetDriver().FindElements(By.PartialLinkText("Transfer")),
+                GetDriver<IFindsByPartialLinkText>().FindElementsByPartialLinkText("Transfer")})
             {
                 elements.Count.Is(3);
                 var orderd = elements.Select(e => e.GetAttribute("data-key")).OrderBy(v => v).ToList();
                 orderd[0].Is("1");
                 orderd[1].Is("2");
-                orderd[2].Is("3");
+                orderd[2].Is("4");
             }
         }
 
