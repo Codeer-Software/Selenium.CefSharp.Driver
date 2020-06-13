@@ -9,9 +9,6 @@ using Selenium.CefSharp.Driver.InTarget;
 using Codeer.Friendly.DotNetExecutor;
 using System.Drawing;
 using Codeer.TestAssistant.GeneratorToolKit;
-using System.Collections.ObjectModel;
-using OpenQA.Selenium.Internal;
-using OpenQA.Selenium.Html5;
 
 namespace Selenium.CefSharp.Driver
 {
@@ -32,35 +29,21 @@ namespace Selenium.CefSharp.Driver
     */
 
     [ControlDriver(TypeFullName = "CefSharp.Wpf.ChromiumWebBrowser|CefSharp.WinForms.ChromiumWebBrowser")]
-    public class CefSharpDriver :
+    public class CefSharpDriver : CefSharpDriverCore,
         IWebDriver,
-        IJavaScriptExecutor,
-        IFindsById,
-        IFindsByClassName,
-        IFindsByLinkText,
-        IFindsByName,
-        IFindsByTagName,
-        IFindsByXPath,
-        IFindsByPartialLinkText,
-        IFindsByCssSelector,
-        ITakesScreenshot,
-        IHasApplicationCache,
-        IHasWebStorage,
         IAppVarOwner,
         IUIObject,
+        ITakesScreenshot,
         ICefFunctions
     {
-        readonly IJavaScriptExecutor _javaScriptExecutor;
-        readonly ISearchContext _searchContext;
         readonly CotnrolAccessor _cotnrolAccessor;
+        readonly dynamic _webBrowserExtensions;
 
         public WindowsAppFriend App => (WindowsAppFriend)AppVar.App;
 
-        internal dynamic WebBrowserExtensions { get; }
-
         public AppVar AppVar { get; }
 
-        public dynamic Frame => WebBrowserExtensions.GetMainFrame(this);
+        public dynamic Frame => _webBrowserExtensions.GetMainFrame(this);
 
         public dynamic JavascriptObjectRepository => this.Dynamic().JavascriptObjectRepository;
 
@@ -76,7 +59,7 @@ namespace Selenium.CefSharp.Driver
                 return new WindowControl(AppVar).Size;
             }
         }
-        
+
         public string Url
         {
             get => this.Dynamic().Address;
@@ -94,78 +77,23 @@ namespace Selenium.CefSharp.Driver
             }
         }
 
-        public string Title => (string)ExecuteScript("return document.title;");
-
-        public string PageSource => WebBrowserExtensions.GetSourceAsync(this).Result;
-
-        public bool HasApplicationCache => true;
-
-        public IApplicationCache ApplicationCache { get; }
-
-        public bool HasWebStorage => true;
-
-        public IWebStorage WebStorage { get; }
+        public string PageSource => _webBrowserExtensions.GetSourceAsync(this).Result;
 
         public CefSharpDriver(AppVar appVar)
         {
             AppVar = appVar;
             App.LoadAssembly(typeof(JSResultConverter).Assembly);
-            WebBrowserExtensions = App.Type("CefSharp.WebBrowserExtensions");
-            _javaScriptExecutor = new CefSharpJavaScriptExecutor(this);
-            _searchContext = new DocumentElementFinder(_javaScriptExecutor);
-            ApplicationCache = new CefSharpApplicationCache(_javaScriptExecutor);
-            WebStorage = new CefSharpWebStorage(_javaScriptExecutor);
+            _webBrowserExtensions = App.Type("CefSharp.WebBrowserExtensions");
             _cotnrolAccessor = new CotnrolAccessor(this, new Point());
             WaitForLoading();
+            Init(this);
         }
         
         public void Dispose() => AppVar.Dispose();
 
-        public IWebElement FindElement(By by) => _searchContext.FindElement(by);
-
-        public ReadOnlyCollection<IWebElement> FindElements(By by) => _searchContext.FindElements(by);
-
-        public object ExecuteScript(string script, params object[] args) => _javaScriptExecutor.ExecuteScript(script, args);
-
-        public object ExecuteAsyncScript(string script, params object[] args) => _javaScriptExecutor.ExecuteAsyncScript(script, args);
-
-        public Screenshot GetScreenshot() => _cotnrolAccessor.GetScreenShot(new Point(0, 0), Size);
-
-        public IWebElement FindElementById(string id) => FindElement(By.Id(id));
-
-        public ReadOnlyCollection<IWebElement> FindElementsById(string id) => FindElements(By.Id(id));
-
-        public IWebElement FindElementByClassName(string className) => FindElement(By.ClassName(className));
-
-        public ReadOnlyCollection<IWebElement> FindElementsByClassName(string className) => FindElements(By.ClassName(className));
-
-        public IWebElement FindElementByName(string name) => FindElement(By.Name(name));
-
-        public ReadOnlyCollection<IWebElement> FindElementsByName(string name) => FindElements(By.Name(name));
-
-        public IWebElement FindElementByTagName(string tagName) => FindElement(By.TagName(tagName));
-
-        public ReadOnlyCollection<IWebElement> FindElementsByTagName(string tagName) => FindElements(By.TagName(tagName));
-
-        public IWebElement FindElementByXPath(string xpath) => FindElement(By.XPath(xpath));
-
-        public ReadOnlyCollection<IWebElement> FindElementsByXPath(string xpath) => FindElements(By.XPath(xpath));
-
-        public IWebElement FindElementByCssSelector(string cssSelector) => FindElement(By.CssSelector(cssSelector));
-
-        public ReadOnlyCollection<IWebElement> FindElementsByCssSelector(string cssSelector) => FindElements(By.CssSelector(cssSelector));
-
-        public IWebElement FindElementByLinkText(string linkText) => FindElement(By.LinkText(linkText));
-        
-        public ReadOnlyCollection<IWebElement> FindElementsByLinkText(string linkText) => FindElements(By.LinkText(linkText));
-        
-        public IWebElement FindElementByPartialLinkText(string partialLinkText) => FindElement(By.PartialLinkText(partialLinkText));
-        
-        public ReadOnlyCollection<IWebElement> FindElementsByPartialLinkText(string partialLinkText) => FindElements(By.PartialLinkText(partialLinkText));
+        public ITargetLocator SwitchTo() => new TargetLocator(this);
 
         public INavigation Navigate() => new Navigation(this);
-
-        public ITargetLocator SwitchTo() => new TargetLocator(this);
 
         public void WaitForLoading()
         {
@@ -186,7 +114,7 @@ namespace Selenium.CefSharp.Driver
         }
 
         public void ShowDevTools()
-            => WebBrowserExtensions.ShowDevTools(this);
+            => _webBrowserExtensions.ShowDevTools(this);
 
         public void Activate()
         {
@@ -205,6 +133,8 @@ namespace Selenium.CefSharp.Driver
         }
 
         public IWebElement CreateWebElement(int id) => new CefSharpWebElement(this, _cotnrolAccessor, id);
+
+        public Screenshot GetScreenshot() => _cotnrolAccessor.GetScreenShot(new Point(0, 0), Size);
 
         bool IsWPF
         {
@@ -226,13 +156,13 @@ namespace Selenium.CefSharp.Driver
 
             public void Back()
             {
-                _this.WebBrowserExtensions.Back(_this);
+                _this.ExecuteScript("window.history.back();");
                 _this.WaitForLoading();
             }
 
             public void Forward()
             {
-                _this.WebBrowserExtensions.Forward(_this);
+                _this.ExecuteScript("window.history.forward();");
                 _this.WaitForLoading();
             }
 
@@ -242,7 +172,7 @@ namespace Selenium.CefSharp.Driver
 
             public void Refresh()
             {
-                _this.WebBrowserExtensions.Reload(_this);
+                _this.ExecuteScript("window.location.reload();");
                 _this.WaitForLoading();
             }
         }
@@ -257,7 +187,7 @@ namespace Selenium.CefSharp.Driver
 
             public IWebElement ActiveElement() => _this.ExecuteScript("return document.activeElement;") as IWebElement;
 
-            public IAlert Alert() => new CefSharpAlert(_this);
+            public IAlert Alert() => new CefSharpAlert(_this.App, _this.Url);
 
             //TODO
             public IWebDriver Frame(int frameIndex) => throw new NotImplementedException();
@@ -271,12 +201,5 @@ namespace Selenium.CefSharp.Driver
             //don't support.
             public IWebDriver Window(string windowName) => throw new NotSupportedException();
         }
-
-        //don't support.
-        public string CurrentWindowHandle => throw new NotImplementedException();
-        public ReadOnlyCollection<string> WindowHandles => throw new NotImplementedException();
-        public void Close() => throw new NotImplementedException();
-        public void Quit() => throw new NotImplementedException();
-        public IOptions Manage() => throw new NotImplementedException();
     }
 }

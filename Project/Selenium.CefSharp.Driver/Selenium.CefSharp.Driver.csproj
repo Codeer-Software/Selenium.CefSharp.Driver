@@ -74,7 +74,9 @@
     <Compile Include="CefSharpAlert.cs" />
     <Compile Include="CefSharpApplicationCache.cs" />
     <Compile Include="CefSharpDriver.cs" />
+    <Compile Include="CefSharpDriverCore.cs" />
     <Compile Include="CefSharpJavaScriptExecutor.cs" />
+    <Compile Include="CefSharpNavigation.cs" />
     <Compile Include="CefSharpStorag.cs" />
     <Compile Include="CefSharpWebElement.cs" />
     <Compile Include="CefSharpWebStorage.cs" />

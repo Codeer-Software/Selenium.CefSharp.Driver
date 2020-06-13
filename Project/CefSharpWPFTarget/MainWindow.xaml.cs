@@ -30,8 +30,9 @@ namespace CefSharpWPFTarget
             _browser.Loaded += _browser_Loaded;
             _browser.FrameLoadStart += _browser_FrameLoadStart;
             _browser.FrameLoadEnd += _browser_FrameLoadEnd;
-
-           
+          
+         //   IFrame x = null;
+         //   x.load
             /*
             IFrame x;
 
@@ -40,8 +41,8 @@ namespace CefSharpWPFTarget
             _browser.JavascriptObjectRepository
 
             */
-            
-        //   WebBrowserExtensions.GetPa
+
+            //   WebBrowserExtensions.GetPa
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -58,6 +59,11 @@ namespace CefSharpWPFTarget
             if (e.Key == Key.Q)
             {
                 _browser.Address = @"C:\GitHub\Selenium.CefSharp.Driver\Project\Test\Controls.html";
+            }
+
+            if (e.Key == Key.R)
+            {
+                _browser.Address = @"C:\GitHub\Selenium.CefSharp.Driver\Project\Test\FrameTest.html";
             }
             if (e.Key == Key.E)
             {

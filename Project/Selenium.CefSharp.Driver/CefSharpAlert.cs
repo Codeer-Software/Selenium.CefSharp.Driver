@@ -21,12 +21,11 @@ namespace Selenium.CefSharp.Driver
 
         public string Text => _message == null ? string.Empty : _message.GetWindowText();
 
-        public CefSharpAlert(CefSharpDriver driver)
+        public CefSharpAlert(WindowsAppFriend driverApp, string url)
         {
-            int processId = driver.App.ProcessId;
-            int currentThreadId = driver.App.Type(typeof(Codeer.Friendly.Windows.Grasp.Inside.NativeMethods)).GetCurrentThreadId();
+            int processId = driverApp.ProcessId;
+            int currentThreadId = driverApp.Type(typeof(Codeer.Friendly.Windows.Grasp.Inside.NativeMethods)).GetCurrentThreadId();
 
-            var url = driver.Url;
             var handles = new List<IntPtr>();
             EnumWindowsDelegate enumWindows = (IntPtr hwnd, IntPtr lparam) =>
             {
