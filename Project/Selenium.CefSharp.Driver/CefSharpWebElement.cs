@@ -26,35 +26,35 @@ namespace Selenium.CefSharp.Driver
         ITakesScreenshot,
         ILocatable
     {
+        readonly IJavaScriptExecutor _javaScriptExecutor;
         readonly CotnrolAccessor _cotnrolAccessor;
 
         internal int Id { get; }
-
-        IJavaScriptExecutor JsExecutor => (IJavaScriptExecutor)WrappedDriver;
 
         internal CefSharpWebElement(IWebDriver driver, CotnrolAccessor cotnrolAccessor, int index)
         {
             WrappedDriver = driver;
             _cotnrolAccessor = cotnrolAccessor;
+            _javaScriptExecutor = (IJavaScriptExecutor)WrappedDriver;
             Id = index;
         }
 
         public IWebDriver WrappedDriver { get; }
 
-        public string TagName => (JsExecutor.ExecuteScript(JS.GetTagName(this.Id)) as string)?.ToLower();
+        public string TagName => (_javaScriptExecutor.ExecuteScript(JS.GetTagName(Id)) as string)?.ToLower();
 
-        public string Text => JsExecutor.ExecuteScript(JS.GetInnerHTML(this.Id)) as string;
+        public string Text => _javaScriptExecutor.ExecuteScript(JS.GetInnerHTML(Id)) as string;
 
-        public bool Enabled => !(bool)JsExecutor.ExecuteScript(JS.GetDisabled(this.Id));
+        public bool Enabled => !(bool)_javaScriptExecutor.ExecuteScript(JS.GetDisabled(Id));
 
-        public bool Selected => (bool)JsExecutor.ExecuteScript(JS.GetSelected(this.Id));
+        public bool Selected => (bool)_javaScriptExecutor.ExecuteScript(JS.GetSelected(Id));
 
         public Point Location
         {
             get
             {
-                var x = Convert.ToInt32(JsExecutor.ExecuteScript(JS.GetBoundingClientRectX(this.Id)), CultureInfo.InvariantCulture);
-                var y = Convert.ToInt32(JsExecutor.ExecuteScript(JS.GetBoundingClientRectY(this.Id)), CultureInfo.InvariantCulture);
+                var x = Convert.ToInt32(_javaScriptExecutor.ExecuteScript(JS.GetBoundingClientRectX(Id)), CultureInfo.InvariantCulture);
+                var y = Convert.ToInt32(_javaScriptExecutor.ExecuteScript(JS.GetBoundingClientRectY(Id)), CultureInfo.InvariantCulture);
                 return new Point(x, y);
             }
         }
@@ -63,25 +63,25 @@ namespace Selenium.CefSharp.Driver
         {
             get
             {
-                var w = Convert.ToInt32(JsExecutor.ExecuteScript(JS.GetBoundingClientRectWidth(this.Id)), CultureInfo.InvariantCulture);
-                var h = Convert.ToInt32(JsExecutor.ExecuteScript(JS.GetBoundingClientRectHeight(this.Id)), CultureInfo.InvariantCulture);
+                var w = Convert.ToInt32(_javaScriptExecutor.ExecuteScript(JS.GetBoundingClientRectWidth(Id)), CultureInfo.InvariantCulture);
+                var h = Convert.ToInt32(_javaScriptExecutor.ExecuteScript(JS.GetBoundingClientRectHeight(Id)), CultureInfo.InvariantCulture);
                 return new Size(w, h);
             }
         }
 
-        public bool Displayed => (bool)JsExecutor.ExecuteScript(JS.GetDisplayed(this.Id));
+        public bool Displayed => (bool)_javaScriptExecutor.ExecuteScript(JS.GetDisplayed(Id));
 
         public void Clear()
-            => JsExecutor.ExecuteScript(JS.SetAttribute(this.Id, "value", string.Empty));
+            => _javaScriptExecutor.ExecuteScript(JS.SetAttribute(Id, "value", string.Empty));
 
         private void Focus()
-            => JsExecutor.ExecuteScript(JS.Focus(this.Id));
+            => _javaScriptExecutor.ExecuteScript(JS.Focus(Id));
 
         public void Click()
         {
-            if(this.TagName.Equals("OPTION", StringComparison.InvariantCultureIgnoreCase))
+            if(TagName.Equals("OPTION", StringComparison.InvariantCultureIgnoreCase))
             {
-                var parent = (CefSharpWebElement)JsExecutor.ExecuteScript(JS.GetParentElement(this.Id));
+                var parent = (CefSharpWebElement)_javaScriptExecutor.ExecuteScript(JS.GetParentElement(Id));
                 //TODO: emulate mouse down / up
                 //https://www.w3.org/TR/webdriver/#element-click
 
@@ -91,20 +91,20 @@ namespace Selenium.CefSharp.Driver
                     return;
                 }
                 var script = $@"
-const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({Id});
 element.selected = true";
 
                 if (parent.GetProperty("multiple").Equals("true", StringComparison.InvariantCultureIgnoreCase))
                 {
                     script = $@"
-const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
+const element = window.__seleniumCefSharpDriver.getElementByEntryId({Id});
 element.selected = !element.selected";
                 }
-                JsExecutor.ExecuteScript(script);
+                _javaScriptExecutor.ExecuteScript(script);
             }
             else
             {
-                JsExecutor.ExecuteScript(JS.ScrollIntoView(Id));
+                _javaScriptExecutor.ExecuteScript(JS.ScrollIntoView(Id));
                 var pos = Location;
                 var size = Size;
                 pos.Offset(size.Width / 2, size.Height / 2);
@@ -113,116 +113,26 @@ element.selected = !element.selected";
         }
 
         public string GetAttribute(string attributeName)
-            => JsExecutor.ExecuteScript(JS.GetAttribute(this.Id, attributeName)) as string;
+            => _javaScriptExecutor.ExecuteScript(JS.GetAttribute(Id, attributeName)) as string;
 
         public string GetCssValue(string propertyName)
-            => JsExecutor.ExecuteScript(JS.GetCssValue(this.Id, propertyName)) as string;
+            => _javaScriptExecutor.ExecuteScript(JS.GetCssValue(Id, propertyName)) as string;
 
         public string GetProperty(string propertyName)
-            => JsExecutor.ExecuteScript(JS.GetProperty(this.Id, propertyName)) as string;
+            => _javaScriptExecutor.ExecuteScript(JS.GetProperty(Id, propertyName)) as string;
 
         public void SendKeys(string text)
         {
-            JsExecutor.ExecuteScript(JS.Focus(Id));
+            _javaScriptExecutor.ExecuteScript(JS.Focus(Id));
             _cotnrolAccessor.SendKeys(text);
         }
 
         public void Submit()
-            => JsExecutor.ExecuteScript(JS.Submit(this.Id));
+            => _javaScriptExecutor.ExecuteScript(JS.Submit(Id));
 
-        public IWebElement FindElement(By by)
-        {
-            var text = by.ToString();
-            var script = "";
-            if (text.StartsWith("By.Id:"))
-            {
-                script = $@"
-const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
-return element.querySelector('[id=""{text.Substring("By.Id:".Length).Trim()}""]');";
-            }
-            if (text.StartsWith("By.Name:"))
-            {
-                script = $@"
-const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
-return element.querySelector('[name=""{text.Substring("By.Name:".Length).Trim()}""]');";
-            }
-            if (text.StartsWith("By.ClassName[Contains]:"))
-            {
-                script = $@"
-const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
-return element.getElementsByClassName('{text.Substring("By.ClassName[Contains]:".Length).Trim()}')[0];";
-            }
-            if (text.StartsWith("By.CssSelector:"))
-            {
-                script = $@"
-const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
-return element.querySelector(""{text.Substring("By.CssSelector:".Length).Trim()}"");";
-            }
-            if (text.StartsWith("By.TagName:"))
-            {
-                script = $@"
-const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
-return element.getElementsByTagName('{text.Substring("By.TagName:".Length).Trim()}')[0];";
-            }
-            if (text.StartsWith("By.XPath:"))
-            {
-                script = $@"
-const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
-return window.__seleniumCefSharpDriver.getElementsByXPath('{text.Substring("By.XPath:".Length).Trim()}', element)[0];";
-            }
-            if (!(JsExecutor.ExecuteScript(script) is CefSharpWebElement result))
-            {
-                throw new NoSuchElementException($"Element not found: {text}");
-            }
-            return result;
-        }
+        public IWebElement FindElement(By by) => ElementFinder.FindElementFromElement(_javaScriptExecutor, Id, by);
 
-        public ReadOnlyCollection<IWebElement> FindElements(By by)
-        {
-            var text = by.ToString();
-            var script = "";
-            if (text.StartsWith("By.Id:"))
-            {
-                script = $@"
-const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
-return element.querySelectorAll('[id=""{text.Substring("By.Id:".Length).Trim()}""]');";
-            }
-            if (text.StartsWith("By.Name:"))
-            {
-                script = $@"
-const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
-return element.querySelectorAll('[name=""{text.Substring("By.Name:".Length).Trim()}""]');";
-            }
-            if (text.StartsWith("By.ClassName[Contains]:"))
-            {
-                script = $@"
-const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
-return element.getElementsByClassName('{text.Substring("By.ClassName[Contains]:".Length).Trim()}');";
-            }
-            if (text.StartsWith("By.CssSelector:"))
-            {
-                script = $@"
-const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
-return element.querySelectorAll(""{text.Substring("By.CssSelector:".Length).Trim()}"");";
-            }
-            if (text.StartsWith("By.TagName:"))
-            {
-                script = $@"
-const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
-return element.getElementsByTagName('{text.Substring("By.TagName:".Length).Trim()}');";
-            }
-            if (text.StartsWith("By.XPath:"))
-            {
-                script = $@"
-const element = window.__seleniumCefSharpDriver.getElementByEntryId({this.Id});
-return window.__seleniumCefSharpDriver.getElementsByXPath('{text.Substring("By.XPath:".Length).Trim()}', element);";
-            }
-            if (!(JsExecutor.ExecuteScript(script) is ReadOnlyCollection<IWebElement> result))
-            {
-                return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
-            }
-            return result;
-        }
+        public ReadOnlyCollection<IWebElement> FindElements(By by) => ElementFinder.FindElementsFromElement(_javaScriptExecutor, Id, by);
 
         public IWebElement FindElementById(string id) => FindElement(By.Id(id));
 
@@ -248,15 +158,17 @@ return window.__seleniumCefSharpDriver.getElementsByXPath('{text.Substring("By.X
 
         public ReadOnlyCollection<IWebElement> FindElementsByCssSelector(string cssSelector) => FindElements(By.CssSelector(cssSelector));
 
-        //TODO 
         public IWebElement FindElementByLinkText(string linkText) => FindElement(By.LinkText(linkText));
+        
         public ReadOnlyCollection<IWebElement> FindElementsByLinkText(string linkText) => FindElements(By.LinkText(linkText));
+        
         public IWebElement FindElementByPartialLinkText(string partialLinkText) => FindElement(By.PartialLinkText(partialLinkText));
+       
         public ReadOnlyCollection<IWebElement> FindElementsByPartialLinkText(string partialLinkText) => FindElements(By.PartialLinkText(partialLinkText));
 
         public Screenshot GetScreenshot()
         {
-            JsExecutor.ExecuteScript(JS.ScrollIntoView(Id));
+            _javaScriptExecutor.ExecuteScript(JS.ScrollIntoView(Id));
             return _cotnrolAccessor.GetScreenShot(Location, Size);
         }
 
@@ -264,7 +176,7 @@ return window.__seleniumCefSharpDriver.getElementsByXPath('{text.Substring("By.X
         {
             get
             {
-                var rawLocation = (Dictionary<string, object>)JsExecutor.ExecuteScript("var rect = arguments[0].getBoundingClientRect(); return {'x': rect.left, 'y': rect.top};", this);
+                var rawLocation = (Dictionary<string, object>)_javaScriptExecutor.ExecuteScript("var rect = arguments[0].getBoundingClientRect(); return {'x': rect.left, 'y': rect.top};", this);
                 int x = Convert.ToInt32(rawLocation["x"], CultureInfo.InvariantCulture);
                 int y = Convert.ToInt32(rawLocation["y"], CultureInfo.InvariantCulture);
                 return new Point(x, y);

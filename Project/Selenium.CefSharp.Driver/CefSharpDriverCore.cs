@@ -36,7 +36,6 @@ namespace Selenium.CefSharp.Driver
         IHasWebStorage
     {
         IJavaScriptExecutor _javaScriptExecutor;
-        ISearchContext _searchContext;
         ICefFunctions _cef;
 
         public string Title => (string)ExecuteScript("return document.title;");
@@ -54,13 +53,12 @@ namespace Selenium.CefSharp.Driver
         internal void Init(ICefFunctions cef)
         {
             _javaScriptExecutor = new CefSharpJavaScriptExecutor(cef);
-            _searchContext = new DocumentElementFinder(_javaScriptExecutor);
             _cef = cef;
         }
 
-        public IWebElement FindElement(By by) => _searchContext.FindElement(by);
+        public IWebElement FindElement(By by) => ElementFinder.FindElementFromDocument(_javaScriptExecutor, by);
 
-        public ReadOnlyCollection<IWebElement> FindElements(By by) => _searchContext.FindElements(by);
+        public ReadOnlyCollection<IWebElement> FindElements(By by) => ElementFinder.FindElementsFromDocument(_javaScriptExecutor, by);
 
         public object ExecuteScript(string script, params object[] args) => _javaScriptExecutor.ExecuteScript(script, args);
 

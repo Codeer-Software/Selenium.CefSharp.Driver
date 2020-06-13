@@ -81,7 +81,7 @@
     <Compile Include="CefSharpWebElement.cs" />
     <Compile Include="CefSharpWebStorage.cs" />
     <Compile Include="CotnrolAccessor.cs" />
-    <Compile Include="DocumentElementFinder.cs" />
+    <Compile Include="ElementFinder.cs" />
     <Compile Include="ICefFunctions.cs" />
     <Compile Include="JS.cs" />
     <Compile Include="JsUtils.cs" />
