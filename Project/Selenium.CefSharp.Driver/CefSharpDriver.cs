@@ -163,9 +163,9 @@ namespace Selenium.CefSharp.Driver
         
         public ReadOnlyCollection<IWebElement> FindElementsByPartialLinkText(string partialLinkText) => FindElements(By.PartialLinkText(partialLinkText));
 
-        public INavigation Navigate() => new CefSharpNavigationWebBrowser(this);
+        public INavigation Navigate() => new Navigation(this);
 
-        public ITargetLocator SwitchTo() => new CefSharpTargetLocatorWebBrowser(this);
+        public ITargetLocator SwitchTo() => new TargetLocator(this);
 
         public void WaitForLoading()
         {
@@ -216,6 +216,60 @@ namespace Selenium.CefSharp.Driver
                 var isWPF = !wpfType.IsNull && (bool)wpfType["IsAssignableFrom", new OperationTypeInfo(typeof(Type).FullName, typeof(Type).FullName)]((AppVar)t).Core;
                 return isWPF;
             }
+        }
+
+        class Navigation : INavigation
+        {
+            CefSharpDriver _this;
+
+            public Navigation(CefSharpDriver driver) => _this = driver;
+
+            public void Back()
+            {
+                _this.WebBrowserExtensions.Back(_this);
+                _this.WaitForLoading();
+            }
+
+            public void Forward()
+            {
+                _this.WebBrowserExtensions.Forward(_this);
+                _this.WaitForLoading();
+            }
+
+            public void GoToUrl(string url) => _this.Url = url;
+
+            public void GoToUrl(Uri url) => _this.Url = url.ToString();
+
+            public void Refresh()
+            {
+                _this.WebBrowserExtensions.Reload(_this);
+                _this.WaitForLoading();
+            }
+        }
+
+        class TargetLocator : ITargetLocator
+        {
+            CefSharpDriver _this;
+
+            public TargetLocator(CefSharpDriver driver) => _this = driver;
+
+            public IWebDriver DefaultContent() => _this;
+
+            public IWebElement ActiveElement() => _this.ExecuteScript("return document.activeElement;") as IWebElement;
+
+            public IAlert Alert() => new CefSharpAlert(_this);
+
+            //TODO
+            public IWebDriver Frame(int frameIndex) => throw new NotImplementedException();
+
+            public IWebDriver Frame(string frameName) => throw new NotImplementedException();
+
+            public IWebDriver Frame(IWebElement frameElement) => throw new NotImplementedException();
+
+            public IWebDriver ParentFrame() => throw new NotImplementedException();
+
+            //don't support.
+            public IWebDriver Window(string windowName) => throw new NotSupportedException();
         }
 
         //don't support.

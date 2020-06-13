@@ -30,29 +30,16 @@ namespace Selenium.CefSharp.Driver
             var handles = new List<IntPtr>();
             EnumWindowsDelegate enumWindows = (IntPtr hwnd, IntPtr lparam) =>
             {
-                if (!IsWindow(hwnd))
-                {
-                    return true;
-                }
-                if (!IsWindowVisible(hwnd))
-                {
-                    return true;
-                }
-                if (!IsWindowEnabled(hwnd))
-                {
-                    return true;
-                }
+                if (!IsWindow(hwnd) || !IsWindowVisible(hwnd) || !IsWindowEnabled(hwnd)) return true;
 
-                int windowProcessId = 0;
-                int threadId = GetWindowThreadProcessId(hwnd, out windowProcessId);
-                if (processId == windowProcessId)
+                GetWindowThreadProcessId(hwnd, out var windowProcessId);
+                if (processId != windowProcessId) return true;
+
+                var sb = new StringBuilder(1024);
+                GetWindowText(hwnd, sb, 1024);
+                if (sb.ToString().Contains(url))
                 {
-                    var sb = new StringBuilder(1024);
-                    GetWindowText(hwnd, sb, 1024);
-                    if (sb.ToString().Contains(url))
-                    {
-                        handles.Add(hwnd);
-                    }
+                    handles.Add(hwnd);
                 }
                 return true;
             };
