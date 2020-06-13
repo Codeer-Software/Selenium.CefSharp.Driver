@@ -36,7 +36,7 @@ namespace Selenium.CefSharp.Driver
         IHasWebStorage
     {
         IJavaScriptExecutor _javaScriptExecutor;
-        ICefFunctions _cef;
+        IJavaScriptExecutorCefFunctions _cef;
 
         public string Title => (string)ExecuteScript("return document.title;");
 
@@ -50,7 +50,7 @@ namespace Selenium.CefSharp.Driver
 
         public string PageSource => (string)ExecuteScript("return document.documentElement.outerHTML;");
 
-        internal void Init(ICefFunctions cef)
+        internal void Init(IJavaScriptExecutorCefFunctions cef)
         {
             _javaScriptExecutor = new CefSharpJavaScriptExecutor(cef);
             _cef = cef;

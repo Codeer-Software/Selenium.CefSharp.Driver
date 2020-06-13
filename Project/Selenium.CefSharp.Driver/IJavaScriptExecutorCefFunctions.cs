@@ -3,7 +3,7 @@ using OpenQA.Selenium;
 
 namespace Selenium.CefSharp.Driver
 {
-    interface ICefFunctions
+    interface IJavaScriptExecutorCefFunctions
     {
         WindowsAppFriend App { get; }
         dynamic JavascriptObjectRepository { get; }

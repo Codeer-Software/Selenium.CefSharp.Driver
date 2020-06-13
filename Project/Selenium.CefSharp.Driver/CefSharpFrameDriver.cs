@@ -16,7 +16,7 @@ namespace Selenium.CefSharp.Driver
         IAppVarOwner,
         IUIObject,
         ITakesScreenshot,
-        ICefFunctions
+        IJavaScriptExecutorCefFunctions
     {
         readonly CefSharpDriver _rootDriver;
         readonly CotnrolAccessor _cotnrolAccessor;

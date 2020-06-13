@@ -18,7 +18,7 @@ namespace Selenium.CefSharp.Driver
         IAppVarOwner,
         IUIObject,
         ITakesScreenshot,
-        ICefFunctions
+        IJavaScriptExecutorCefFunctions
     {
         readonly CotnrolAccessor _cotnrolAccessor;
         readonly dynamic _webBrowserExtensions;

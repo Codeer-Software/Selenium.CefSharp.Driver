@@ -83,7 +83,7 @@
     <Compile Include="ClickSpeck.cs" />
     <Compile Include="CotnrolAccessor.cs" />
     <Compile Include="ElementFinder.cs" />
-    <Compile Include="ICefFunctions.cs" />
+    <Compile Include="IJavaScriptExecutorCefFunctions.cs" />
     <Compile Include="JS.cs" />
     <Compile Include="JsUtils.cs" />
     <Compile Include="KeySpec.cs" />

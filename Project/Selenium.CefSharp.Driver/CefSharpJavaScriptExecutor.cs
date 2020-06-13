@@ -12,9 +12,9 @@ namespace Selenium.CefSharp.Driver
 {
     class CefSharpJavaScriptExecutor : IJavaScriptExecutor
     {
-        ICefFunctions _cef;
+        IJavaScriptExecutorCefFunctions _cef;
 
-        internal CefSharpJavaScriptExecutor(ICefFunctions cef)
+        internal CefSharpJavaScriptExecutor(IJavaScriptExecutorCefFunctions cef)
             => _cef = cef;
 
         public object ExecuteScript(string script, params object[] args)
