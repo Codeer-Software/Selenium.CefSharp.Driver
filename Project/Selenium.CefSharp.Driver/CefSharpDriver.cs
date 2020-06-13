@@ -12,22 +12,6 @@ using Codeer.TestAssistant.GeneratorToolKit;
 
 namespace Selenium.CefSharp.Driver
 {
-    /*
-        //Not supported.
-        //You can't use OpenQA.Selenium.Interactions.Actions.
-        //Use Friendly.Windows.KeyMouse for complex things.
-        IHasInputDevices, 
-        IActionExecutor
-
-        //Not supported. 
-        IHasCapabilities,
-        IHasLocationContext,
-        IHasSessionId,
-
-        //Under review.
-        IAllowsFileDetection
-    */
-
     [ControlDriver(TypeFullName = "CefSharp.Wpf.ChromiumWebBrowser|CefSharp.WinForms.ChromiumWebBrowser")]
     public class CefSharpDriver : CefSharpDriverCore,
         IWebDriver,
@@ -77,14 +61,12 @@ namespace Selenium.CefSharp.Driver
             }
         }
 
-        public string PageSource => _webBrowserExtensions.GetSourceAsync(this).Result;
-
         public CefSharpDriver(AppVar appVar)
         {
             AppVar = appVar;
             App.LoadAssembly(typeof(JSResultConverter).Assembly);
             _webBrowserExtensions = App.Type("CefSharp.WebBrowserExtensions");
-            _cotnrolAccessor = new CotnrolAccessor(this, new Point());
+            _cotnrolAccessor = new CotnrolAccessor(this);
             WaitForLoading();
             Init(this);
         }
@@ -196,7 +178,7 @@ namespace Selenium.CefSharp.Driver
 
             public IWebDriver Frame(IWebElement frameElement) => throw new NotImplementedException();
 
-            public IWebDriver ParentFrame() => throw new NotImplementedException();
+            public IWebDriver ParentFrame() => null;
 
             //don't support.
             public IWebDriver Window(string windowName) => throw new NotSupportedException();

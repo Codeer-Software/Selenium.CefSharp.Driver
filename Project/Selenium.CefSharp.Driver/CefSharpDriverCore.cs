@@ -6,6 +6,22 @@ using OpenQA.Selenium.Html5;
 
 namespace Selenium.CefSharp.Driver
 {
+    /*
+        //Not supported.
+        //You can't use OpenQA.Selenium.Interactions.Actions.
+        //Use Friendly.Windows.KeyMouse for complex things.
+        IHasInputDevices, 
+        IActionExecutor
+
+        //Not supported. 
+        IHasCapabilities,
+        IHasLocationContext,
+        IHasSessionId,
+
+        //Under review.
+        IAllowsFileDetection
+    */
+
     public abstract class CefSharpDriverCore :
         IJavaScriptExecutor,
         IFindsById,
@@ -32,6 +48,8 @@ namespace Selenium.CefSharp.Driver
         public bool HasWebStorage => true;
 
         public IWebStorage WebStorage => new CefSharpWebStorage(_javaScriptExecutor);
+
+        public string PageSource => (string)ExecuteScript("return document.documentElement.outerHTML;");
 
         internal void Init(ICefFunctions cef)
         {

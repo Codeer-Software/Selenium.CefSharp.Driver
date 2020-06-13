@@ -11,18 +11,12 @@ namespace Selenium.CefSharp.Driver
     class CotnrolAccessor
     {
         IUIObject _uiObject;
-        Point _offset;
 
-        internal CotnrolAccessor(IUIObject uiObject, Point offset)
-        {
-            _uiObject = uiObject;
-            _offset = offset;
-        }
+        internal CotnrolAccessor(IUIObject uiObject)
+            => _uiObject = uiObject;
 
         internal Screenshot GetScreenShot(Point location, Size size)
         {
-            location.Offset(_offset);
-
             _uiObject.Activate();
             using (var bmp = new Bitmap(size.Width, size.Height))
             using (var g = Graphics.FromImage(bmp))
@@ -37,10 +31,7 @@ namespace Selenium.CefSharp.Driver
         }
 
         internal void Click(Point location)
-        {
-            location.Offset(_offset);
-            _uiObject.Click(MouseButtonType.Left, location);
-        }
+            => _uiObject.Click(MouseButtonType.Left, location);
 
         internal void SendKeys(string text)
         {
