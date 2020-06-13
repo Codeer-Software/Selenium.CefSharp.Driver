@@ -80,6 +80,7 @@
     <Compile Include="CefSharpStorag.cs" />
     <Compile Include="CefSharpWebElement.cs" />
     <Compile Include="CefSharpWebStorage.cs" />
+    <Compile Include="ClickSpeck.cs" />
     <Compile Include="CotnrolAccessor.cs" />
     <Compile Include="ElementFinder.cs" />
     <Compile Include="ICefFunctions.cs" />

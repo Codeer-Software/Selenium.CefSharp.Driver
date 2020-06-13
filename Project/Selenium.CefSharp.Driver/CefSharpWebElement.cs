@@ -26,35 +26,35 @@ namespace Selenium.CefSharp.Driver
         ITakesScreenshot,
         ILocatable
     {
-        readonly IJavaScriptExecutor _javaScriptExecutor;
-        readonly CotnrolAccessor _cotnrolAccessor;
+        internal IJavaScriptExecutor JavaScriptExecutor { get; }
+        internal CotnrolAccessor CotnrolAccessor { get; }
 
         internal int Id { get; }
 
         internal CefSharpWebElement(IWebDriver driver, CotnrolAccessor cotnrolAccessor, int index)
         {
             WrappedDriver = driver;
-            _cotnrolAccessor = cotnrolAccessor;
-            _javaScriptExecutor = (IJavaScriptExecutor)WrappedDriver;
+            CotnrolAccessor = cotnrolAccessor;
+            JavaScriptExecutor = (IJavaScriptExecutor)WrappedDriver;
             Id = index;
         }
 
         public IWebDriver WrappedDriver { get; }
 
-        public string TagName => (_javaScriptExecutor.ExecuteScript(JS.GetTagName(Id)) as string)?.ToLower();
+        public string TagName => (JavaScriptExecutor.ExecuteScript(JS.GetTagName(Id)) as string)?.ToLower();
 
-        public string Text => _javaScriptExecutor.ExecuteScript(JS.GetInnerHTML(Id)) as string;
+        public string Text => JavaScriptExecutor.ExecuteScript(JS.GetInnerHTML(Id)) as string;
 
-        public bool Enabled => !(bool)_javaScriptExecutor.ExecuteScript(JS.GetDisabled(Id));
+        public bool Enabled => !(bool)JavaScriptExecutor.ExecuteScript(JS.GetDisabled(Id));
 
-        public bool Selected => (bool)_javaScriptExecutor.ExecuteScript(JS.GetSelected(Id));
+        public bool Selected => (bool)JavaScriptExecutor.ExecuteScript(JS.GetSelected(Id));
 
         public Point Location
         {
             get
             {
-                var x = Convert.ToInt32(_javaScriptExecutor.ExecuteScript(JS.GetBoundingClientRectX(Id)), CultureInfo.InvariantCulture);
-                var y = Convert.ToInt32(_javaScriptExecutor.ExecuteScript(JS.GetBoundingClientRectY(Id)), CultureInfo.InvariantCulture);
+                var x = Convert.ToInt32(JavaScriptExecutor.ExecuteScript(JS.GetBoundingClientRectX(Id)), CultureInfo.InvariantCulture);
+                var y = Convert.ToInt32(JavaScriptExecutor.ExecuteScript(JS.GetBoundingClientRectY(Id)), CultureInfo.InvariantCulture);
                 return new Point(x, y);
             }
         }
@@ -63,76 +63,41 @@ namespace Selenium.CefSharp.Driver
         {
             get
             {
-                var w = Convert.ToInt32(_javaScriptExecutor.ExecuteScript(JS.GetBoundingClientRectWidth(Id)), CultureInfo.InvariantCulture);
-                var h = Convert.ToInt32(_javaScriptExecutor.ExecuteScript(JS.GetBoundingClientRectHeight(Id)), CultureInfo.InvariantCulture);
+                var w = Convert.ToInt32(JavaScriptExecutor.ExecuteScript(JS.GetBoundingClientRectWidth(Id)), CultureInfo.InvariantCulture);
+                var h = Convert.ToInt32(JavaScriptExecutor.ExecuteScript(JS.GetBoundingClientRectHeight(Id)), CultureInfo.InvariantCulture);
                 return new Size(w, h);
             }
         }
 
-        public bool Displayed => (bool)_javaScriptExecutor.ExecuteScript(JS.GetDisplayed(Id));
+        public bool Displayed => (bool)JavaScriptExecutor.ExecuteScript(JS.GetDisplayed(Id));
 
         public void Clear()
-            => _javaScriptExecutor.ExecuteScript(JS.SetAttribute(Id, "value", string.Empty));
-
-        private void Focus()
-            => _javaScriptExecutor.ExecuteScript(JS.Focus(Id));
+            => JavaScriptExecutor.ExecuteScript(JS.SetAttribute(Id, "value", string.Empty));
 
         public void Click()
-        {
-            if(TagName.Equals("OPTION", StringComparison.InvariantCultureIgnoreCase))
-            {
-                var parent = (CefSharpWebElement)_javaScriptExecutor.ExecuteScript(JS.GetParentElement(Id));
-                //TODO: emulate mouse down / up
-                //https://www.w3.org/TR/webdriver/#element-click
-
-                parent.Focus();
-                if(!parent.Enabled)
-                {
-                    return;
-                }
-                var script = $@"
-const element = window.__seleniumCefSharpDriver.getElementByEntryId({Id});
-element.selected = true";
-
-                if (parent.GetProperty("multiple").Equals("true", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    script = $@"
-const element = window.__seleniumCefSharpDriver.getElementByEntryId({Id});
-element.selected = !element.selected";
-                }
-                _javaScriptExecutor.ExecuteScript(script);
-            }
-            else
-            {
-                _javaScriptExecutor.ExecuteScript(JS.ScrollIntoView(Id));
-                var pos = Location;
-                var size = Size;
-                pos.Offset(size.Width / 2, size.Height / 2);
-                _cotnrolAccessor.Click(pos);
-            }
-        }
+            => ClickSpeck.Click(this);
 
         public string GetAttribute(string attributeName)
-            => _javaScriptExecutor.ExecuteScript(JS.GetAttribute(Id, attributeName)) as string;
+            => JavaScriptExecutor.ExecuteScript(JS.GetAttribute(Id, attributeName)) as string;
 
         public string GetCssValue(string propertyName)
-            => _javaScriptExecutor.ExecuteScript(JS.GetCssValue(Id, propertyName)) as string;
+            => JavaScriptExecutor.ExecuteScript(JS.GetCssValue(Id, propertyName)) as string;
 
         public string GetProperty(string propertyName)
-            => _javaScriptExecutor.ExecuteScript(JS.GetProperty(Id, propertyName)) as string;
+            => JavaScriptExecutor.ExecuteScript(JS.GetProperty(Id, propertyName)) as string;
 
         public void SendKeys(string text)
         {
-            _javaScriptExecutor.ExecuteScript(JS.Focus(Id));
-            _cotnrolAccessor.SendKeys(text);
+            JavaScriptExecutor.ExecuteScript(JS.Focus(Id));
+            CotnrolAccessor.SendKeys(text);
         }
 
         public void Submit()
-            => _javaScriptExecutor.ExecuteScript(JS.Submit(Id));
+            => JavaScriptExecutor.ExecuteScript(JS.Submit(Id));
 
-        public IWebElement FindElement(By by) => ElementFinder.FindElementFromElement(_javaScriptExecutor, Id, by);
+        public IWebElement FindElement(By by) => ElementFinder.FindElementFromElement(JavaScriptExecutor, Id, by);
 
-        public ReadOnlyCollection<IWebElement> FindElements(By by) => ElementFinder.FindElementsFromElement(_javaScriptExecutor, Id, by);
+        public ReadOnlyCollection<IWebElement> FindElements(By by) => ElementFinder.FindElementsFromElement(JavaScriptExecutor, Id, by);
 
         public IWebElement FindElementById(string id) => FindElement(By.Id(id));
 
@@ -168,15 +133,15 @@ element.selected = !element.selected";
 
         public Screenshot GetScreenshot()
         {
-            _javaScriptExecutor.ExecuteScript(JS.ScrollIntoView(Id));
-            return _cotnrolAccessor.GetScreenShot(Location, Size);
+            JavaScriptExecutor.ExecuteScript(JS.ScrollIntoView(Id));
+            return CotnrolAccessor.GetScreenShot(Location, Size);
         }
 
         public Point LocationOnScreenOnceScrolledIntoView
         {
             get
             {
-                var rawLocation = (Dictionary<string, object>)_javaScriptExecutor.ExecuteScript("var rect = arguments[0].getBoundingClientRect(); return {'x': rect.left, 'y': rect.top};", this);
+                var rawLocation = (Dictionary<string, object>)JavaScriptExecutor.ExecuteScript("var rect = arguments[0].getBoundingClientRect(); return {'x': rect.left, 'y': rect.top};", this);
                 int x = Convert.ToInt32(rawLocation["x"], CultureInfo.InvariantCulture);
                 int y = Convert.ToInt32(rawLocation["y"], CultureInfo.InvariantCulture);
                 return new Point(x, y);
@@ -184,5 +149,8 @@ element.selected = !element.selected";
         }
 
         public ICoordinates Coordinates => new CefSharpCoordinates(this);
+
+        internal void Focus()
+            => JavaScriptExecutor.ExecuteScript(JS.Focus(Id));
     }
 }
