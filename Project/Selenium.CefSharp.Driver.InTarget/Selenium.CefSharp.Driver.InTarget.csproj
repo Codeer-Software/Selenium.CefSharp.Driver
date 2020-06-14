@@ -46,8 +46,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncResultBoundObject.cs" />
+    <Compile Include="FrameFinder.cs" />
     <Compile Include="JSResultConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReflectionAccessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -15,9 +15,7 @@ namespace Selenium.CefSharp.Driver
         IJavaScriptExecutorCefFunctions
     {
         IJavaScriptExecutor _javaScriptExecutor;
-        internal CefSharpDriver CefSharpDriver { get; }
         readonly CotnrolAccessor _cotnrolAccessor;
-        readonly IWebElement[] _frameElements;
 
         public WindowsAppFriend App => (WindowsAppFriend)AppVar.App;
 
@@ -27,9 +25,9 @@ namespace Selenium.CefSharp.Driver
 
         public dynamic JavascriptObjectRepository => CefSharpDriver.ChromiumWebBrowser.JavascriptObjectRepository;
 
-        public Size Size => _frameElements.Any() ? _frameElements.Last().Size : CefSharpDriver.ChromiumWebBrowser.Size;
+        public Size Size => FrameElements.Any() ? FrameElements.Last().Size : CefSharpDriver.ChromiumWebBrowser.Size;
 
-        public string Url
+        internal string Url
         {
             get => this.Dynamic().Url;
             set
@@ -39,16 +37,23 @@ namespace Selenium.CefSharp.Driver
             }
         }
 
-        internal CefSharpFrameDriver(CefSharpDriver rootDriver, AppVar frame, IWebElement[] frameElement)
+        internal CefSharpDriver CefSharpDriver { get; }
+
+        internal CefSharpFrameDriver ParentFrame { get; }
+        
+        internal IWebElement[] FrameElements { get; }
+
+        internal string Title => (string)ExecuteScript("return document.title;");
+
+        internal CefSharpFrameDriver(CefSharpDriver rootDriver, CefSharpFrameDriver parentFrame, AppVar frame, IWebElement[] frameElement)
         {
+            ParentFrame = parentFrame;
             _javaScriptExecutor = new CefSharpJavaScriptExecutor(this);
             CefSharpDriver = rootDriver;
             AppVar = frame;
-            _frameElements = frameElement;
+            FrameElements = frameElement;
             _cotnrolAccessor = new CotnrolAccessor(this);
         }
-
-        internal string Title => (string)ExecuteScript("return document.title;");
 
         public object ExecuteScript(string script, params object[] args) => _javaScriptExecutor.ExecuteScript(script, args);
 
@@ -59,7 +64,7 @@ namespace Selenium.CefSharp.Driver
         public Point PointToScreen(Point clientPoint)
         {
             var offset = new Point();
-            foreach (var e in _frameElements)
+            foreach (var e in FrameElements)
             {
                 offset.Offset(e.Location);
             }
@@ -77,9 +82,9 @@ namespace Selenium.CefSharp.Driver
         {
             var target = obj as CefSharpFrameDriver;
             if (target == null) return false;
-            return this.Dynamic().Equals(target);
+            return this.Dynamic().Identifier.Equals(target.Dynamic().Identifier);
         }
 
-        public override int GetHashCode() => this.Dynamic().GetHashCode();
+        public override int GetHashCode() => this.Dynamic().Identifier;
     }
 }

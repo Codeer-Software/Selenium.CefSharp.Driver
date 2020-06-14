@@ -26,21 +26,22 @@ namespace Selenium.CefSharp.Driver
         ITakesScreenshot,
         ILocatable
     {
-        internal IJavaScriptExecutor JavaScriptExecutor { get; }
+        readonly CefSharpFrameDriver _frame;
+
+        internal IJavaScriptExecutor JavaScriptExecutor => _frame;
 
         internal CotnrolAccessor CotnrolAccessor { get; }
         
         internal int Id { get; }
 
-        internal CefSharpWebElement(CefSharpFrameDriver driver, CotnrolAccessor cotnrolAccessor, int index)
+        internal CefSharpWebElement(CefSharpFrameDriver frame, CotnrolAccessor cotnrolAccessor, int index)
         {
-            WrappedDriver = driver.CefSharpDriver;
+            _frame = frame;
             CotnrolAccessor = cotnrolAccessor;
-            JavaScriptExecutor = (IJavaScriptExecutor)driver;
             Id = index;
         }
-  
-        public IWebDriver WrappedDriver { get; }
+
+        public IWebDriver WrappedDriver => _frame.CefSharpDriver;
 
         public string TagName => (JavaScriptExecutor.ExecuteScript(JS.GetTagName(Id)) as string)?.ToLower();
 
@@ -153,10 +154,9 @@ namespace Selenium.CefSharp.Driver
 
         public override bool Equals(object obj)
         {
-            //TODO
             var target = obj as CefSharpWebElement;
             if (target == null) return false;
-            if (!target.WrappedDriver.Equals(WrappedDriver)) return false;
+            if (!target._frame.Equals(_frame)) return false;
             return Id == target.Id;
         }
 

@@ -8,6 +8,9 @@ using Codeer.TestAssistant.GeneratorToolKit;
 using OpenQA.Selenium.Html5;
 using OpenQA.Selenium.Internal;
 using System.Collections.ObjectModel;
+using Codeer.Friendly.Dynamic;
+using System.Linq;
+using Selenium.CefSharp.Driver.InTarget;
 
 namespace Selenium.CefSharp.Driver
 {
@@ -30,6 +33,8 @@ namespace Selenium.CefSharp.Driver
         IUIObject
     {
         CefSharpFrameDriver _currentFrame;
+        CefSharpFrameDriver _mainFrame;
+
         internal ChromiumWebBrowserDriver ChromiumWebBrowser { get; }
 
         public WindowsAppFriend App => ChromiumWebBrowser.App;
@@ -40,14 +45,14 @@ namespace Selenium.CefSharp.Driver
 
         public string Url
         {
-            get => _currentFrame.Url;
-            set => _currentFrame.Url = value;
+            get => _mainFrame.Url;
+            set => _mainFrame.Url = value;
         }
 
         public CefSharpDriver(AppVar appVar)
         {
             ChromiumWebBrowser = new ChromiumWebBrowserDriver(appVar);
-            _currentFrame = new CefSharpFrameDriver(this, ChromiumWebBrowser.GetMainFrame(), new IWebElement[0]);
+            _mainFrame =  _currentFrame = new CefSharpFrameDriver(this, null, ChromiumWebBrowser.GetMainFrame(), new IWebElement[0]);
             ChromiumWebBrowser.WaitForLoading();
         }
 
@@ -59,8 +64,7 @@ namespace Selenium.CefSharp.Driver
 
         public Point PointToScreen(Point clientPoint) => _currentFrame.PointToScreen(clientPoint);
 
-        public void ShowDevTools()
-            => ChromiumWebBrowser.ShowDevTools();
+        public void ShowDevTools() => ChromiumWebBrowser.ShowDevTools();
 
         public void Activate() => _currentFrame.Activate();
 
@@ -120,13 +124,6 @@ namespace Selenium.CefSharp.Driver
 
         public ReadOnlyCollection<IWebElement> FindElementsByPartialLinkText(string partialLinkText) => FindElements(By.PartialLinkText(partialLinkText));
 
-        //don't support.
-        public string CurrentWindowHandle => throw new NotImplementedException();
-        public ReadOnlyCollection<string> WindowHandles => throw new NotImplementedException();
-        public void Close() => throw new NotImplementedException();
-        public void Quit() => throw new NotImplementedException();
-        public IOptions Manage() => throw new NotImplementedException();
-
         class Navigation : INavigation
         {
             CefSharpDriver _this;
@@ -135,13 +132,13 @@ namespace Selenium.CefSharp.Driver
 
             public void Back()
             {
-                _this.ExecuteScript("window.history.back();");
+                _this._mainFrame.ExecuteScript("window.history.back();");
                 _this.ChromiumWebBrowser.WaitForLoading();
             }
 
             public void Forward()
             {
-                _this.ExecuteScript("window.history.forward();");
+                _this._mainFrame.ExecuteScript("window.history.forward();");
                 _this.ChromiumWebBrowser.WaitForLoading();
             }
 
@@ -151,7 +148,7 @@ namespace Selenium.CefSharp.Driver
 
             public void Refresh()
             {
-                _this.ExecuteScript("window.location.reload();");
+                _this._mainFrame.ExecuteScript("window.location.reload();");
                 _this.ChromiumWebBrowser.WaitForLoading();
             }
         }
@@ -162,33 +159,75 @@ namespace Selenium.CefSharp.Driver
 
             public TargetLocator(CefSharpDriver driver) => _this = driver;
 
-            public IWebDriver DefaultContent() => _this;
+            public IWebDriver DefaultContent()
+            {
+                _this._currentFrame = _this._mainFrame;
+                return _this;
+            }
 
             public IWebElement ActiveElement() => _this.ExecuteScript("return document.activeElement;") as IWebElement;
 
             public IAlert Alert() => new CefSharpAlert(_this.App, _this.Url);
 
-            //TODO
             public IWebDriver Frame(int frameIndex)
             {
-                throw new NotImplementedException();
-                /*
-                var cefFrameIndex = frameIndex + 1;
-                var element = _this.FindElementsByTagName("iframe")[frameIndex];
-
-                return new CefSharpFrameDriver(_this,
-                    _this.Dynamic().GetBrowser().GetFrame(_this.Dynamic().GetBrowser().GetFrameIdentifiers()[cefFrameIndex]),
-                        new[] { element });*/
+                var frameElements = _this.FindElementsByTagName("iframe");
+                var frameNames = frameElements.Select(e => e.GetAttribute("name")).ToList();
+                var frameElement = frameElements[frameIndex];
+                var frame = _this.App.Type<FrameFinder>().FindFrame(_this, _this._currentFrame, frameNames, frameIndex);
+                if (((AppVar)frame).IsNull)
+                {
+                    throw new NotFoundException("Frame was not found.");
+                }
+                _this._currentFrame = new CefSharpFrameDriver(_this, _this._currentFrame, frame, _this._currentFrame.FrameElements.Concat(new []{ frameElement }).ToArray());
+                return _this;
             }
 
-            public IWebDriver Frame(string frameName) => throw new NotImplementedException();
+            public IWebDriver Frame(string frameName)
+            {
+                var frameElements = _this.FindElementsByTagName("iframe");
+                for (int i = 0; i < frameElements.Count; i++)
+                {
+                    var e = frameElements[i];
+                    if (e.GetAttribute("id") == frameName || e.GetAttribute("name") == frameName)
+                    {
+                        return Frame(i);
+                    }
+                }
+                throw new NotFoundException("Frame was not found.");
+            }
 
-            public IWebDriver Frame(IWebElement frameElement) => throw new NotImplementedException();
+            public IWebDriver Frame(IWebElement frameElementSrc)
+            {
+                var frameElement = (CefSharpWebElement)frameElementSrc;
+                var frameElements = _this.FindElementsByTagName("iframe").Cast<CefSharpWebElement>().ToList();
+                for (int i = 0; i < frameElements.Count; i++)
+                {
+                    var e = frameElements[i];
+                    if (e.Id == frameElement.Id)
+                    {
+                        return Frame(i);
+                    }
+                }
+                throw new NotFoundException("Frame was not found.");
+            }
 
-            public IWebDriver ParentFrame() => null;
+            public IWebDriver ParentFrame()
+            {
+                if (_this._currentFrame.ParentFrame == null) throw new NotFoundException("Frame was not found.");
+                _this._currentFrame = _this._currentFrame.ParentFrame;
+                return _this;
+            }
 
             //don't support.
             public IWebDriver Window(string windowName) => throw new NotSupportedException();
         }
+
+        //don't support.
+        public string CurrentWindowHandle => throw new NotImplementedException();
+        public ReadOnlyCollection<string> WindowHandles => throw new NotImplementedException();
+        public void Close() => throw new NotImplementedException();
+        public void Quit() => throw new NotImplementedException();
+        public IOptions Manage() => throw new NotImplementedException();
     }
 }

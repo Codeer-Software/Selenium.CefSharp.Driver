@@ -96,6 +96,7 @@ namespace Test
         }
     }
 
+    //TODO
     public abstract class FrameTest
     {
         protected TestDirHtmlServer Server = new TestDirHtmlServer();
@@ -110,6 +111,31 @@ namespace Test
         [Test]
         public void TestFrame()
         {
+            Thread.Sleep(3000);
+
+            var driver = GetDriver();
+
+            driver.SwitchTo().Frame(0);
+            driver.FindElement(By.Id("textBoxName")).SendKeys("abc");
+            driver.SwitchTo().DefaultContent();
+
+            driver.SwitchTo().Frame(1);
+            driver.SwitchTo().Frame(0);
+            driver.FindElement(By.Id("inputJS")).Click();
+            driver.SwitchTo().DefaultContent();
+
+            driver.SwitchTo().Frame(2);
+            var url = driver.Url;
+
+            driver.Navigate().GoToUrl("https://github.com/Codeer-Software/Selenium.CefSharp.Driver");
+
+            /*
+            driver.SwitchTo().ParentFrame();
+            driver.FindElement(By.Id("frameInput1")).SendKeys("abc");
+            */
+            //TODO
+            //url is browser's url. not iframe url.
+            //check navigate too.
         }
     }
 }

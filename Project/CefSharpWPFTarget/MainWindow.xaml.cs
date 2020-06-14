@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -7,6 +8,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using CefSharp;
 using CefSharp.Wpf;
+using Selenium.CefSharp.Driver;
 
 namespace CefSharpWPFTarget
 {
@@ -48,10 +50,10 @@ namespace CefSharpWPFTarget
             //   WebBrowserExtensions.GetPa
         }
 
-        class IFrameNode
+        class FrameNode
         { 
             public IFrame Frame { get; set; }
-            public List<IFrameNode> Children { get; } = new List<IFrameNode>();
+            public List<FrameNode> Children { get; } = new List<FrameNode>();
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -77,23 +79,25 @@ namespace CefSharpWPFTarget
             if (e.Key == Key.E)
             {
 
-                var list = _browser.GetBrowser().GetFrameIdentifiers().Select(y => _browser.GetBrowser().GetFrame(y)).ToList();
-                /*
-                var x = _browser.GetBrowser().GetFrame(_browser.GetBrowser().GetFrameIdentifiers()[2]);
-
-                x.SelectAll();
-
-                var z = _browser.GetBrowser().GetFrameNames();
 
 
-                var y1 = _browser.GetBrowser().GetFrameIdentifiers();
-                var y = x.Browser.GetFrameIdentifiers();
 
-                x.Browser.GoBack();*/
+                IFrame frame = _browser.GetMainFrame();
 
-                var parent = _browser.GetMainFrame();
-                var node = new IFrameNode { Frame = parent };
-                XXX(node, list);
+                var prop = frame.GetType().GetProperty("Parent");
+
+
+
+                var parent = frame.Parent;
+            //    var parentX = ((dynamic)frame).Parent;
+
+
+                var names = new[] { "", "iframe2_name", "" }.ToList();
+                IFrame frame1 = (IFrame)FindFrame(_browser, _browser.GetMainFrame(), names, 0);
+                IFrame frame2 = (IFrame)FindFrame(_browser, _browser.GetMainFrame(), names, 1);
+                IFrame frameX = (IFrame)FindFrame(_browser, _browser.GetMainFrame(), names, 2);
+                var names2 = new[] { "iframe3_name" }.ToList();
+                IFrame frame3 = (IFrame)FindFrame(_browser, frame2, names2, 0);
             }
 
             if (e.Key == Key.B)
@@ -192,7 +196,107 @@ return element;
             }
         }
 
-        private void XXX(IFrameNode node, List<IFrame> list)
+        static IFrame FindFrameOld(ChromiumWebBrowser browser, IFrame frame, int childIndex)
+        {
+            if (childIndex < 0) return null;
+            var node = MakeFrameTree(browser);
+            var frameNode = FindFrameNode(node, frame);
+            if (frameNode == null) return null;
+            if (frameNode.Children.Count <= childIndex) return null;
+            return frameNode.Children[childIndex].Frame;
+        }
+
+
+        static object FindFrame(object chromiumWebBrowser, object parentFrame, List<string> frameNames, int childIndex)
+        {
+            if (childIndex < 0) return null;
+            var children = GetChildren(chromiumWebBrowser, parentFrame, frameNames);
+            if (children.Length <= childIndex) return null;
+            return children[childIndex];
+        }
+
+
+        static object[] GetChildren(object chromiumWebBrowser, object parentFrame, List<string> frameNames)
+        {
+            var webBrowserAcs = new ReflectionAccessor(chromiumWebBrowser);
+            var browserAcs = new ReflectionAccessor(webBrowserAcs.InvokeMethod<object>("GetBrowser"));
+
+            var allFrames = new List<object>();
+            foreach (var e in browserAcs.InvokeMethod<IEnumerable>("GetFrameIdentifiers"))
+            {
+                allFrames.Add(browserAcs.InvokeMethodByType<object>("GetFrame", e));
+            }
+
+            var parentFrameIdentifier = new ReflectionAccessor(parentFrame).GetProperty<long>("Identifier");
+            var children = new List<ReflectionAccessor>();
+            foreach (var frame in allFrames)
+            {
+                var frameAcs = new ReflectionAccessor(frame);
+                var parent = frameAcs.GetProperty<object>("Parent");
+                if (parent == null) continue;
+
+                var parentAcs = new ReflectionAccessor(parent);
+                if (parentAcs.GetProperty<long>("Identifier") == parentFrameIdentifier)
+                {
+                    children.Add(frameAcs);
+                }
+            }
+
+            children = children.OrderBy(e => e.GetProperty<string>("Name")).ToList();
+            if (children.Count < frameNames.Count) return children.ToArray();
+
+            var sortedChildren = new object[children.Count];
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                var e = children[i];
+                var index = frameNames.IndexOf(e.GetProperty<string>("Name"));
+                if (index == -1) continue;
+                sortedChildren[index] = e.Object;
+                children[i] = null;
+            }
+
+            int j = 0;
+            for (int i = 0; i < children.Count; i++)
+            {
+                var e = children[i];
+                if (e == null) continue;
+
+                for (; j < sortedChildren.Length; j++)
+                {
+                    if (sortedChildren[j] == null)
+                    {
+                        sortedChildren[j] = e.Object;
+                        j++;
+                        break;
+                    }
+                }
+            }
+            return sortedChildren;
+        }
+
+        
+        static FrameNode FindFrameNode(FrameNode node, IFrame frame)
+        {
+            if (frame.Identifier == node.Frame.Identifier) return node;
+            foreach (var e in node.Children)
+            {
+                var hit = FindFrameNode(e, frame);
+                if (hit != null) return hit;
+            }
+            return null;
+        }
+
+        static FrameNode MakeFrameTree(ChromiumWebBrowser browser)
+        {
+            var list = browser.GetBrowser().GetFrameIdentifiers().Select(y => browser.GetBrowser().GetFrame(y)).ToList();
+            var parent = browser.GetMainFrame();
+            var node = new FrameNode { Frame = parent };
+            MakeFrameTree(node, list);
+            return node;
+        }
+
+        static void MakeFrameTree(FrameNode node, List<IFrame> list)
         {
             foreach (var x in list)
             {
@@ -202,13 +306,15 @@ return element;
                 }
                 else if (x.Parent != null && x.Parent.Identifier == node.Frame.Identifier)
                 {
-                    var nextNode = new IFrameNode { Frame = x };
+                    var nextNode = new FrameNode { Frame = x };
                     node.Children.Add(nextNode);
 
-                    XXX(nextNode, list);
+                    MakeFrameTree(nextNode, list);
                 }
             }
         }
+
+    
 
         private void _browser_FrameLoadStart(object sender, FrameLoadStartEventArgs e)
         {
