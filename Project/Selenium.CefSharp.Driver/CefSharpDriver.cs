@@ -172,7 +172,15 @@ namespace Selenium.CefSharp.Driver
             public IAlert Alert() => new CefSharpAlert(_this.App, _this.Url);
 
             //TODO
-            public IWebDriver Frame(int frameIndex) => throw new NotImplementedException();
+            public IWebDriver Frame(int frameIndex)
+            {
+                var cefFrameIndex = frameIndex + 1;
+                var element = _this.FindElementsByTagName("iframe")[frameIndex];
+
+                return new CefSharpFrameDriver(_this,
+                    _this.Dynamic().GetBrowser().GetFrame(_this.Dynamic().GetBrowser().GetFrameIdentifiers()[cefFrameIndex]),
+                        new[] { element });
+            }
 
             public IWebDriver Frame(string frameName) => throw new NotImplementedException();
 

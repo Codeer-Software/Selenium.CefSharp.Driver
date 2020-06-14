@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Input;
 using CefSharp;
 using CefSharp.Wpf;
@@ -45,6 +48,12 @@ namespace CefSharpWPFTarget
             //   WebBrowserExtensions.GetPa
         }
 
+        class IFrameNode
+        { 
+            public IFrame Frame { get; set; }
+            public List<IFrameNode> Children { get; } = new List<IFrameNode>();
+        }
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
@@ -63,11 +72,16 @@ namespace CefSharpWPFTarget
 
             if (e.Key == Key.R)
             {
-                _browser.Address = @"C:\GitHub\Selenium.CefSharp.Driver\Project\Test\FrameTest.html";
+                _browser.Address = @"C:\GitHub\Selenium.CefSharp.Driver\Project\Test\Frame.html";
             }
             if (e.Key == Key.E)
             {
+
+                var list = _browser.GetBrowser().GetFrameIdentifiers().Select(y => _browser.GetBrowser().GetFrame(y)).ToList();
+                /*
                 var x = _browser.GetBrowser().GetFrame(_browser.GetBrowser().GetFrameIdentifiers()[2]);
+
+                x.SelectAll();
 
                 var z = _browser.GetBrowser().GetFrameNames();
 
@@ -75,7 +89,11 @@ namespace CefSharpWPFTarget
                 var y1 = _browser.GetBrowser().GetFrameIdentifiers();
                 var y = x.Browser.GetFrameIdentifiers();
 
-                x.Browser.GoBack();
+                x.Browser.GoBack();*/
+
+                var parent = _browser.GetMainFrame();
+                var node = new IFrameNode { Frame = parent };
+                XXX(node, list);
             }
 
             if (e.Key == Key.B)
@@ -171,6 +189,24 @@ return element;
  }})();
 ";
                 var ret3 = CefSharp.WebBrowserExtensions.EvaluateScriptAsync(_browser, click).Result;
+            }
+        }
+
+        private void XXX(IFrameNode node, List<IFrame> list)
+        {
+            foreach (var x in list)
+            {
+                if (x.Identifier == node.Frame.Identifier)
+                {
+                    continue;
+                }
+                else if (x.Parent != null && x.Parent.Identifier == node.Frame.Identifier)
+                {
+                    var nextNode = new IFrameNode { Frame = x };
+                    node.Children.Add(nextNode);
+
+                    XXX(nextNode, list);
+                }
             }
         }
 

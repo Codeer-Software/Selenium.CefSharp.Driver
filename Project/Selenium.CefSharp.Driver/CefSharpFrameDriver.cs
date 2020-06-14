@@ -7,6 +7,7 @@ using System;
 using System.Threading;
 using System.Drawing;
 using Codeer.TestAssistant.GeneratorToolKit;
+using System.Linq;
 
 namespace Selenium.CefSharp.Driver
 {
@@ -20,8 +21,7 @@ namespace Selenium.CefSharp.Driver
     {
         readonly CefSharpDriver _rootDriver;
         readonly CotnrolAccessor _cotnrolAccessor;
-        readonly IWebElement _frameElement;
-        readonly Point _offset;
+        readonly IWebElement[] _frameElements;
 
         public WindowsAppFriend App => (WindowsAppFriend)AppVar.App;
 
@@ -31,25 +31,23 @@ namespace Selenium.CefSharp.Driver
 
         public dynamic JavascriptObjectRepository => _rootDriver.Dynamic().JavascriptObjectRepository;
 
-        public Size Size => _frameElement.Size;
+        public Size Size => _frameElements.Last().Size;
 
         public string Url
         {
-            get => (string)ExecuteScript($"return window.location.href;");
+            get => this.Dynamic().Url;
             set
             {
-                //can't use local file.
-                ExecuteScript($"window.location.href = '{Navigation.AdjustUrl(value)}';");
+                this.Dynamic().LoadUrl(value);
                 WaitForLoading();
             }
         }
 
-        public CefSharpFrameDriver(CefSharpDriver rootDriver, AppVar frame, IWebElement frameElement, Point offset)
+        internal CefSharpFrameDriver(CefSharpDriver rootDriver, AppVar frame, IWebElement[] frameElement)
         {
             _rootDriver = rootDriver;
             AppVar = frame;
-            _frameElement = frameElement;
-            _offset = offset;
+            _frameElements = frameElement;
             _cotnrolAccessor = new CotnrolAccessor(this);
             Init(this);
         }
@@ -70,7 +68,12 @@ namespace Selenium.CefSharp.Driver
 
         public Point PointToScreen(Point clientPoint)
         {
-            clientPoint.Offset(_offset);
+            var offset = new Point();
+            foreach (var e in _frameElements)
+            {
+                offset.Offset(e.Location);
+            }
+            clientPoint.Offset(offset);
             return _rootDriver.PointToScreen(clientPoint);
         }
 
@@ -79,6 +82,15 @@ namespace Selenium.CefSharp.Driver
         public IWebElement CreateWebElement(int id) => new CefSharpWebElement(this, _cotnrolAccessor, id);
 
         public Screenshot GetScreenshot() => _cotnrolAccessor.GetScreenShot(new Point(0, 0), Size);
+        
+        public override bool Equals(object obj)
+        {
+            var target = obj as CefSharpFrameDriver;
+            if (target == null) return false;
+            return this.Dynamic().Equals(target);
+        }
+
+        public override int GetHashCode() => this.Dynamic().GetHashCode();
 
         class Navigation : INavigation
         {
@@ -98,21 +110,7 @@ namespace Selenium.CefSharp.Driver
                 _this.WaitForLoading();
             }
 
-            public void GoToUrl(string url)
-            {
-                //can't use local file.
-                _this.ExecuteScript($"window.location.href = '{AdjustUrl(url)}';");
-                _this.WaitForLoading();
-            }
-
-            internal static string AdjustUrl(string url)
-            {
-                if (url.ToLower().IndexOf("http") != 0)
-                {
-                    return "file:///" + url.Replace("\\", "/");
-                }
-                return url;
-            }
+            public void GoToUrl(string url) => _this.Url = url;
 
             public void GoToUrl(Uri url) => GoToUrl(url.ToString());
 

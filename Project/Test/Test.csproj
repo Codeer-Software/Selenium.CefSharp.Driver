@@ -85,8 +85,10 @@
   <ItemGroup>
     <Compile Include="AppRunner.cs" />
     <Compile Include="AssertCompatible.cs" />
+    <Compile Include="FrameTest.cs" />
     <Compile Include="BasicTest.cs" />
     <Compile Include="ChainingAssertion.NUnit.cs" />
+    <Compile Include="TestDirHtmlServer.cs" />
     <Compile Include="KeyMouseTest.cs" />
     <Compile Include="CompareTestBase.cs" />
     <Compile Include="HtmlServer.cs" />
@@ -110,7 +112,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="FrameTest.html">
+    <Content Include="FrameInner.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Controls.html">

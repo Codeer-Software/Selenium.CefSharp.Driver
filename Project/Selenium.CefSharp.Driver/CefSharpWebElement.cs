@@ -150,6 +150,16 @@ namespace Selenium.CefSharp.Driver
 
         public ICoordinates Coordinates => new CefSharpCoordinates(this);
 
+        public override bool Equals(object obj)
+        {
+            var target = obj as CefSharpWebElement;
+            if (target == null) return false;
+            if (!target.WrappedDriver.Equals(WrappedDriver)) return false;
+            return Id == target.Id;
+        }
+
+        public override int GetHashCode() => WrappedDriver.GetHashCode() + Id;
+
         internal void Focus()
             => JavaScriptExecutor.ExecuteScript(JS.Focus(Id));
     }
