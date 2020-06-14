@@ -1,134 +1,131 @@
 ﻿using Codeer.Friendly;
-using Codeer.Friendly.Dynamic;
 using Codeer.Friendly.Windows;
 using Codeer.Friendly.Windows.Grasp;
 using OpenQA.Selenium;
 using System;
-using System.Threading;
-using Selenium.CefSharp.Driver.InTarget;
-using Codeer.Friendly.DotNetExecutor;
 using System.Drawing;
 using Codeer.TestAssistant.GeneratorToolKit;
+using OpenQA.Selenium.Html5;
+using OpenQA.Selenium.Internal;
+using System.Collections.ObjectModel;
 
 namespace Selenium.CefSharp.Driver
 {
     [ControlDriver(TypeFullName = "CefSharp.Wpf.ChromiumWebBrowser|CefSharp.WinForms.ChromiumWebBrowser")]
-    public class CefSharpDriver : CefSharpDriverCore,
+    public class CefSharpDriver :
         IWebDriver,
-        IAppVarOwner,
-        IUIObject,
+        IJavaScriptExecutor,
+        IFindsById,
+        IFindsByClassName,
+        IFindsByLinkText,
+        IFindsByName,
+        IFindsByTagName,
+        IFindsByXPath,
+        IFindsByPartialLinkText,
+        IFindsByCssSelector,
+        IHasApplicationCache,
+        IHasWebStorage,
         ITakesScreenshot,
-        IJavaScriptExecutorCefFunctions
+        IAppVarOwner,
+        IUIObject
     {
-        readonly CotnrolAccessor _cotnrolAccessor;
-        readonly dynamic _webBrowserExtensions;
+        CefSharpFrameDriver _currentFrame;
+        internal ChromiumWebBrowserDriver ChromiumWebBrowser { get; }
 
-        public WindowsAppFriend App => (WindowsAppFriend)AppVar.App;
+        public WindowsAppFriend App => ChromiumWebBrowser.App;
 
-        public AppVar AppVar { get; }
+        public AppVar AppVar => ChromiumWebBrowser.AppVar;
 
-        public dynamic Frame => _webBrowserExtensions.GetMainFrame(this);
-
-        public dynamic JavascriptObjectRepository => this.Dynamic().JavascriptObjectRepository;
-
-        public Size Size
-        {
-            get
-            {
-                if (IsWPF)
-                {
-                    var size = this.Dynamic().RenderSize;
-                    return new Size((int)(double)size.Width, (int)(double)size.Height);
-                }
-                return new WindowControl(AppVar).Size;
-            }
-        }
+        public Size Size => ChromiumWebBrowser.Size;
 
         public string Url
         {
-            get => this.Dynamic().Address;
-            set
-            {
-                if (IsWPF)
-                {
-                    this.Dynamic().Address = value;
-                }
-                else
-                {
-                    this.Dynamic().Load(value);
-                }
-                WaitForLoading();
-            }
+            get => _currentFrame.Url;
+            set => _currentFrame.Url = value;
         }
 
         public CefSharpDriver(AppVar appVar)
         {
-            AppVar = appVar;
-            App.LoadAssembly(typeof(JSResultConverter).Assembly);
-            _webBrowserExtensions = App.Type("CefSharp.WebBrowserExtensions");
-            _cotnrolAccessor = new CotnrolAccessor(this);
-            WaitForLoading();
-            Init(this);
+            ChromiumWebBrowser = new ChromiumWebBrowserDriver(appVar);
+            _currentFrame = new CefSharpFrameDriver(this, ChromiumWebBrowser.GetMainFrame(), new IWebElement[0]);
+            ChromiumWebBrowser.WaitForLoading();
         }
-        
+
         public void Dispose() => AppVar.Dispose();
 
         public ITargetLocator SwitchTo() => new TargetLocator(this);
 
         public INavigation Navigate() => new Navigation(this);
 
-        public void WaitForLoading()
-        {
-            while ((bool)this.Dynamic().IsLoading)
-            {
-                Thread.Sleep(10);
-            }
-        }
-
-        public Point PointToScreen(Point clientPoint)
-        {
-            if (IsWPF)
-            {
-                var pos = this.Dynamic().PointToScreen(App.Type("System.Windows.Point")((double)clientPoint.X, (double)clientPoint.Y));
-                return new System.Drawing.Point((int)(double)pos.X, (int)(double)pos.Y);
-            }
-            return new WindowControl(AppVar).PointToScreen(clientPoint);
-        }
+        public Point PointToScreen(Point clientPoint) => _currentFrame.PointToScreen(clientPoint);
 
         public void ShowDevTools()
-            => _webBrowserExtensions.ShowDevTools(this);
+            => ChromiumWebBrowser.ShowDevTools();
 
-        public void Activate()
-        {
-            if (IsWPF)
-            {
-                //WPF
-                var source = App.Type("System.Windows.Interop.HwndSource").FromVisual(this);
-                new WindowControl(App, (IntPtr)source.Handle).Activate();
-            }
-            else
-            {
-                //WinForms
-                new WindowControl(AppVar).Activate();
-            }
-            this.Dynamic().Focus();
-        }
+        public void Activate() => _currentFrame.Activate();
 
-        public IWebElement CreateWebElement(int id) => new CefSharpWebElement(this, _cotnrolAccessor, id);
+        public IWebElement CreateWebElement(int id) => _currentFrame.CreateWebElement(id);
 
-        public Screenshot GetScreenshot() => _cotnrolAccessor.GetScreenShot(new Point(0, 0), Size);
+        public Screenshot GetScreenshot() => _currentFrame.GetScreenshot();
 
-        bool IsWPF
-        {
-            get
-            {
-                var finder = App.Type<TypeFinder>()();
-                var wpfType = (AppVar)finder.GetType("CefSharp.Wpf.ChromiumWebBrowser");
-                var t = this.Dynamic().GetType();
-                var isWPF = !wpfType.IsNull && (bool)wpfType["IsAssignableFrom", new OperationTypeInfo(typeof(Type).FullName, typeof(Type).FullName)]((AppVar)t).Core;
-                return isWPF;
-            }
-        }
+        public string Title => _currentFrame.Title;
+
+        public bool HasApplicationCache => true;
+
+        public IApplicationCache ApplicationCache => new CefSharpApplicationCache(this);
+
+        public bool HasWebStorage => true;
+
+        public IWebStorage WebStorage => new CefSharpWebStorage(this);
+
+        public string PageSource => (string)ExecuteScript("return document.documentElement.outerHTML;");
+
+        public IWebElement FindElement(By by) => ElementFinder.FindElementFromDocument(this, by);
+
+        public ReadOnlyCollection<IWebElement> FindElements(By by) => ElementFinder.FindElementsFromDocument(this, by);
+
+        public object ExecuteScript(string script, params object[] args) => _currentFrame.ExecuteScript(script, args);
+
+        public object ExecuteAsyncScript(string script, params object[] args) => _currentFrame.ExecuteAsyncScript(script, args);
+
+        public IWebElement FindElementById(string id) => FindElement(By.Id(id));
+
+        public ReadOnlyCollection<IWebElement> FindElementsById(string id) => FindElements(By.Id(id));
+
+        public IWebElement FindElementByClassName(string className) => FindElement(By.ClassName(className));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByClassName(string className) => FindElements(By.ClassName(className));
+
+        public IWebElement FindElementByName(string name) => FindElement(By.Name(name));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByName(string name) => FindElements(By.Name(name));
+
+        public IWebElement FindElementByTagName(string tagName) => FindElement(By.TagName(tagName));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByTagName(string tagName) => FindElements(By.TagName(tagName));
+
+        public IWebElement FindElementByXPath(string xpath) => FindElement(By.XPath(xpath));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByXPath(string xpath) => FindElements(By.XPath(xpath));
+
+        public IWebElement FindElementByCssSelector(string cssSelector) => FindElement(By.CssSelector(cssSelector));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByCssSelector(string cssSelector) => FindElements(By.CssSelector(cssSelector));
+
+        public IWebElement FindElementByLinkText(string linkText) => FindElement(By.LinkText(linkText));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByLinkText(string linkText) => FindElements(By.LinkText(linkText));
+
+        public IWebElement FindElementByPartialLinkText(string partialLinkText) => FindElement(By.PartialLinkText(partialLinkText));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByPartialLinkText(string partialLinkText) => FindElements(By.PartialLinkText(partialLinkText));
+
+        //don't support.
+        public string CurrentWindowHandle => throw new NotImplementedException();
+        public ReadOnlyCollection<string> WindowHandles => throw new NotImplementedException();
+        public void Close() => throw new NotImplementedException();
+        public void Quit() => throw new NotImplementedException();
+        public IOptions Manage() => throw new NotImplementedException();
 
         class Navigation : INavigation
         {
@@ -139,13 +136,13 @@ namespace Selenium.CefSharp.Driver
             public void Back()
             {
                 _this.ExecuteScript("window.history.back();");
-                _this.WaitForLoading();
+                _this.ChromiumWebBrowser.WaitForLoading();
             }
 
             public void Forward()
             {
                 _this.ExecuteScript("window.history.forward();");
-                _this.WaitForLoading();
+                _this.ChromiumWebBrowser.WaitForLoading();
             }
 
             public void GoToUrl(string url) => _this.Url = url;
@@ -155,7 +152,7 @@ namespace Selenium.CefSharp.Driver
             public void Refresh()
             {
                 _this.ExecuteScript("window.location.reload();");
-                _this.WaitForLoading();
+                _this.ChromiumWebBrowser.WaitForLoading();
             }
         }
 
@@ -174,12 +171,14 @@ namespace Selenium.CefSharp.Driver
             //TODO
             public IWebDriver Frame(int frameIndex)
             {
+                throw new NotImplementedException();
+                /*
                 var cefFrameIndex = frameIndex + 1;
                 var element = _this.FindElementsByTagName("iframe")[frameIndex];
 
                 return new CefSharpFrameDriver(_this,
                     _this.Dynamic().GetBrowser().GetFrame(_this.Dynamic().GetBrowser().GetFrameIdentifiers()[cefFrameIndex]),
-                        new[] { element });
+                        new[] { element });*/
             }
 
             public IWebDriver Frame(string frameName) => throw new NotImplementedException();

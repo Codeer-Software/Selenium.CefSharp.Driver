@@ -3,23 +3,19 @@ using Codeer.Friendly.Dynamic;
 using Codeer.Friendly.Windows;
 using Codeer.Friendly.Windows.Grasp;
 using OpenQA.Selenium;
-using System;
-using System.Threading;
 using System.Drawing;
-using Codeer.TestAssistant.GeneratorToolKit;
 using System.Linq;
 
 namespace Selenium.CefSharp.Driver
 {
-    [ControlDriver(TypeFullName = "CefSharp.Wpf.ChromiumWebBrowser|CefSharp.WinForms.ChromiumWebBrowser")]
-    public class CefSharpFrameDriver : CefSharpDriverCore,
-        IWebDriver,
+    class CefSharpFrameDriver :
         IAppVarOwner,
         IUIObject,
-        ITakesScreenshot,
+        IJavaScriptExecutor,
         IJavaScriptExecutorCefFunctions
     {
-        readonly CefSharpDriver _rootDriver;
+        IJavaScriptExecutor _javaScriptExecutor;
+        internal CefSharpDriver CefSharpDriver { get; }
         readonly CotnrolAccessor _cotnrolAccessor;
         readonly IWebElement[] _frameElements;
 
@@ -29,9 +25,9 @@ namespace Selenium.CefSharp.Driver
 
         public dynamic Frame => this.Dynamic();
 
-        public dynamic JavascriptObjectRepository => _rootDriver.Dynamic().JavascriptObjectRepository;
+        public dynamic JavascriptObjectRepository => CefSharpDriver.ChromiumWebBrowser.JavascriptObjectRepository;
 
-        public Size Size => _frameElements.Last().Size;
+        public Size Size => _frameElements.Any() ? _frameElements.Last().Size : CefSharpDriver.ChromiumWebBrowser.Size;
 
         public string Url
         {
@@ -45,26 +41,20 @@ namespace Selenium.CefSharp.Driver
 
         internal CefSharpFrameDriver(CefSharpDriver rootDriver, AppVar frame, IWebElement[] frameElement)
         {
-            _rootDriver = rootDriver;
+            _javaScriptExecutor = new CefSharpJavaScriptExecutor(this);
+            CefSharpDriver = rootDriver;
             AppVar = frame;
             _frameElements = frameElement;
             _cotnrolAccessor = new CotnrolAccessor(this);
-            Init(this);
         }
-        
-        public void Dispose() => AppVar.Dispose();
 
-        public ITargetLocator SwitchTo() => new TargetLocator(this);
+        internal string Title => (string)ExecuteScript("return document.title;");
 
-        public INavigation Navigate() => new Navigation(this);
+        public object ExecuteScript(string script, params object[] args) => _javaScriptExecutor.ExecuteScript(script, args);
 
-        public void WaitForLoading()
-        {
-            while ((bool)_rootDriver.Dynamic().IsLoading)
-            {
-                Thread.Sleep(10);
-            }
-        }
+        public object ExecuteAsyncScript(string script, params object[] args) => _javaScriptExecutor.ExecuteAsyncScript(script, args);
+
+        public void WaitForLoading() => CefSharpDriver.ChromiumWebBrowser.WaitForLoading();
 
         public Point PointToScreen(Point clientPoint)
         {
@@ -74,10 +64,10 @@ namespace Selenium.CefSharp.Driver
                 offset.Offset(e.Location);
             }
             clientPoint.Offset(offset);
-            return _rootDriver.PointToScreen(clientPoint);
+            return CefSharpDriver.ChromiumWebBrowser.PointToScreen(clientPoint);
         }
 
-        public void Activate() => _rootDriver.Activate();
+        public void Activate() => CefSharpDriver.ChromiumWebBrowser.Activate();
 
         public IWebElement CreateWebElement(int id) => new CefSharpWebElement(this, _cotnrolAccessor, id);
 
@@ -91,59 +81,5 @@ namespace Selenium.CefSharp.Driver
         }
 
         public override int GetHashCode() => this.Dynamic().GetHashCode();
-
-        class Navigation : INavigation
-        {
-            CefSharpFrameDriver _this;
-
-            public Navigation(CefSharpFrameDriver driver) => _this = driver;
-
-            public void Back()
-            {
-                _this.ExecuteScript("window.history.back();");
-                _this.WaitForLoading();
-            }
-
-            public void Forward()
-            {
-                _this.ExecuteScript("window.history.forward();");
-                _this.WaitForLoading();
-            }
-
-            public void GoToUrl(string url) => _this.Url = url;
-
-            public void GoToUrl(Uri url) => GoToUrl(url.ToString());
-
-            public void Refresh()
-            {
-                _this.ExecuteScript("window.location.reload();");
-                _this.WaitForLoading();
-            }
-        }
-
-        class TargetLocator : ITargetLocator
-        {
-            CefSharpFrameDriver _this;
-
-            public TargetLocator(CefSharpFrameDriver driver) => _this = driver;
-
-            public IWebDriver DefaultContent() => _this;
-
-            public IWebElement ActiveElement() => _this.ExecuteScript("return document.activeElement;") as IWebElement;
-
-            public IAlert Alert() => new CefSharpAlert(_this.App, _this.Url);
-
-            //TODO
-            public IWebDriver Frame(int frameIndex) => throw new NotImplementedException();
-
-            public IWebDriver Frame(string frameName) => throw new NotImplementedException();
-
-            public IWebDriver Frame(IWebElement frameElement) => throw new NotImplementedException();
-
-            public IWebDriver ParentFrame() => throw new NotImplementedException();
-
-            //don't support.
-            public IWebDriver Window(string windowName) => throw new NotSupportedException();
-        }
     }
 }

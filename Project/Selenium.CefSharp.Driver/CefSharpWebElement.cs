@@ -27,18 +27,19 @@ namespace Selenium.CefSharp.Driver
         ILocatable
     {
         internal IJavaScriptExecutor JavaScriptExecutor { get; }
-        internal CotnrolAccessor CotnrolAccessor { get; }
 
+        internal CotnrolAccessor CotnrolAccessor { get; }
+        
         internal int Id { get; }
 
-        internal CefSharpWebElement(IWebDriver driver, CotnrolAccessor cotnrolAccessor, int index)
+        internal CefSharpWebElement(CefSharpFrameDriver driver, CotnrolAccessor cotnrolAccessor, int index)
         {
-            WrappedDriver = driver;
+            WrappedDriver = driver.CefSharpDriver;
             CotnrolAccessor = cotnrolAccessor;
-            JavaScriptExecutor = (IJavaScriptExecutor)WrappedDriver;
+            JavaScriptExecutor = (IJavaScriptExecutor)driver;
             Id = index;
         }
-
+  
         public IWebDriver WrappedDriver { get; }
 
         public string TagName => (JavaScriptExecutor.ExecuteScript(JS.GetTagName(Id)) as string)?.ToLower();
@@ -152,6 +153,7 @@ namespace Selenium.CefSharp.Driver
 
         public override bool Equals(object obj)
         {
+            //TODO
             var target = obj as CefSharpWebElement;
             if (target == null) return false;
             if (!target.WrappedDriver.Equals(WrappedDriver)) return false;
