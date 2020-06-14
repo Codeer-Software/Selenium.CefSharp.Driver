@@ -219,6 +219,8 @@ namespace Test
 
         //TODO LinkText, PartialLinkText
 
+        //ById
+
         [Test]
         public void FindElementById_ShouldReturnFirstElement()
         {
@@ -231,47 +233,11 @@ namespace Test
         }
 
         [Test]
-        public void FindElementByName_ShouldReturnFirstElement()
+        public void FindElementById_ShouldThrowExceptionWhenElementNotFound()
         {
             var context = GetDriver().FindElement(By.ClassName("bytest"));
-            foreach (var element in new[] { context.FindElement(By.Name("nametest")), ((IFindsByName)context).FindElementByName("nametest") })
-            {
-                var dataKey = element.GetAttribute("data-key");
-                Assert.AreEqual("1", dataKey);
-            }
-        }
-
-        [Test]
-        public void FindElementByClassName_ShouldReturnFirstElement()
-        {
-            var context = GetDriver().FindElement(By.ClassName("bytest"));
-            foreach (var element in new[] { context.FindElement(By.ClassName("classtest")), ((IFindsByClassName)context).FindElementByClassName("classtest") })
-            {
-                var dataKey = element.GetAttribute("data-key");
-                Assert.AreEqual("1", dataKey);
-            }
-        }
-
-        [Test]
-        public void FindElementByTagName_ShouldReturnFirstElement()
-        {
-            var context = GetDriver().FindElement(By.ClassName("bytest"));
-            foreach (var element in new[] { context.FindElement(By.TagName("tagtest")), ((IFindsByTagName)context).FindElementByTagName("tagtest") })
-            {
-                var dataKey = element.GetAttribute("data-key");
-                Assert.AreEqual("1", dataKey);
-            }
-        }
-
-        [Test]
-        public void FindElementByCssSelector_ShouldReturnFirstElement()
-        {
-            var context = GetDriver().FindElement(By.ClassName("bytest"));
-            foreach (var element in new[] { context.FindElement(By.CssSelector("#idtest[name='nametest']")), ((IFindsByCssSelector)context).FindElementByCssSelector("#idtest[name='nametest']") })
-            {
-                var dataKey = element.GetAttribute("data-key");
-                Assert.AreEqual("1", dataKey);
-            }
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => context.FindElement(By.Id("idtest_no")));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => ((IFindsById)context).FindElementById("idtest_no"));
         }
 
         [Test]
@@ -297,6 +263,27 @@ namespace Test
             }
         }
 
+        //ByName
+
+        [Test]
+        public void FindElementByName_ShouldReturnFirstElement()
+        {
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var element in new[] { context.FindElement(By.Name("nametest")), ((IFindsByName)context).FindElementByName("nametest") })
+            {
+                var dataKey = element.GetAttribute("data-key");
+                Assert.AreEqual("1", dataKey);
+            }
+        }
+
+        [Test]
+        public void FindElementByName_ShouldThrowExceptionWhenElementNotFound()
+        {
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => context.FindElement(By.Name("nametest_no")));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => ((IFindsByName)context).FindElementByName("nametest_no"));
+        }
+
         [Test]
         public void FindElementsByName_ShouldReturnAllElements()
         {
@@ -318,6 +305,27 @@ namespace Test
             {
                 Assert.AreEqual(0, elements.Count);
             }
+        }
+
+        //ByClassName
+
+        [Test]
+        public void FindElementByClassName_ShouldReturnFirstElement()
+        {
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var element in new[] { context.FindElement(By.ClassName("classtest")), ((IFindsByClassName)context).FindElementByClassName("classtest") })
+            {
+                var dataKey = element.GetAttribute("data-key");
+                Assert.AreEqual("1", dataKey);
+            }
+        }
+
+        [Test]
+        public void FindElementByClassName_ShouldThrowExceptionWhenElementNotFound()
+        {
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => context.FindElement(By.ClassName("classtest_no")));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => ((IFindsByClassName)context).FindElementByClassName("classtest_no"));
         }
 
         [Test]
@@ -343,27 +351,25 @@ namespace Test
             }
         }
 
+        //ByTagName
+
         [Test]
-        public void FindElementsByCssSelector_ShouldReturnAllElements()
+        public void FindElementByTagName_ShouldReturnFirstElement()
         {
             var context = GetDriver().FindElement(By.ClassName("bytest"));
-            foreach (var elements in new[] { context.FindElements(By.CssSelector("#idtest[name='nametest']")), ((IFindsByCssSelector)context).FindElementsByCssSelector("#idtest[name='nametest']") })
+            foreach (var element in new[] { context.FindElement(By.TagName("tagtest")), ((IFindsByTagName)context).FindElementByTagName("tagtest") })
             {
-                Assert.AreEqual(3, elements.Count);
-                Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
-                Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
-                Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
+                var dataKey = element.GetAttribute("data-key");
+                Assert.AreEqual("1", dataKey);
             }
         }
 
         [Test]
-        public void FindElementsByCssSelector_ShouldReturnEmptyWhenElementsNotFound()
+        public void FindElementByTagName_ShouldThrowExceptionWhenElementNotFound()
         {
             var context = GetDriver().FindElement(By.ClassName("bytest"));
-            foreach (var elements in new[] { context.FindElements(By.CssSelector("#idtest[name='nametest_no']")), ((IFindsByCssSelector)context).FindElementsByCssSelector("#idtest[name='nametest_no']") })
-            {
-                Assert.AreEqual(0, elements.Count);
-            }
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => context.FindElement(By.TagName("tagtest_no")));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => ((IFindsByTagName)context).FindElementByTagName("tagtest_no"));
         }
 
         [Test]
@@ -387,6 +393,52 @@ namespace Test
                 Assert.AreEqual(0, elements.Count);
             }
         }
+
+        //ByCssSelector
+
+        [Test]
+        public void FindElementByCssSelector_ShouldReturnFirstElement()
+        {
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var element in new[] { context.FindElement(By.CssSelector("#idtest[name='nametest']")), ((IFindsByCssSelector)context).FindElementByCssSelector("#idtest[name='nametest']") })
+            {
+                var dataKey = element.GetAttribute("data-key");
+                Assert.AreEqual("1", dataKey);
+            }
+        }
+
+        [Test]
+        public void FindElementByCssSelector_ShouldThrowExceptionWhenElementNotFound()
+        {
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => context.FindElement(By.CssSelector("#idtest[name='nametest_no']")));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => ((IFindsByCssSelector)context).FindElementByCssSelector("#idtest[name='nametest_no']"));
+        }
+
+        [Test]
+        public void FindElementsByCssSelector_ShouldReturnAllElements()
+        {
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var elements in new[] { context.FindElements(By.CssSelector("#idtest[name='nametest']")), ((IFindsByCssSelector)context).FindElementsByCssSelector("#idtest[name='nametest']") })
+            {
+                Assert.AreEqual(3, elements.Count);
+                Assert.AreEqual("1", elements[0].GetAttribute("data-key"));
+                Assert.AreEqual("2", elements[1].GetAttribute("data-key"));
+                Assert.AreEqual("3", elements[2].GetAttribute("data-key"));
+            }
+        }
+
+        [Test]
+        public void FindElementsByCssSelector_ShouldReturnEmptyWhenElementsNotFound()
+        {
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var elements in new[] { context.FindElements(By.CssSelector("#idtest[name='nametest_no']")), ((IFindsByCssSelector)context).FindElementsByCssSelector("#idtest[name='nametest_no']") })
+            {
+                Assert.AreEqual(0, elements.Count);
+            }
+        }
+
+        //ByXPath
 
         [Test]
         public void FindElementByXPath_ShouldReturnFirstElement()
@@ -428,6 +480,99 @@ namespace Test
                 elements.Count.Is(0);
             }
         }
+
+        //ByLinkText
+
+        [Test]
+        public void FindElementByLinkText_ShouldReturnFirstElement()
+        {
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var element in new[] { context.FindElement(By.LinkText("Transfer to Frame.html")), 
+                ((IFindsByLinkText)context).FindElementByLinkText("Transfer to Frame.html") })
+            {
+                element.GetAttribute("data-key").Is("1");
+            }
+        }
+
+        [Test]
+        public void FindElementByLinkText_ShouldThrowExceptionWhenElementNotFound()
+        {
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => context.FindElement(By.LinkText("No transfer to Frame.html")));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => ((IFindsByLinkText)context).FindElementByLinkText("No transfer to Frame.html"));
+        }
+
+        [Test]
+        public void FindElementsByLinkText_ShouldReturnAllElements()
+        {
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var elements in new[] { context.FindElements(By.LinkText("Transfer to Frame.html")), 
+                ((IFindsByLinkText)context).FindElementsByLinkText("Transfer to Frame.html") })
+            {
+                elements.Count.Is(2);
+                var orderd = elements.Select(e => e.GetAttribute("data-key")).OrderBy(v => v).ToList();
+                orderd[0].Is("1");
+                orderd[1].Is("2");
+            }
+        }
+
+        [Test]
+        public void FindElementsByLinkText_ShouldReturnEmptyWhenElementsNotFound()
+        {
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var elements in new[] { context.FindElements(By.LinkText("No transfer to Frame.html")),
+                ((IFindsByLinkText)context).FindElementsByLinkText("No transfer to Frame.html") })
+            {
+                elements.Count.Is(0);
+            }
+        }
+
+        //ByPartilLinkText
+
+        [Test]
+        public void FindElementByPartialLinkText_ShouldReturnFirstElement()
+        {
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var element in new[] { context.FindElement(By.PartialLinkText("Transfer")),
+                ((IFindsByPartialLinkText)context).FindElementByPartialLinkText("Transfer") })
+            {
+                element.GetAttribute("data-key").Is("1");
+            }
+        }
+
+        [Test]
+        public void FindElementByPartialLinkText_ShouldThrowExceptionWhenElementNotFound()
+        {
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => context.FindElement(By.PartialLinkText("Notransfer")));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => ((IFindsByPartialLinkText)context).FindElementByPartialLinkText("Notransfer"));
+        }
+
+        [Test]
+        public void FindElementByPartialLinkText_ShouldReturnAllElements()
+        {
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var elements in new[] { context.FindElements(By.PartialLinkText("Transfer")),
+                ((IFindsByPartialLinkText)context).FindElementsByPartialLinkText("Transfer") })
+            {
+                elements.Count.Is(2);
+                var orderd = elements.Select(e => e.GetAttribute("data-key")).OrderBy(v => v).ToList();
+                orderd[0].Is("1");
+                orderd[1].Is("2");
+            }
+        }
+
+        [Test]
+        public void FindElementByPartialLinkText_ShouldReturnEmptyWhenElementsNotFound()
+        {
+            var context = GetDriver().FindElement(By.ClassName("bytest"));
+            foreach (var elements in new[] { context.FindElements(By.PartialLinkText("NoTransfer")),
+                ((IFindsByPartialLinkText)context).FindElementsByPartialLinkText("NoTransfer") })
+            {
+                elements.Count.Is(0);
+            }
+        }
+
 
         private void InitAttr()
         {

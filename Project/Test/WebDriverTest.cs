@@ -183,7 +183,7 @@ namespace Test
         }
     }
 
-    public abstract class WebDriverTestBase: CompareTestBase
+    public abstract class WebDriverTestBase : CompareTestBase
     {
         //TODO LinkText, PartialLinkText
 
@@ -205,7 +205,7 @@ namespace Test
             {
                 var dataKey = element.GetAttribute("data-key");
                 Assert.AreEqual("1", dataKey);
-            } 
+            }
         }
 
         [Test]
@@ -369,8 +369,7 @@ namespace Test
         {
             foreach (var element in new[] { GetDriver().FindElement(By.TagName("tagtest")), GetDriver<IFindsByTagName>().FindElementByTagName("tagtest") })
             {
-                var dataKey = element.GetAttribute("data-key");
-                Assert.AreEqual("1", dataKey);
+                element.GetAttribute("data-key").Is("1");
             }
         }
 
@@ -436,6 +435,98 @@ namespace Test
             foreach (var elements in new[] { GetDriver().FindElements(By.XPath("/html/body/div[1]/tagtest_no")), GetDriver<IFindsByXPath>().FindElementsByXPath("/html/body/div[1]/tagtest_no") })
             {
                 Assert.AreEqual(0, elements.Count);
+            }
+        }
+
+        //FindElement(s)ByLinkText
+
+        [Test]
+        public void ShouldGetFirstElementWhenUseFindElementByLinkText()
+        {
+            foreach (var element in new[] {
+                GetDriver().FindElement(By.LinkText("Transfer to Frame.html")),
+                GetDriver<IFindsByLinkText>().FindElementByLinkText("Transfer to Frame.html")})
+            {
+                element.GetAttribute("data-key").Is("1");
+            }
+        }
+
+        [Test]
+        public void ShouldThrowExceptionWhenMissingElementUsedFindElementByLinkText()
+        {
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => GetDriver().FindElement(By.LinkText("No transfer to Frame.html")));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => GetDriver<IFindsByLinkText>().FindElementByLinkText("No transfer to Frame.html"));
+        }
+
+        [Test]
+        public void ShouldGetAllElementWhenUsedFindElementsByLinkText()
+        {
+            foreach (var elements in new[] {
+                GetDriver().FindElements(By.LinkText("Transfer to Frame.html")),
+                GetDriver<IFindsByLinkText>().FindElementsByLinkText("Transfer to Frame.html")})
+            {
+                elements.Count.Is(3);
+                var orderd = elements.Select(e => e.GetAttribute("data-key")).OrderBy(v => v).ToList();
+                orderd[0].Is("1");
+                orderd[1].Is("2");
+                orderd[2].Is("4");
+            }
+        }
+
+        [Test]
+        public void ShouldReturnEmptyWhenMissingElementsUsedByFindElementsByLinkText()
+        {
+            foreach (var elements in new[] {
+                GetDriver().FindElements(By.LinkText("Not transfer to Frame.html")),
+                GetDriver<IFindsByLinkText>().FindElementsByLinkText("Not transfer to Frame.html")})
+            {
+                elements.Count.Is(0);
+            }
+        }
+
+        //FindElement(s)ByPartialLinkText
+
+        [Test]
+        public void ShouldGetFirstElementWhenUseFindElementByPartialLinkText()
+        {
+            foreach (var element in new[] {
+                GetDriver().FindElement(By.PartialLinkText("Frame")),
+                GetDriver<IFindsByPartialLinkText>().FindElementByPartialLinkText("Frame")})
+            {
+                element.GetAttribute("data-key").Is("1");
+            }
+        }
+
+        [Test]
+        public void ShouldThrowExceptionWhenMissingElementUsedFindElementByPartialLinkText()
+        {
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => GetDriver().FindElement(By.PartialLinkText("No Frame")));
+            AssertCompatible.ThrowsException<NoSuchElementException>(() => GetDriver<IFindsByPartialLinkText>().FindElementByPartialLinkText("No Frame"));
+        }
+
+        [Test]
+        public void ShouldGetAllElementWhenUsedFindElementsByPartialLinkText()
+        {
+            foreach (var elements in new[] {
+                GetDriver().FindElements(By.PartialLinkText("Transfer")),
+                GetDriver<IFindsByPartialLinkText>().FindElementsByPartialLinkText("Transfer")})
+            {
+                elements.Count.Is(3);
+                var orderd = elements.Select(e => e.GetAttribute("data-key")).OrderBy(v => v).ToList();
+                orderd[0].Is("1");
+                orderd[1].Is("2");
+                orderd[2].Is("4");
+            }
+        }
+
+        [Test]
+        public void ShouldReturnEmptyWhenMissingElementsUsedByFindElementsByPartialLinkText()
+        {
+            foreach (var elements in new[] {
+                GetDriver().FindElements(By.PartialLinkText("No Frame")),
+                GetDriver<IFindsByPartialLinkText>().FindElementsByPartialLinkText("No Frame")})
+            {
+                elements.Count.Is(0);
             }
         }
 

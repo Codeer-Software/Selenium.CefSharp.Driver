@@ -76,6 +76,11 @@
         </div>
         <tagtest data-key="1"></tagtest>
         <tagtest data-key="2"></tagtest>
+
+        <a href="./Frame.html" data-key="1">Transfer to Frame.html</a>
+        <a href="./Frame.html" data-key="2">Transfer to Frame.html</a>
+        <a href="./Frame.html" data-key="3">Go to Frame.html</a>
+
     </div>
     <div>
         <input id="disabletest" name="xxx" class="yyy" data-key="3" disabled />
@@ -108,7 +113,6 @@
     <div class="attr-test">
         <input id="attrTestInput" foo="fooattr" value="init" />
     </div>
-
     <script>
         function clickJS() {
             document.getElementById("textBoxName").value = "JS";
@@ -133,5 +137,6 @@
             window.keylog.push(key);
         });
     </script>
+    <a href="./Frame.html" data-key="4">Transfer to Frame.html</a>
 </body>
 </html>
