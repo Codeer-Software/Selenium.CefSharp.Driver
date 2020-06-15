@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using Codeer.Friendly.Windows.KeyMouse;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions.Internal;
 using OpenQA.Selenium.Internal;
 using System;
@@ -90,6 +91,16 @@ namespace Selenium.CefSharp.Driver
 
         public void SendKeys(string text)
         {
+            if (_frame.CefSharpDriver.FileDetector.IsFile(text))
+            {
+                Click();
+
+                //TODO wait for next dialog.
+
+                _frame.App.SendKeys(text);
+                _frame.App.SendKey(System.Windows.Forms.Keys.Enter);
+                return;
+            }
             JavaScriptExecutor.ExecuteScript(JS.Focus(Id));
             CotnrolAccessor.SendKeys(text);
         }

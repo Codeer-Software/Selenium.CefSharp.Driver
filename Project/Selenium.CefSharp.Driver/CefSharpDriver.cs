@@ -11,9 +11,78 @@ using System.Collections.ObjectModel;
 using Codeer.Friendly.Dynamic;
 using System.Linq;
 using Selenium.CefSharp.Driver.InTarget;
+using OpenQA.Selenium.Interactions.Internal;
+using System.Collections.Generic;
+using OpenQA.Selenium.Interactions;
+using System.Collections;
 
 namespace Selenium.CefSharp.Driver
 {
+#pragma warning disable CS0618
+    class Keyboard : IKeyboard
+#pragma warning restore CS0618
+    {
+        public void PressKey(string keyToPress)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReleaseKey(string keyToRelease)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SendKeys(string keySequence)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+#pragma warning disable CS0618
+    class Mouse : IMouse
+#pragma warning restore CS0618
+    {
+        public void Click(ICoordinates where)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ContextClick(ICoordinates where)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DoubleClick(ICoordinates where)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void MouseDown(ICoordinates where)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void MouseMove(ICoordinates where)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void MouseMove(ICoordinates where, int offsetX, int offsetY)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void MouseUp(ICoordinates where)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class DefaultFileDetector : IFileDetector
+    {
+        public bool IsFile(string keySequence) => false;
+    }
+
     [ControlDriver(TypeFullName = "CefSharp.Wpf.ChromiumWebBrowser|CefSharp.WinForms.ChromiumWebBrowser")]
     public class CefSharpDriver :
         IWebDriver,
@@ -29,6 +98,11 @@ namespace Selenium.CefSharp.Driver
         IHasApplicationCache,
         IHasWebStorage,
         ITakesScreenshot,
+#pragma warning disable CS0618
+        IHasInputDevices,
+#pragma warning restore CS0618
+        IAllowsFileDetection,
+        IActionExecutor,
         IAppVarOwner,
         IUIObject
     {
@@ -42,6 +116,18 @@ namespace Selenium.CefSharp.Driver
         public AppVar AppVar => ChromiumWebBrowser.AppVar;
 
         public Size Size => ChromiumWebBrowser.Size;
+
+#pragma warning disable CS0618
+        public IKeyboard Keyboard => new Keyboard();
+#pragma warning restore CS0618
+
+#pragma warning disable CS0618
+        public IMouse Mouse => new Mouse();
+#pragma warning restore CS0618
+
+        public bool IsActionExecutor => true;
+
+        public IFileDetector FileDetector { get; set; } = new DefaultFileDetector();
 
         public string Url
         {
@@ -127,6 +213,10 @@ namespace Selenium.CefSharp.Driver
         public IWebElement FindElementByPartialLinkText(string partialLinkText) => FindElement(By.PartialLinkText(partialLinkText));
 
         public ReadOnlyCollection<IWebElement> FindElementsByPartialLinkText(string partialLinkText) => FindElements(By.PartialLinkText(partialLinkText));
+
+        public void PerformActions(IList<ActionSequence> actionSequenceList) => ActionsAnalyzer.PerformActions(this, actionSequenceList);
+
+        public void ResetInputState() { }
 
         class Navigation : INavigation
         {

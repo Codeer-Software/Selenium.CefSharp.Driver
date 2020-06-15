@@ -13,6 +13,9 @@ namespace Selenium.CefSharp.Driver.InTarget
         public T GetProperty<T>(string name)
             => (T)Object.GetType().GetProperty(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetValue(Object, new object[0]);
 
+        public T GetField<T>(string name)
+            => (T)Object.GetType().GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetValue(Object);
+
         public T InvokeMethod<T>(string name, params object[] args)
              => (T)Object.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Invoke(Object, args);
 

@@ -136,25 +136,25 @@ namespace Test
 
             var wait = new WebDriverWait(GetDriver(), new System.TimeSpan(10000));
 
-#pragma warning disable CS0618 // 型またはメンバーが旧型式です
+#pragma warning disable CS0618
             var alert = wait.Until(ExpectedConditions.AlertIsPresent());
-#pragma warning restore CS0618 // 型またはメンバーが旧型式です
+#pragma warning restore CS0618
             alert.Text.Is("test");
             alert.Accept();
 
             GetDriver().FindElement(By.Id("confirmJS")).Click();
 
-#pragma warning disable CS0618 // 型またはメンバーが旧型式です
+#pragma warning disable CS0618
             var confirm = wait.Until(ExpectedConditions.AlertIsPresent());
-#pragma warning restore CS0618 // 型またはメンバーが旧型式です
+#pragma warning restore CS0618
             confirm.Text.Is("test");
             confirm.Dismiss();
 
             GetDriver().FindElement(By.Id("promptJS")).Click();
 
-#pragma warning disable CS0618 // 型またはメンバーが旧型式です
+#pragma warning disable CS0618
             var prompt = wait.Until(ExpectedConditions.AlertIsPresent());
-#pragma warning restore CS0618 // 型またはメンバーが旧型式です
+#pragma warning restore CS0618
             prompt.SendKeys("abc");
             prompt.Accept();
         }

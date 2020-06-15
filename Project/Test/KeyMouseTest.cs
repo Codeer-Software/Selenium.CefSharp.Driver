@@ -7,6 +7,8 @@ using OpenQA.Selenium.Chrome;
 using System.Collections.Generic;
 using Codeer.Friendly.Windows.KeyMouse;
 using NUnit.Framework;
+using OpenQA.Selenium.Interactions;
+using OpenQA.Selenium.Remote;
 
 namespace Test
 {
@@ -365,6 +367,68 @@ namespace Test
                 "Control[control][shift][alt]",
                 "g[control][shift][alt]"  ,
             });
+        }
+
+        [Test]
+        public void Action()
+        {
+            var driver = GetDriver();
+
+            var element = driver.FindElement(By.Id("checkBoxCellPhone"));
+            var onElement = driver.FindElement(By.Id("keyTest"));
+            var source = driver.FindElement(By.Id("textBoxName"));
+            var target = driver.FindElement(By.Id("radioMan"));
+            var toElement = driver.FindElement(By.Id("radioWoman"));
+
+            var a = new Actions(driver);
+
+            /*
+            a.Click();
+            a.Click(onElement);
+            a.ClickAndHold(onElement);
+            a.ClickAndHold();
+            a.ContextClick();
+            a.ContextClick(onElement);
+            a.DoubleClick();
+            a.DoubleClick(onElement);
+            a.DragAndDrop(source, target);
+            a.DragAndDropToOffset(source, 1, 2);
+            a.KeyDown(element, Keys.Control);
+            a.KeyDown(Keys.Shift);
+            a.KeyUp(element, Keys.Control);
+            a.KeyUp(Keys.Shift);
+            a.MoveByOffset(3, 4);
+            a.MoveToElement(toElement);
+            a.MoveToElement(toElement, 5, 6);
+            a.MoveToElement(toElement, 7, 8, MoveToElementOffsetOrigin.Center);
+            a.Release(onElement);
+            a.Release();
+            a.SendKeys(element, "abc");
+            a.SendKeys("efg");
+            */
+            a.MoveByOffset(3, 4);
+            a.MoveToElement(toElement);
+            a.MoveToElement(toElement, 50, 60);
+            a.MoveToElement(toElement, 7, 8, MoveToElementOffsetOrigin.Center);
+
+            a.Build();
+            a.Perform();
+        }
+
+        [Test]
+        public void FileDetectorSendKeys()
+        {
+            var driver = GetDriver();
+            ((IAllowsFileDetection)driver).FileDetector = new LocalFileDetector();
+            var e = driver.FindElement(By.Id("file"));
+
+            var dir = GetType().Assembly.Location;
+            for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
+            var path = Path.Combine(dir, @"Test\favicon.ico");
+
+            e.SendKeys(path);
+            var result = e.GetAttribute("value");
+            result.Contains("favicon.ico");
         }
 
         string[] PopKeyLog()
