@@ -46,13 +46,17 @@ namespace Selenium.CefSharp.Driver
         public string Url
         {
             get => _mainFrame.Url;
-            set => _mainFrame.Url = value;
+            set
+            {
+                _mainFrame.Url = value;
+                _currentFrame = _mainFrame;
+            }
         }
 
         public CefSharpDriver(AppVar appVar)
         {
             ChromiumWebBrowser = new ChromiumWebBrowserDriver(appVar);
-            _mainFrame =  _currentFrame = new CefSharpFrameDriver(this, null, ChromiumWebBrowser.GetMainFrame(), new IWebElement[0]);
+            _mainFrame =  _currentFrame = new CefSharpFrameDriver(this, null, () => (AppVar)ChromiumWebBrowser.GetMainFrame(), new IWebElement[0]);
             ChromiumWebBrowser.WaitForLoading();
         }
 
@@ -133,12 +137,14 @@ namespace Selenium.CefSharp.Driver
             public void Back()
             {
                 _this._mainFrame.ExecuteScript("window.history.back();");
+                _this._currentFrame = _this._mainFrame;
                 _this.ChromiumWebBrowser.WaitForLoading();
             }
 
             public void Forward()
             {
                 _this._mainFrame.ExecuteScript("window.history.forward();");
+                _this._currentFrame = _this._mainFrame;
                 _this.ChromiumWebBrowser.WaitForLoading();
             }
 
@@ -149,6 +155,7 @@ namespace Selenium.CefSharp.Driver
             public void Refresh()
             {
                 _this._mainFrame.ExecuteScript("window.location.reload();");
+                _this._currentFrame = _this._mainFrame;
                 _this.ChromiumWebBrowser.WaitForLoading();
             }
         }
@@ -179,7 +186,9 @@ namespace Selenium.CefSharp.Driver
                 {
                     throw new NotFoundException("Frame was not found.");
                 }
-                _this._currentFrame = new CefSharpFrameDriver(_this, _this._currentFrame, frame, _this._currentFrame.FrameElements.Concat(new []{ frameElement }).ToArray());
+                _this._currentFrame = new CefSharpFrameDriver(_this, _this._currentFrame, 
+                    () => (AppVar)frame, 
+                    _this._currentFrame.FrameElements.Concat(new []{ frameElement }).ToArray());
                 return _this;
             }
 

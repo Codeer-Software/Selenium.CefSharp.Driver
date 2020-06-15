@@ -3,6 +3,7 @@ using Codeer.Friendly.Dynamic;
 using Codeer.Friendly.Windows;
 using Codeer.Friendly.Windows.Grasp;
 using OpenQA.Selenium;
+using System;
 using System.Drawing;
 using System.Linq;
 
@@ -14,12 +15,13 @@ namespace Selenium.CefSharp.Driver
         IJavaScriptExecutor,
         IJavaScriptExecutorCefFunctions
     {
-        IJavaScriptExecutor _javaScriptExecutor;
+        readonly IJavaScriptExecutor _javaScriptExecutor;
+        readonly Func<AppVar> _frameGetter;
         readonly CotnrolAccessor _cotnrolAccessor;
 
         public WindowsAppFriend App => (WindowsAppFriend)AppVar.App;
 
-        public AppVar AppVar { get; }
+        public AppVar AppVar => _frameGetter();
 
         public dynamic Frame => this.Dynamic();
 
@@ -45,12 +47,12 @@ namespace Selenium.CefSharp.Driver
 
         internal string Title => (string)ExecuteScript("return document.title;");
 
-        internal CefSharpFrameDriver(CefSharpDriver rootDriver, CefSharpFrameDriver parentFrame, AppVar frame, IWebElement[] frameElement)
+        internal CefSharpFrameDriver(CefSharpDriver rootDriver, CefSharpFrameDriver parentFrame, Func<AppVar> frameGetter, IWebElement[] frameElement)
         {
             ParentFrame = parentFrame;
             _javaScriptExecutor = new CefSharpJavaScriptExecutor(this);
             CefSharpDriver = rootDriver;
-            AppVar = frame;
+            _frameGetter = frameGetter;
             FrameElements = frameElement;
             _cotnrolAccessor = new CotnrolAccessor(this);
         }

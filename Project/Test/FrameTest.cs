@@ -128,7 +128,9 @@ namespace Test
             var url = driver.Url;
 
             driver.Navigate().GoToUrl("https://github.com/Codeer-Software/Selenium.CefSharp.Driver");
+            driver.Url = this.GetHtmlUrl();
 
+            var y = driver.FindElement(By.Id("frameInput1"));
             /*
             driver.SwitchTo().ParentFrame();
             driver.FindElement(By.Id("frameInput1")).SendKeys("abc");
