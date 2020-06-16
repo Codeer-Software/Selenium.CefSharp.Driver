@@ -10,12 +10,12 @@ using Selenium.CefSharp.Driver.InTarget;
 
 namespace Selenium.CefSharp.Driver.Inside
 {
-    class JavaScriptExecutor : IJavaScriptExecutor
+    class JavaScriptAdaptor
     {
-        IJavaScriptExecutorCefFunctions _cef;
+        CefSharpFrameDriver _frame;
 
-        internal JavaScriptExecutor(IJavaScriptExecutorCefFunctions cef)
-            => _cef = cef;
+        internal JavaScriptAdaptor(CefSharpFrameDriver frame)
+            => _frame = frame;
 
         public object ExecuteScript(string script, params object[] args)
         {
@@ -33,7 +33,7 @@ namespace Selenium.CefSharp.Driver.Inside
 
         dynamic ExecuteScriptInternal(string script, params object[] args)
         {
-            _cef.WaitForLoading();
+            _frame.WaitForLoading();
             dynamic initializeResult = ExecuteScriptCore(JS.Initialize);
 
             dynamic execResult = ExecuteScriptCore(script, args);
@@ -49,34 +49,34 @@ namespace Selenium.CefSharp.Driver.Inside
                 }
                 throw new WebDriverException(errorMessage);
             }
-            return _cef.App.Type<JSResultConverter>().ConvertToSelializable(execResult.Result);
+            return _frame.App.Type<JSResultConverter>().ConvertToSelializable(execResult.Result);
         }
 
         dynamic ExecuteScriptCore(string src, params object[] args)
-            => _cef.Frame.EvaluateScriptAsync(ConvertCefSharpScript(src, args), "about:blank", 1, null).Result;
+            => _frame.Dynamic().EvaluateScriptAsync(ConvertCefSharpScript(src, args), "about:blank", 1, null).Result;
 
         dynamic ExecuteScriptAsyncInternal(string script, params object[] args)
         {
-            _cef.WaitForLoading();
+            _frame.WaitForLoading();
             ExecuteScriptCore(JS.Initialize);
 
-            var callbackObj = _cef.App.Type<AsyncResultBoundObject>()();
+            var callbackObj = _frame.App.Type<AsyncResultBoundObject>()();
             var scriptId = $"_cefsharp_script_{Guid.NewGuid():N}";
-            var BindingOptions = _cef.App.Type("CefSharp.BindingOptions");
+            var BindingOptions = _frame.App.Type("CefSharp.BindingOptions");
 
-            _cef.JavascriptObjectRepository.Register(scriptId, callbackObj, true, BindingOptions.DefaultBinder);
+            _frame.JavascriptObjectRepository.Dynamic().Register(scriptId, callbackObj, true, BindingOptions.DefaultBinder);
             ExecuteScriptAsyncCore(scriptId, script, args);
             while (!(bool)callbackObj.IsCompleted)
             {
                 Thread.Sleep(10);
             }
 
-            _cef.JavascriptObjectRepository.UnRegister(scriptId);
+            _frame.JavascriptObjectRepository.Dynamic().UnRegister(scriptId);
             return callbackObj.Value;
         }
 
         dynamic ExecuteScriptAsyncCore(string scriptId, string src, params object[] args)
-            => _cef.Frame.EvaluateScriptAsync(ConvertCefSharpAsyncScript(scriptId, src, args), "about:blank", 1, null).Result;
+            => _frame.Dynamic().EvaluateScriptAsync(ConvertCefSharpAsyncScript(scriptId, src, args), "about:blank", 1, null).Result;
 
         string ConvertCefSharpScript(string script, object[] args)
             => $"(function() {{ const result = (function() {{ {script} }})({ConvertScriptParameters(args)}); \r\n return {ConvertResultInJavaScriptString} }})();";
@@ -165,7 +165,7 @@ return val;
                 {
                     if (int.TryParse(stringValue.Substring(HtmlElementEntryIdStringPrefix.Length), out var val))
                     {
-                        return _cef.CreateWebElement(val);
+                        return _frame.CreateWebElement(val);
                     }
                 }
                 if (stringValue.StartsWith(HtmlElementEntryIdListStringPrefix))
@@ -174,7 +174,7 @@ return val;
                     if (ids.Select(id => id.Trim()).All(id => int.TryParse(id, out _)))
                     {
                         return new ReadOnlyCollection<IWebElement>(
-                            ids.Select(id => int.Parse(id)).Select(id => (IWebElement)_cef.CreateWebElement(id)).ToList());
+                            ids.Select(id => int.Parse(id)).Select(id => (IWebElement)_frame.CreateWebElement(id)).ToList());
                     }
                 }
             }

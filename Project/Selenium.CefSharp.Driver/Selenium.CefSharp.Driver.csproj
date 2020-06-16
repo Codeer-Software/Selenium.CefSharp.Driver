@@ -76,7 +76,7 @@
     <Compile Include="Inside\ApplicationCache.cs" />
     <Compile Include="Inside\CefSharpFrameDriver.cs" />
     <Compile Include="CefSharpDriver.cs" />
-    <Compile Include="Inside\JavaScriptExecutor.cs" />
+    <Compile Include="Inside\JavaScriptAdaptor.cs" />
     <Compile Include="Inside\Storag.cs" />
     <Compile Include="CefSharpWebElement.cs" />
     <Compile Include="Inside\WebStorage.cs" />
@@ -86,7 +86,6 @@
     <Compile Include="Inside\CotnrolAccessor.cs" />
     <Compile Include="Inside\ElementFinder.cs" />
     <Compile Include="Inside\ICefSharpBrowser.cs" />
-    <Compile Include="Inside\IJavaScriptExecutorCefFunctions.cs" />
     <Compile Include="Inside\JS.cs" />
     <Compile Include="Inside\JsUtils.cs" />
     <Compile Include="Inside\KeySpec.cs" />

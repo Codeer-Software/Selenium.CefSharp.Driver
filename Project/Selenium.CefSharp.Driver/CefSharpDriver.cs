@@ -43,16 +43,15 @@ namespace Selenium.CefSharp.Driver
         IUIObject
     {
         ChromiumWebBrowserDriver _chromiumWebBrowser;
+        dynamic _windowManager;
 
         internal ICefSharpBrowser CurrentBrowser { get; set; }
-
-        dynamic _windowManager;
 
         public WindowsAppFriend App { get; }
 
         public AppVar AppVar { get; }
 
-        public dynamic JavascriptObjectRepository => _chromiumWebBrowser.JavascriptObjectRepository;
+        public AppVar JavascriptObjectRepository => _chromiumWebBrowser.JavascriptObjectRepository;
 
         public Size Size => CurrentBrowser.Size;
 

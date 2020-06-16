@@ -12,10 +12,9 @@ namespace Selenium.CefSharp.Driver.Inside
     class CefSharpFrameDriver :
         IAppVarOwner,
         IUIObject,
-        IJavaScriptExecutor,
-        IJavaScriptExecutorCefFunctions
+        IJavaScriptExecutor
     {
-        readonly IJavaScriptExecutor _javaScriptExecutor;
+        readonly JavaScriptAdaptor _javaScriptAdaptor;
         readonly Func<AppVar> _frameGetter;
         readonly CotnrolAccessor _cotnrolAccessor;
 
@@ -23,9 +22,7 @@ namespace Selenium.CefSharp.Driver.Inside
 
         public AppVar AppVar => _frameGetter();
 
-        public dynamic Frame => this.Dynamic();
-
-        public dynamic JavascriptObjectRepository => CefSharpDriver.JavascriptObjectRepository;
+        public AppVar JavascriptObjectRepository => CefSharpDriver.JavascriptObjectRepository;
 
         public Size Size => FrameElements.Any() ? FrameElements.Last().Size : CefSharpDriver.CurrentBrowser.Size;
 
@@ -47,19 +44,19 @@ namespace Selenium.CefSharp.Driver.Inside
 
         internal string Title => (string)ExecuteScript("return document.title;");
 
-        internal CefSharpFrameDriver(CefSharpDriver rootDriver, CefSharpFrameDriver parentFrame, Func<AppVar> frameGetter, IWebElement[] frameElement)
+        internal CefSharpFrameDriver(CefSharpDriver cefSharpDriver, CefSharpFrameDriver parentFrame, Func<AppVar> frameGetter, IWebElement[] frameElement)
         {
             ParentFrame = parentFrame;
-            _javaScriptExecutor = new JavaScriptExecutor(this);
-            CefSharpDriver = rootDriver;
+            _javaScriptAdaptor = new JavaScriptAdaptor(this);
+            CefSharpDriver = cefSharpDriver;
             _frameGetter = frameGetter;
             FrameElements = frameElement;
             _cotnrolAccessor = new CotnrolAccessor(this);
         }
 
-        public object ExecuteScript(string script, params object[] args) => _javaScriptExecutor.ExecuteScript(script, args);
+        public object ExecuteScript(string script, params object[] args) => _javaScriptAdaptor.ExecuteScript(script, args);
 
-        public object ExecuteAsyncScript(string script, params object[] args) => _javaScriptExecutor.ExecuteAsyncScript(script, args);
+        public object ExecuteAsyncScript(string script, params object[] args) => _javaScriptAdaptor.ExecuteAsyncScript(script, args);
 
         public void WaitForLoading() => CefSharpDriver.CurrentBrowser.WaitForLoading();
 
