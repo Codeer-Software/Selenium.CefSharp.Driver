@@ -60,13 +60,23 @@ namespace Selenium.CefSharp.Driver
         public void Accept()
         {
             if (_ok == null) return;
-            _ok.Click();
+
+            while (_ok.IsWindow())
+            {
+                _ok.Activate();
+                _ok.Click();
+            }
         }
 
         public void Dismiss()
         {
             if (_cancel == null) return;
-            _cancel.Click();
+
+            while (_cancel.IsWindow())
+            {
+                _cancel.Activate();
+                _cancel.Click();
+            }
         }
 
         public void SendKeys(string keysToSend)
