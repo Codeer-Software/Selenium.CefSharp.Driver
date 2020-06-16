@@ -7,18 +7,23 @@ using System.Threading;
 using Selenium.CefSharp.Driver.InTarget;
 using Codeer.Friendly.DotNetExecutor;
 using System.Drawing;
+using OpenQA.Selenium;
 
 namespace Selenium.CefSharp.Driver
 {
     class ChromiumWebBrowserDriver :
         IAppVarOwner,
-        IUIObject
+        ICefSharpBrowser
     {
         readonly dynamic _webBrowserExtensions;
 
         public WindowsAppFriend App => (WindowsAppFriend)AppVar.App;
 
         public AppVar AppVar { get; }
+
+        public CefSharpFrameDriver MainFrame { get; }
+
+        public CefSharpFrameDriver CurrentFrame { get; set; }
 
         public Size Size
         {
@@ -29,7 +34,7 @@ namespace Selenium.CefSharp.Driver
                     var size = this.Dynamic().RenderSize;
                     return new Size((int)(double)size.Width, (int)(double)size.Height);
                 }
-                return new WindowControl(AppVar).Size;
+                return new WindowControl(this.AppVar).Size;
             }
         }
 
@@ -45,14 +50,7 @@ namespace Selenium.CefSharp.Driver
             }
         }
 
-        internal ChromiumWebBrowserDriver(AppVar appVar)
-        {
-            AppVar = appVar;
-            App.LoadAssembly(typeof(JSResultConverter).Assembly);
-            _webBrowserExtensions = App.Type("CefSharp.WebBrowserExtensions");
-        }
-
-        public void Dispose() => AppVar.Dispose();
+        public AppVar BrowserCore => this.Dynamic().GetBrowser();
 
         public Point PointToScreen(Point clientPoint)
         {
@@ -75,12 +73,12 @@ namespace Selenium.CefSharp.Driver
             else
             {
                 //WinForms
-                new WindowControl(AppVar).Activate();
+                new WindowControl(this.AppVar).Activate();
             }
             this.Dynamic().Focus();
         }
 
-        internal void WaitForLoading()
+        public void WaitForLoading()
         {
             while ((bool)this.Dynamic().IsLoading)
             {
@@ -88,10 +86,39 @@ namespace Selenium.CefSharp.Driver
             }
         }
 
+        internal ChromiumWebBrowserDriver(CefSharpDriver driver)
+        {
+            AppVar = driver.AppVar;
+            App.LoadAssembly(typeof(JSResultConverter).Assembly);
+            _webBrowserExtensions = App.Type("CefSharp.WebBrowserExtensions");
+
+            MainFrame = CurrentFrame = new CefSharpFrameDriver(driver, null, () => (AppVar)GetMainFrame(), new IWebElement[0]);
+
+        }
+
         internal dynamic GetMainFrame() => _webBrowserExtensions.GetMainFrame(this);
 
         internal void ShowDevTools() => _webBrowserExtensions.ShowDevTools(this);
 
+        public void Close()
+        {
+            WindowControl window = null;
+            if (IsWPF)
+            {
+                IntPtr handle = App.Type("System.Windows.Interop.HwndSource").FromVisual(this).Handle;
+                new WindowControl(App, handle).Close();
+            }
+            else
+            {
+                window = new WindowControl(AppVar);
+                while (window.ParentWindow != null) window = window.ParentWindow;
+            }
+            window.Close();
+
+        }
+
         internal dynamic JavascriptObjectRepository => this.Dynamic().JavascriptObjectRepository;
+
+        public IntPtr WindowHandle => IntPtr.Zero;
     }
 }

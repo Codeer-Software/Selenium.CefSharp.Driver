@@ -25,9 +25,9 @@ namespace Selenium.CefSharp.Driver
 
         public dynamic Frame => this.Dynamic();
 
-        public dynamic JavascriptObjectRepository => CefSharpDriver.ChromiumWebBrowser.JavascriptObjectRepository;
+        public dynamic JavascriptObjectRepository => CefSharpDriver.JavascriptObjectRepository;
 
-        public Size Size => FrameElements.Any() ? FrameElements.Last().Size : CefSharpDriver.ChromiumWebBrowser.Size;
+        public Size Size => FrameElements.Any() ? FrameElements.Last().Size : CefSharpDriver.CurrentBrowser.Size;
 
         internal string Url
         {
@@ -61,7 +61,7 @@ namespace Selenium.CefSharp.Driver
 
         public object ExecuteAsyncScript(string script, params object[] args) => _javaScriptExecutor.ExecuteAsyncScript(script, args);
 
-        public void WaitForLoading() => CefSharpDriver.ChromiumWebBrowser.WaitForLoading();
+        public void WaitForLoading() => CefSharpDriver.CurrentBrowser.WaitForLoading();
 
         public Point PointToScreen(Point clientPoint)
         {
@@ -71,10 +71,10 @@ namespace Selenium.CefSharp.Driver
                 offset.Offset(e.Location);
             }
             clientPoint.Offset(offset);
-            return CefSharpDriver.ChromiumWebBrowser.PointToScreen(clientPoint);
+            return CefSharpDriver.CurrentBrowser.PointToScreen(clientPoint);
         }
 
-        public void Activate() => CefSharpDriver.ChromiumWebBrowser.Activate();
+        public void Activate() => CefSharpDriver.CurrentBrowser.Activate();
 
         public IWebElement CreateWebElement(int id) => new CefSharpWebElement(this, _cotnrolAccessor, id);
 

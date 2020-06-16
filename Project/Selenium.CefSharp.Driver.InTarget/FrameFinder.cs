@@ -6,18 +6,29 @@ namespace Selenium.CefSharp.Driver.InTarget
 {
     public class FrameFinder
     {
-        public static object FindFrame(object chromiumWebBrowser, object parentFrame, List<string> frameNames, int childIndex)
+        public static object FindFrame(object browser, object parentFrame, List<string> frameNames, int childIndex)
         {
             if (childIndex < 0) return null;
-            var children = GetChildren(chromiumWebBrowser, parentFrame, frameNames);
+            var children = GetChildren(browser, parentFrame, frameNames);
             if (children.Length <= childIndex) return null;
             return children[childIndex];
         }
 
-        static object[] GetChildren(object chromiumWebBrowser, object parentFrame, List<string> frameNames)
+        public static object GetMainFrame(object browser)
         {
-            var webBrowserAcs = new ReflectionAccessor(chromiumWebBrowser);
-            var browserAcs = new ReflectionAccessor(webBrowserAcs.InvokeMethod<object>("GetBrowser"));
+            var browserAcs = new ReflectionAccessor(browser);
+
+            foreach (var e in browserAcs.InvokeMethod<IEnumerable>("GetFrameIdentifiers"))
+            {
+                var frame = browserAcs.InvokeMethodByType<object>("GetFrame", e);
+                var frameAcs = new ReflectionAccessor(frame);
+                if (frameAcs.GetProperty<bool>("IsMain")) return frame;
+            }
+            return null;
+        }
+        static object[] GetChildren(object browser, object parentFrame, List<string> frameNames)
+        {
+            var browserAcs = new ReflectionAccessor(browser);
 
             var allFrames = new List<object>();
             foreach (var e in browserAcs.InvokeMethod<IEnumerable>("GetFrameIdentifiers"))

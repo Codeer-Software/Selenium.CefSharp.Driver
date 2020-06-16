@@ -36,7 +36,7 @@ namespace Selenium.CefSharp.Driver
 
                 var sb = new StringBuilder(1024);
                 GetWindowText(hwnd, sb, 1024);
-                if (sb.ToString().Contains(url))
+                if (sb.ToString().IndexOf("JavaScript") == 0)
                 {
                     handles.Add(hwnd);
                 }

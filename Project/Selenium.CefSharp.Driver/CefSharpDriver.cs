@@ -14,6 +14,7 @@ using Selenium.CefSharp.Driver.InTarget;
 using OpenQA.Selenium.Interactions.Internal;
 using System.Collections.Generic;
 using OpenQA.Selenium.Interactions;
+using System.Diagnostics;
 
 namespace Selenium.CefSharp.Driver
 {
@@ -40,16 +41,19 @@ namespace Selenium.CefSharp.Driver
         IAppVarOwner,
         IUIObject
     {
-        CefSharpFrameDriver _currentFrame;
-        CefSharpFrameDriver _mainFrame;
+        ChromiumWebBrowserDriver _chromiumWebBrowser;
 
-        internal ChromiumWebBrowserDriver ChromiumWebBrowser { get; }
+        internal ICefSharpBrowser CurrentBrowser { get; set; }
 
-        public WindowsAppFriend App => ChromiumWebBrowser.App;
+        dynamic _windowManager;
 
-        public AppVar AppVar => ChromiumWebBrowser.AppVar;
+        public WindowsAppFriend App { get; }
 
-        public Size Size => ChromiumWebBrowser.Size;
+        public AppVar AppVar { get; }
+
+        public dynamic JavascriptObjectRepository => _chromiumWebBrowser.JavascriptObjectRepository;
+
+        public Size Size => CurrentBrowser.Size;
 
 #pragma warning disable CS0618
         public IKeyboard Keyboard => new ObsoleteKeyboard();
@@ -65,38 +69,48 @@ namespace Selenium.CefSharp.Driver
 
         public string Url
         {
-            get => _mainFrame.Url;
+            get => CurrentBrowser.MainFrame.Url;
             set
             {
-                _mainFrame.Url = value;
-                _currentFrame = _mainFrame;
+                CurrentBrowser.MainFrame.Url = value;
+                CurrentBrowser.CurrentFrame = CurrentBrowser.MainFrame;
             }
         }
 
+        internal void WaitForLoading() => CurrentBrowser.WaitForLoading();
+
         public CefSharpDriver(AppVar appVar)
         {
-            ChromiumWebBrowser = new ChromiumWebBrowserDriver(appVar);
-            _mainFrame =  _currentFrame = new CefSharpFrameDriver(this, null, () => (AppVar)ChromiumWebBrowser.GetMainFrame(), new IWebElement[0]);
-            ChromiumWebBrowser.WaitForLoading();
+            AppVar = appVar;
+            App = (WindowsAppFriend)appVar.App;
+            _chromiumWebBrowser = new ChromiumWebBrowserDriver(this);
+            CurrentBrowser = _chromiumWebBrowser;
+
+            AppVar mgr = appVar.App.Type<CefSharpWindowManagerFactory>().InstallCefSharpWindowManager(this);
+            if (!mgr.IsNull) _windowManager = mgr.Dynamic();
+
+            CurrentBrowser.WaitForLoading();
         }
 
         public void Dispose() => AppVar.Dispose();
+
+        public void Close() => CurrentBrowser.Close();
+
+        public void Quit() => Process.GetProcessById(App.ProcessId).Kill();
 
         public ITargetLocator SwitchTo() => new TargetLocator(this);
 
         public INavigation Navigate() => new Navigation(this);
 
-        public Point PointToScreen(Point clientPoint) => _currentFrame.PointToScreen(clientPoint);
+        public Point PointToScreen(Point clientPoint) => CurrentBrowser.PointToScreen(clientPoint);
 
-        public void ShowDevTools() => ChromiumWebBrowser.ShowDevTools();
+        public void ShowDevTools() => _chromiumWebBrowser.ShowDevTools();
 
-        public void Activate() => _currentFrame.Activate();
+        public void Activate() => CurrentBrowser.Activate();
 
-        public IWebElement CreateWebElement(int id) => _currentFrame.CreateWebElement(id);
+        public Screenshot GetScreenshot() => CurrentBrowser.CurrentFrame.GetScreenshot();
 
-        public Screenshot GetScreenshot() => _currentFrame.GetScreenshot();
-
-        public string Title => _currentFrame.Title;
+        public string Title => CurrentBrowser.CurrentFrame.Title;
 
         public bool HasApplicationCache => true;
 
@@ -112,9 +126,9 @@ namespace Selenium.CefSharp.Driver
 
         public ReadOnlyCollection<IWebElement> FindElements(By by) => ElementFinder.FindElementsFromDocument(this, by);
 
-        public object ExecuteScript(string script, params object[] args) => _currentFrame.ExecuteScript(script, args);
+        public object ExecuteScript(string script, params object[] args) => CurrentBrowser.CurrentFrame.ExecuteScript(script, args);
 
-        public object ExecuteAsyncScript(string script, params object[] args) => _currentFrame.ExecuteAsyncScript(script, args);
+        public object ExecuteAsyncScript(string script, params object[] args) => CurrentBrowser.CurrentFrame.ExecuteAsyncScript(script, args);
 
         public IWebElement FindElementById(string id) => FindElement(By.Id(id));
 
@@ -160,16 +174,16 @@ namespace Selenium.CefSharp.Driver
 
             public void Back()
             {
-                _this._mainFrame.ExecuteScript("window.history.back();");
-                _this._currentFrame = _this._mainFrame;
-                _this.ChromiumWebBrowser.WaitForLoading();
+                _this.CurrentBrowser.MainFrame.ExecuteScript("window.history.back();");
+                _this.CurrentBrowser.CurrentFrame = _this.CurrentBrowser.MainFrame;
+                _this.CurrentBrowser.WaitForLoading();
             }
 
             public void Forward()
             {
-                _this._mainFrame.ExecuteScript("window.history.forward();");
-                _this._currentFrame = _this._mainFrame;
-                _this.ChromiumWebBrowser.WaitForLoading();
+                _this.CurrentBrowser.MainFrame.ExecuteScript("window.history.forward();");
+                _this.CurrentBrowser.CurrentFrame = _this.CurrentBrowser.MainFrame;
+                _this.CurrentBrowser.WaitForLoading();
             }
 
             public void GoToUrl(string url) => _this.Url = url;
@@ -178,9 +192,9 @@ namespace Selenium.CefSharp.Driver
 
             public void Refresh()
             {
-                _this._mainFrame.ExecuteScript("window.location.reload();");
-                _this._currentFrame = _this._mainFrame;
-                _this.ChromiumWebBrowser.WaitForLoading();
+                _this.CurrentBrowser.MainFrame.ExecuteScript("window.location.reload();");
+                _this.CurrentBrowser.CurrentFrame = _this.CurrentBrowser.MainFrame;
+                _this.CurrentBrowser.WaitForLoading();
             }
         }
 
@@ -192,7 +206,8 @@ namespace Selenium.CefSharp.Driver
 
             public IWebDriver DefaultContent()
             {
-                _this._currentFrame = _this._mainFrame;
+                _this.CurrentBrowser = _this._chromiumWebBrowser;
+                _this.CurrentBrowser.CurrentFrame = _this.CurrentBrowser.MainFrame;
                 return _this;
             }
 
@@ -205,14 +220,14 @@ namespace Selenium.CefSharp.Driver
                 var frameElements = _this.FindElementsByTagName("iframe");
                 var frameNames = frameElements.Select(e => e.GetAttribute("name")).ToList();
                 var frameElement = frameElements[frameIndex];
-                var frame = _this.App.Type<FrameFinder>().FindFrame(_this, _this._currentFrame, frameNames, frameIndex);
+                var frame = _this.App.Type<FrameFinder>().FindFrame(_this.CurrentBrowser.BrowserCore, _this.CurrentBrowser.CurrentFrame, frameNames, frameIndex);
                 if (((AppVar)frame).IsNull)
                 {
                     throw new NotFoundException("Frame was not found.");
                 }
-                _this._currentFrame = new CefSharpFrameDriver(_this, _this._currentFrame, 
+                _this.CurrentBrowser.CurrentFrame = new CefSharpFrameDriver(_this, _this.CurrentBrowser.CurrentFrame, 
                     () => (AppVar)frame, 
-                    _this._currentFrame.FrameElements.Concat(new []{ frameElement }).ToArray());
+                    _this.CurrentBrowser.CurrentFrame.FrameElements.Concat(new []{ frameElement }).ToArray());
                 return _this;
             }
 
@@ -247,13 +262,22 @@ namespace Selenium.CefSharp.Driver
 
             public IWebDriver ParentFrame()
             {
-                if (_this._currentFrame.ParentFrame == null) throw new NotFoundException("Frame was not found.");
-                _this._currentFrame = _this._currentFrame.ParentFrame;
+                if (_this.CurrentBrowser.CurrentFrame.ParentFrame == null) throw new NotFoundException("Frame was not found.");
+                _this.CurrentBrowser.CurrentFrame = _this.CurrentBrowser.CurrentFrame.ParentFrame;
                 return _this;
             }
 
-            //don't support.
-            public IWebDriver Window(string windowName) => throw new NotSupportedException();
+            public IWebDriver Window(string windowName)
+            {
+                if (windowName == IntPtr.Zero.ToString()) return DefaultContent();
+
+                if (!long.TryParse(windowName, out var value)) throw new NotSupportedException("Invalid name.");
+
+                var handle = new IntPtr(value);
+                _this.CurrentBrowser = new CefSharpWindowBrowser(_this, handle, _this._windowManager.GetBrowser(handle));
+
+                return _this;
+            }
         }
 
 #pragma warning disable CS0618
@@ -278,11 +302,21 @@ namespace Selenium.CefSharp.Driver
             public void MouseUp(ICoordinates where) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
         }
 
+        public string CurrentWindowHandle => CurrentBrowser.WindowHandle.ToString();
+
+        public ReadOnlyCollection<string> WindowHandles
+        {
+            get 
+            {
+                List<IntPtr> list = new List<IntPtr>();
+                list.Add(IntPtr.Zero);
+                List<IntPtr> otherWindows = _windowManager.GetWindowHandles();
+                list.AddRange(otherWindows);
+                return new ReadOnlyCollection<string>(list.Select(e => e.ToInt64().ToString()).ToArray());
+            }
+        }
+
         //don't support.
-        public string CurrentWindowHandle => throw new NotSupportedException();
-        public ReadOnlyCollection<string> WindowHandles => throw new NotSupportedException();
-        public void Close() => throw new NotSupportedException();
-        public void Quit() => throw new NotSupportedException();
         public IOptions Manage() => throw new NotSupportedException();
     }
 }

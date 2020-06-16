@@ -80,10 +80,12 @@
     <Compile Include="CefSharpStorag.cs" />
     <Compile Include="CefSharpWebElement.cs" />
     <Compile Include="CefSharpWebStorage.cs" />
+    <Compile Include="CefSharpWindowBrowser.cs" />
     <Compile Include="ChromiumWebBrowserDriver.cs" />
     <Compile Include="ClickSpeck.cs" />
     <Compile Include="CotnrolAccessor.cs" />
     <Compile Include="ElementFinder.cs" />
+    <Compile Include="ICefSharpBrowser.cs" />
     <Compile Include="IJavaScriptExecutorCefFunctions.cs" />
     <Compile Include="JS.cs" />
     <Compile Include="JsUtils.cs" />
