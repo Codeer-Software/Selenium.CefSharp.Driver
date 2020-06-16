@@ -28,6 +28,7 @@ const element = window.__seleniumCefSharpDriver.getElementByEntryId({element.Id}
 element.selected = !element.selected";
                 }
                 element.JavaScriptExecutor.ExecuteScript(script);
+                element.JavaScriptExecutor.ExecuteScript("arguments[0].dispatchEvent(new Event('change', {bubbles: true, composed: true}))", parent);
             }
             else
             {

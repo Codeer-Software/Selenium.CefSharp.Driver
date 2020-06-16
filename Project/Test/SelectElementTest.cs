@@ -299,5 +299,17 @@ namespace Test
             var selectedIndex = GetExecutor().ExecuteScript("return document.getElementById('singleSelect').selectedIndex");
             selectedIndex.Is(1L);
         }
+
+
+        [Test]
+        public virtual void SelectEvent()
+        {
+            InitializeSelect();
+
+            var select = GetDriver().FindElement(By.Id("dropDownFruit"));
+            var elem = new SelectElement(select);
+            elem.SelectByText("Banana");
+            GetDriver().FindElement(By.Id("textBoxName")).GetAttribute("value").Is("select");
+        }
     }
 }
