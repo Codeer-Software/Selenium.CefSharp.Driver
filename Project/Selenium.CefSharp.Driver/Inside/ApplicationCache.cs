@@ -8,7 +8,11 @@ namespace Selenium.CefSharp.Driver.Inside
     class ApplicationCache : IApplicationCache
     {
         IJavaScriptExecutor _javaScriptExecutor;
-        internal ApplicationCache(IJavaScriptExecutor javaScriptExecutor) => _javaScriptExecutor = javaScriptExecutor;
-        public AppCacheStatus Status => (AppCacheStatus)Convert.ToInt32(_javaScriptExecutor.ExecuteScript("window.applicationCache.status"), CultureInfo.InvariantCulture);
+        
+        public AppCacheStatus Status
+            => (AppCacheStatus)Convert.ToInt32(_javaScriptExecutor.ExecuteScript("window.applicationCache.status"), CultureInfo.InvariantCulture);
+
+        internal ApplicationCache(IJavaScriptExecutor javaScriptExecutor)
+            => _javaScriptExecutor = javaScriptExecutor;
     }
 }

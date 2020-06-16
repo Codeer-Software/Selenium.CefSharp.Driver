@@ -52,12 +52,26 @@ namespace Selenium.CefSharp.Driver.Inside
 
         public AppVar BrowserCore => this.Dynamic().GetBrowser();
 
+        public IntPtr WindowHandle => IntPtr.Zero;
+
+        internal dynamic JavascriptObjectRepository => this.Dynamic().JavascriptObjectRepository;
+
+        internal ChromiumWebBrowserDriver(CefSharpDriver driver)
+        {
+            AppVar = driver.AppVar;
+            App.LoadAssembly(typeof(JSResultConverter).Assembly);
+            _webBrowserExtensions = App.Type("CefSharp.WebBrowserExtensions");
+
+            MainFrame = CurrentFrame = new CefSharpFrameDriver(driver, null, () => (AppVar)GetMainFrame(), new IWebElement[0]);
+
+        }
+
         public Point PointToScreen(Point clientPoint)
         {
             if (IsWPF)
             {
                 var pos = this.Dynamic().PointToScreen(App.Type("System.Windows.Point")((double)clientPoint.X, (double)clientPoint.Y));
-                return new System.Drawing.Point((int)(double)pos.X, (int)(double)pos.Y);
+                return new Point((int)(double)pos.X, (int)(double)pos.Y);
             }
             return new WindowControl(AppVar).PointToScreen(clientPoint);
         }
@@ -66,14 +80,12 @@ namespace Selenium.CefSharp.Driver.Inside
         {
             if (IsWPF)
             {
-                //WPF
                 var source = App.Type("System.Windows.Interop.HwndSource").FromVisual(this);
                 new WindowControl(App, (IntPtr)source.Handle).Activate();
             }
             else
             {
-                //WinForms
-                new WindowControl(this.AppVar).Activate();
+                new WindowControl(AppVar).Activate();
             }
             this.Dynamic().Focus();
         }
@@ -86,19 +98,11 @@ namespace Selenium.CefSharp.Driver.Inside
             }
         }
 
-        internal ChromiumWebBrowserDriver(CefSharpDriver driver)
-        {
-            AppVar = driver.AppVar;
-            App.LoadAssembly(typeof(JSResultConverter).Assembly);
-            _webBrowserExtensions = App.Type("CefSharp.WebBrowserExtensions");
+        internal dynamic GetMainFrame()
+            => _webBrowserExtensions.GetMainFrame(this);
 
-            MainFrame = CurrentFrame = new CefSharpFrameDriver(driver, null, () => (AppVar)GetMainFrame(), new IWebElement[0]);
-
-        }
-
-        internal dynamic GetMainFrame() => _webBrowserExtensions.GetMainFrame(this);
-
-        internal void ShowDevTools() => _webBrowserExtensions.ShowDevTools(this);
+        internal void ShowDevTools()
+            => _webBrowserExtensions.ShowDevTools(this);
 
         public void Close()
         {
@@ -114,11 +118,6 @@ namespace Selenium.CefSharp.Driver.Inside
                 while (window.ParentWindow != null) window = window.ParentWindow;
             }
             window.Close();
-
         }
-
-        internal dynamic JavascriptObjectRepository => this.Dynamic().JavascriptObjectRepository;
-
-        public IntPtr WindowHandle => IntPtr.Zero;
     }
 }

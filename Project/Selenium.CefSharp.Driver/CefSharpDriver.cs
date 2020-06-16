@@ -45,8 +45,6 @@ namespace Selenium.CefSharp.Driver
         ChromiumWebBrowserDriver _chromiumWebBrowser;
         dynamic _windowManager;
 
-        internal ICefSharpBrowser CurrentBrowser { get; set; }
-
         public WindowsAppFriend App { get; }
 
         public AppVar AppVar { get; }
@@ -77,7 +75,33 @@ namespace Selenium.CefSharp.Driver
             }
         }
 
-        internal void WaitForLoading() => CurrentBrowser.WaitForLoading();
+        public string Title => CurrentBrowser.CurrentFrame.Title;
+
+        public bool HasApplicationCache => true;
+
+        public bool HasWebStorage => true;
+
+        public IWebStorage WebStorage => new WebStorage(this);
+
+        public IApplicationCache ApplicationCache => new ApplicationCache(this);
+
+        public string PageSource => (string)ExecuteScript("return document.documentElement.outerHTML;");
+
+        public string CurrentWindowHandle => CurrentBrowser.WindowHandle.ToString();
+
+        public ReadOnlyCollection<string> WindowHandles
+        {
+            get
+            {
+                List<IntPtr> list = new List<IntPtr>();
+                list.Add(IntPtr.Zero);
+                List<IntPtr> otherWindows = _windowManager.GetWindowHandles();
+                list.AddRange(otherWindows);
+                return new ReadOnlyCollection<string>(list.Select(e => e.ToInt64().ToString()).ToArray());
+            }
+        }
+
+        internal ICefSharpBrowser CurrentBrowser { get; set; }
 
         public CefSharpDriver(AppVar appVar)
         {
@@ -92,85 +116,103 @@ namespace Selenium.CefSharp.Driver
             CurrentBrowser.WaitForLoading();
         }
 
-        public void Dispose() => AppVar.Dispose();
+        public void Dispose()
+            => AppVar.Dispose();
 
-        public void Close() => CurrentBrowser.Close();
+        public void Close()
+            => CurrentBrowser.Close();
 
         public void Quit() => Process.GetProcessById(App.ProcessId).Kill();
 
-        public ITargetLocator SwitchTo() => new TargetLocator(this);
+        public ITargetLocator SwitchTo()
+            => new TargetLocator(this);
 
-        public INavigation Navigate() => new Navigation(this);
+        public INavigation Navigate()
+            => new Navigation(this);
 
-        public Point PointToScreen(Point clientPoint) => CurrentBrowser.PointToScreen(clientPoint);
+        public Point PointToScreen(Point clientPoint)
+            => CurrentBrowser.PointToScreen(clientPoint);
 
-        public void ShowDevTools() => _chromiumWebBrowser.ShowDevTools();
+        public void ShowDevTools()
+            => _chromiumWebBrowser.ShowDevTools();
 
-        public void Activate() => CurrentBrowser.Activate();
+        public void Activate()
+            => CurrentBrowser.Activate();
 
-        public Screenshot GetScreenshot() => CurrentBrowser.CurrentFrame.GetScreenshot();
+        public Screenshot GetScreenshot()
+            => CurrentBrowser.CurrentFrame.GetScreenshot();
 
-        public string Title => CurrentBrowser.CurrentFrame.Title;
-
-        public bool HasApplicationCache => true;
-
-        public IApplicationCache ApplicationCache => new ApplicationCache(this);
-
-        public bool HasWebStorage => true;
-
-        public IWebStorage WebStorage => new WebStorage(this);
-
-        public string PageSource => (string)ExecuteScript("return document.documentElement.outerHTML;");
-
-        public IWebElement FindElement(By by) => ElementFinder.FindElementFromDocument(this, by);
-
-        public ReadOnlyCollection<IWebElement> FindElements(By by) => ElementFinder.FindElementsFromDocument(this, by);
-
-        public object ExecuteScript(string script, params object[] args) => CurrentBrowser.CurrentFrame.ExecuteScript(script, args);
-
-        public object ExecuteAsyncScript(string script, params object[] args) => CurrentBrowser.CurrentFrame.ExecuteAsyncScript(script, args);
-
-        public IWebElement FindElementById(string id) => FindElement(By.Id(id));
-
-        public ReadOnlyCollection<IWebElement> FindElementsById(string id) => FindElements(By.Id(id));
-
-        public IWebElement FindElementByClassName(string className) => FindElement(By.ClassName(className));
-
-        public ReadOnlyCollection<IWebElement> FindElementsByClassName(string className) => FindElements(By.ClassName(className));
-
-        public IWebElement FindElementByName(string name) => FindElement(By.Name(name));
-
-        public ReadOnlyCollection<IWebElement> FindElementsByName(string name) => FindElements(By.Name(name));
-
-        public IWebElement FindElementByTagName(string tagName) => FindElement(By.TagName(tagName));
-
-        public ReadOnlyCollection<IWebElement> FindElementsByTagName(string tagName) => FindElements(By.TagName(tagName));
-
-        public IWebElement FindElementByXPath(string xpath) => FindElement(By.XPath(xpath));
-
-        public ReadOnlyCollection<IWebElement> FindElementsByXPath(string xpath) => FindElements(By.XPath(xpath));
-
-        public IWebElement FindElementByCssSelector(string cssSelector) => FindElement(By.CssSelector(cssSelector));
-
-        public ReadOnlyCollection<IWebElement> FindElementsByCssSelector(string cssSelector) => FindElements(By.CssSelector(cssSelector));
-
-        public IWebElement FindElementByLinkText(string linkText) => FindElement(By.LinkText(linkText));
-
-        public ReadOnlyCollection<IWebElement> FindElementsByLinkText(string linkText) => FindElements(By.LinkText(linkText));
-
-        public IWebElement FindElementByPartialLinkText(string partialLinkText) => FindElement(By.PartialLinkText(partialLinkText));
-
-        public ReadOnlyCollection<IWebElement> FindElementsByPartialLinkText(string partialLinkText) => FindElements(By.PartialLinkText(partialLinkText));
-
-        public void PerformActions(IList<ActionSequence> actionSequenceList) => ActionsAnalyzer.PerformActions(this, actionSequenceList);
+        public void PerformActions(IList<ActionSequence> actionSequenceList)
+            => ActionsAnalyzer.PerformActions(this, actionSequenceList);
 
         public void ResetInputState() { }
+
+        public IWebElement FindElement(By by)
+            => ElementFinder.FindElementFromDocument(this, by);
+
+        public ReadOnlyCollection<IWebElement> FindElements(By by)
+            => ElementFinder.FindElementsFromDocument(this, by);
+
+        public object ExecuteScript(string script, params object[] args)
+            => CurrentBrowser.CurrentFrame.ExecuteScript(script, args);
+
+        public object ExecuteAsyncScript(string script, params object[] args)
+            => CurrentBrowser.CurrentFrame.ExecuteAsyncScript(script, args);
+
+        public IWebElement FindElementById(string id)
+            => FindElement(By.Id(id));
+
+        public ReadOnlyCollection<IWebElement> FindElementsById(string id)
+            => FindElements(By.Id(id));
+
+        public IWebElement FindElementByClassName(string className)
+            => FindElement(By.ClassName(className));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByClassName(string className)
+            => FindElements(By.ClassName(className));
+
+        public IWebElement FindElementByName(string name)
+            => FindElement(By.Name(name));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByName(string name)
+            => FindElements(By.Name(name));
+
+        public IWebElement FindElementByTagName(string tagName)
+            => FindElement(By.TagName(tagName));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByTagName(string tagName)
+            => FindElements(By.TagName(tagName));
+
+        public IWebElement FindElementByXPath(string xpath)
+            => FindElement(By.XPath(xpath));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByXPath(string xpath)
+            => FindElements(By.XPath(xpath));
+
+        public IWebElement FindElementByCssSelector(string cssSelector)
+            => FindElement(By.CssSelector(cssSelector));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByCssSelector(string cssSelector)
+            => FindElements(By.CssSelector(cssSelector));
+
+        public IWebElement FindElementByLinkText(string linkText)
+            => FindElement(By.LinkText(linkText));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByLinkText(string linkText)
+            => FindElements(By.LinkText(linkText));
+
+        public IWebElement FindElementByPartialLinkText(string partialLinkText)
+            => FindElement(By.PartialLinkText(partialLinkText));
+
+        public ReadOnlyCollection<IWebElement> FindElementsByPartialLinkText(string partialLinkText)
+            => FindElements(By.PartialLinkText(partialLinkText));
 
         class Navigation : INavigation
         {
             CefSharpDriver _this;
 
-            public Navigation(CefSharpDriver driver) => _this = driver;
+            public Navigation(CefSharpDriver driver)
+                => _this = driver;
 
             public void Back()
             {
@@ -186,9 +228,11 @@ namespace Selenium.CefSharp.Driver
                 _this.CurrentBrowser.WaitForLoading();
             }
 
-            public void GoToUrl(string url) => _this.Url = url;
+            public void GoToUrl(string url)
+                => _this.Url = url;
 
-            public void GoToUrl(Uri url) => _this.Url = url.ToString();
+            public void GoToUrl(Uri url)
+                => _this.Url = url.ToString();
 
             public void Refresh()
             {
@@ -202,7 +246,8 @@ namespace Selenium.CefSharp.Driver
         {
             CefSharpDriver _this;
 
-            public TargetLocator(CefSharpDriver driver) => _this = driver;
+            public TargetLocator(CefSharpDriver driver)
+                => _this = driver;
 
             public IWebDriver DefaultContent()
             {
@@ -211,9 +256,11 @@ namespace Selenium.CefSharp.Driver
                 return _this;
             }
 
-            public IWebElement ActiveElement() => _this.ExecuteScript("return document.activeElement;") as IWebElement;
+            public IWebElement ActiveElement()
+                => _this.ExecuteScript("return document.activeElement;") as IWebElement;
 
-            public IAlert Alert() => new Alert(_this.App, _this.Url);
+            public IAlert Alert()
+                => new Alert(_this.App, _this.Url);
 
             public IWebDriver Frame(int frameIndex)
             {
@@ -300,20 +347,6 @@ namespace Selenium.CefSharp.Driver
             public void MouseMove(ICoordinates where) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
             public void MouseMove(ICoordinates where, int offsetX, int offsetY) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
             public void MouseUp(ICoordinates where) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
-        }
-
-        public string CurrentWindowHandle => CurrentBrowser.WindowHandle.ToString();
-
-        public ReadOnlyCollection<string> WindowHandles
-        {
-            get 
-            {
-                List<IntPtr> list = new List<IntPtr>();
-                list.Add(IntPtr.Zero);
-                List<IntPtr> otherWindows = _windowManager.GetWindowHandles();
-                list.AddRange(otherWindows);
-                return new ReadOnlyCollection<string>(list.Select(e => e.ToInt64().ToString()).ToArray());
-            }
         }
 
         //don't support.

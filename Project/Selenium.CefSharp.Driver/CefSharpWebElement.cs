@@ -12,9 +12,6 @@ using System.Threading;
 
 namespace Selenium.CefSharp.Driver
 {
-    //Not supported.
-    //IWebElementReference
-
     public class CefSharpWebElement :
         IWebElement, 
         IWrapsDriver,
@@ -30,19 +27,6 @@ namespace Selenium.CefSharp.Driver
         ILocatable
     {
         readonly CefSharpFrameDriver _frame;
-
-        internal IJavaScriptExecutor JavaScriptExecutor => _frame;
-
-        internal CotnrolAccessor CotnrolAccessor { get; }
-        
-        internal int Id { get; }
-
-        internal CefSharpWebElement(CefSharpFrameDriver frame, CotnrolAccessor cotnrolAccessor, int index)
-        {
-            _frame = frame;
-            CotnrolAccessor = cotnrolAccessor;
-            Id = index;
-        }
 
         public IWebDriver WrappedDriver => _frame.CefSharpDriver;
 
@@ -75,6 +59,32 @@ namespace Selenium.CefSharp.Driver
         }
 
         public bool Displayed => (bool)JavaScriptExecutor.ExecuteScript(JS.GetDisplayed(Id));
+
+        public Point LocationOnScreenOnceScrolledIntoView
+        {
+            get
+            {
+                var rawLocation = (Dictionary<string, object>)JavaScriptExecutor.ExecuteScript("var rect = arguments[0].getBoundingClientRect(); return {'x': rect.left, 'y': rect.top};", this);
+                int x = Convert.ToInt32(rawLocation["x"], CultureInfo.InvariantCulture);
+                int y = Convert.ToInt32(rawLocation["y"], CultureInfo.InvariantCulture);
+                return new Point(x, y);
+            }
+        }
+
+        public ICoordinates Coordinates => new Coordinates(this);
+
+        internal IJavaScriptExecutor JavaScriptExecutor => _frame;
+
+        internal CotnrolAccessor CotnrolAccessor { get; }
+        
+        internal int Id { get; }
+
+        internal CefSharpWebElement(CefSharpFrameDriver frame, CotnrolAccessor cotnrolAccessor, int index)
+        {
+            _frame = frame;
+            CotnrolAccessor = cotnrolAccessor;
+            Id = index;
+        }
 
         public void Clear()
             => JavaScriptExecutor.ExecuteScript(JS.SetAttribute(Id, "value", string.Empty));
@@ -125,60 +135,65 @@ namespace Selenium.CefSharp.Driver
         public void Submit()
             => JavaScriptExecutor.ExecuteScript(JS.Submit(Id));
 
-        public IWebElement FindElement(By by) => ElementFinder.FindElementFromElement(JavaScriptExecutor, Id, by);
+        public IWebElement FindElement(By by)
+            => ElementFinder.FindElementFromElement(JavaScriptExecutor, Id, by);
 
-        public ReadOnlyCollection<IWebElement> FindElements(By by) => ElementFinder.FindElementsFromElement(JavaScriptExecutor, Id, by);
+        public ReadOnlyCollection<IWebElement> FindElements(By by)
+            => ElementFinder.FindElementsFromElement(JavaScriptExecutor, Id, by);
 
-        public IWebElement FindElementById(string id) => FindElement(By.Id(id));
+        public IWebElement FindElementById(string id)
+            => FindElement(By.Id(id));
 
-        public ReadOnlyCollection<IWebElement> FindElementsById(string id) => FindElements(By.Id(id));
+        public ReadOnlyCollection<IWebElement> FindElementsById(string id)
+            => FindElements(By.Id(id));
 
-        public IWebElement FindElementByClassName(string className) => FindElement(By.ClassName(className));
+        public IWebElement FindElementByClassName(string className)
+            => FindElement(By.ClassName(className));
 
-        public ReadOnlyCollection<IWebElement> FindElementsByClassName(string className) => FindElements(By.ClassName(className));
+        public ReadOnlyCollection<IWebElement> FindElementsByClassName(string className)
+            => FindElements(By.ClassName(className));
 
-        public IWebElement FindElementByName(string name) => FindElement(By.Name(name));
+        public IWebElement FindElementByName(string name)
+            => FindElement(By.Name(name));
 
-        public ReadOnlyCollection<IWebElement> FindElementsByName(string name) => FindElements(By.Name(name));
+        public ReadOnlyCollection<IWebElement> FindElementsByName(string name)
+            => FindElements(By.Name(name));
 
-        public IWebElement FindElementByTagName(string tagName) => FindElement(By.TagName(tagName));
+        public IWebElement FindElementByTagName(string tagName)
+            => FindElement(By.TagName(tagName));
 
-        public ReadOnlyCollection<IWebElement> FindElementsByTagName(string tagName) => FindElements(By.TagName(tagName));
+        public ReadOnlyCollection<IWebElement> FindElementsByTagName(string tagName)
+            => FindElements(By.TagName(tagName));
 
-        public IWebElement FindElementByXPath(string xpath) => FindElement(By.XPath(xpath));
+        public IWebElement FindElementByXPath(string xpath)
+            => FindElement(By.XPath(xpath));
 
-        public ReadOnlyCollection<IWebElement> FindElementsByXPath(string xpath) => FindElements(By.XPath(xpath));
+        public ReadOnlyCollection<IWebElement> FindElementsByXPath(string xpath)
+            => FindElements(By.XPath(xpath));
 
-        public IWebElement FindElementByCssSelector(string cssSelector) => FindElement(By.CssSelector(cssSelector));
+        public IWebElement FindElementByCssSelector(string cssSelector)
+            => FindElement(By.CssSelector(cssSelector));
 
-        public ReadOnlyCollection<IWebElement> FindElementsByCssSelector(string cssSelector) => FindElements(By.CssSelector(cssSelector));
+        public ReadOnlyCollection<IWebElement> FindElementsByCssSelector(string cssSelector)
+            => FindElements(By.CssSelector(cssSelector));
 
-        public IWebElement FindElementByLinkText(string linkText) => FindElement(By.LinkText(linkText));
+        public IWebElement FindElementByLinkText(string linkText)
+            => FindElement(By.LinkText(linkText));
         
-        public ReadOnlyCollection<IWebElement> FindElementsByLinkText(string linkText) => FindElements(By.LinkText(linkText));
+        public ReadOnlyCollection<IWebElement> FindElementsByLinkText(string linkText)
+            => FindElements(By.LinkText(linkText));
         
-        public IWebElement FindElementByPartialLinkText(string partialLinkText) => FindElement(By.PartialLinkText(partialLinkText));
+        public IWebElement FindElementByPartialLinkText(string partialLinkText)
+            => FindElement(By.PartialLinkText(partialLinkText));
        
-        public ReadOnlyCollection<IWebElement> FindElementsByPartialLinkText(string partialLinkText) => FindElements(By.PartialLinkText(partialLinkText));
+        public ReadOnlyCollection<IWebElement> FindElementsByPartialLinkText(string partialLinkText)
+            => FindElements(By.PartialLinkText(partialLinkText));
 
         public Screenshot GetScreenshot()
         {
             JavaScriptExecutor.ExecuteScript(JS.ScrollIntoView(Id));
             return CotnrolAccessor.GetScreenShot(Location, Size);
         }
-
-        public Point LocationOnScreenOnceScrolledIntoView
-        {
-            get
-            {
-                var rawLocation = (Dictionary<string, object>)JavaScriptExecutor.ExecuteScript("var rect = arguments[0].getBoundingClientRect(); return {'x': rect.left, 'y': rect.top};", this);
-                int x = Convert.ToInt32(rawLocation["x"], CultureInfo.InvariantCulture);
-                int y = Convert.ToInt32(rawLocation["y"], CultureInfo.InvariantCulture);
-                return new Point(x, y);
-            }
-        }
-
-        public ICoordinates Coordinates => new Coordinates(this);
 
         public override bool Equals(object obj)
         {
@@ -188,8 +203,10 @@ namespace Selenium.CefSharp.Driver
             return Id == target.Id;
         }
 
-        public override int GetHashCode() => WrappedDriver.GetHashCode() + Id;
+        public override int GetHashCode()
+            => WrappedDriver.GetHashCode() + Id;
 
+        //TODO
         internal void Focus()
             => JavaScriptExecutor.ExecuteScript(JS.Focus(Id));
     }

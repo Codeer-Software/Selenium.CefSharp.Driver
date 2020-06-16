@@ -7,6 +7,8 @@ namespace Selenium.CefSharp.Driver.Inside
 {
     static class NativeMethods
     {
+        internal const int GW_CHILD = 5;
+
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         internal static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
@@ -27,6 +29,9 @@ namespace Selenium.CefSharp.Driver.Inside
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         internal static extern int EnumWindows(EnumWindowsDelegate lpEnumFunc, IntPtr lparam);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        internal static extern IntPtr GetWindow(IntPtr hWnd, int uCmd);
 
         internal delegate bool EnumWindowsDelegate(IntPtr hWnd, IntPtr lparam);
 

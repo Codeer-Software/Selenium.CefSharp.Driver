@@ -7,9 +7,6 @@ namespace Selenium.CefSharp.Driver.Inside
     {
         CefSharpWebElement _element;
 
-        public Coordinates(CefSharpWebElement element)
-            => _element = element;
-
         public System.Drawing.Point LocationOnScreen => throw new NotImplementedException();
 
         public System.Drawing.Point LocationInViewport => _element.LocationOnScreenOnceScrolledIntoView;
@@ -17,5 +14,8 @@ namespace Selenium.CefSharp.Driver.Inside
         public System.Drawing.Point LocationInDom => _element.Location;
 
         public object AuxiliaryLocator => _element.Id;
+
+        public Coordinates(CefSharpWebElement element)
+            => _element = element;
     }
 }

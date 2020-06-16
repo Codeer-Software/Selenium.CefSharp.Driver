@@ -13,17 +13,19 @@ namespace Selenium.CefSharp.Driver.Inside
         readonly IJavaScriptExecutor _javaScriptExecutor;
         readonly string _storageName;
 
+        public int Count => Convert.ToInt32(_javaScriptExecutor.ExecuteScript($"return window.{_storageName}.length;"), CultureInfo.InvariantCulture);
+
         public Storag(IJavaScriptExecutor javaScriptExecutor, string storageName)
         {
             _javaScriptExecutor = javaScriptExecutor;
             _storageName = storageName;
         }
 
-        public int Count => Convert.ToInt32(_javaScriptExecutor.ExecuteScript($"return window.{_storageName}.length;"), CultureInfo.InvariantCulture);
+        public void Clear()
+            => _javaScriptExecutor.ExecuteScript($"window.{_storageName}.clear();");
 
-        public void Clear() => _javaScriptExecutor.ExecuteScript($"window.{_storageName}.clear();");
-
-        public string GetItem(string key) => (string)_javaScriptExecutor.ExecuteScript($"return window.{_storageName}.getItem('{key}');");
+        public string GetItem(string key)
+            => (string)_javaScriptExecutor.ExecuteScript($"return window.{_storageName}.getItem('{key}');");
 
         public ReadOnlyCollection<string> KeySet()
         {
@@ -42,6 +44,7 @@ namespace Selenium.CefSharp.Driver.Inside
             return value;
         }
 
-        public void SetItem(string key, string value) => _javaScriptExecutor.ExecuteScript($"window.{_storageName}.setItem('{key}', '{value}');");
+        public void SetItem(string key, string value)
+            => _javaScriptExecutor.ExecuteScript($"window.{_storageName}.setItem('{key}', '{value}');");
     }
 }

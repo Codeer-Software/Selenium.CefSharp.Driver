@@ -39,6 +39,5 @@ element.selected = !element.selected";
                 element.CotnrolAccessor.Click(pos);
             }
         }
-
     }
 }

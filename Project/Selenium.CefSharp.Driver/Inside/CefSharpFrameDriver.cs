@@ -54,11 +54,14 @@ namespace Selenium.CefSharp.Driver.Inside
             _cotnrolAccessor = new CotnrolAccessor(this);
         }
 
-        public object ExecuteScript(string script, params object[] args) => _javaScriptAdaptor.ExecuteScript(script, args);
+        public object ExecuteScript(string script, params object[] args)
+            => _javaScriptAdaptor.ExecuteScript(script, args);
 
-        public object ExecuteAsyncScript(string script, params object[] args) => _javaScriptAdaptor.ExecuteAsyncScript(script, args);
+        public object ExecuteAsyncScript(string script, params object[] args)
+            => _javaScriptAdaptor.ExecuteAsyncScript(script, args);
 
-        public void WaitForLoading() => CefSharpDriver.CurrentBrowser.WaitForLoading();
+        public void WaitForLoading()
+            => CefSharpDriver.CurrentBrowser.WaitForLoading();
 
         public Point PointToScreen(Point clientPoint)
         {
@@ -71,11 +74,14 @@ namespace Selenium.CefSharp.Driver.Inside
             return CefSharpDriver.CurrentBrowser.PointToScreen(clientPoint);
         }
 
-        public void Activate() => CefSharpDriver.CurrentBrowser.Activate();
+        public void Activate()
+            => CefSharpDriver.CurrentBrowser.Activate();
 
-        public IWebElement CreateWebElement(int id) => new CefSharpWebElement(this, _cotnrolAccessor, id);
+        public IWebElement CreateWebElement(int id)
+            => new CefSharpWebElement(this, _cotnrolAccessor, id);
 
-        public Screenshot GetScreenshot() => _cotnrolAccessor.GetScreenShot(new Point(0, 0), Size);
+        public Screenshot GetScreenshot()
+            => _cotnrolAccessor.GetScreenShot(new Point(0, 0), Size);
         
         public override bool Equals(object obj)
         {
