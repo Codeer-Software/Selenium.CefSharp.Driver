@@ -25,10 +25,6 @@ namespace Selenium.CefSharp.Driver.Inside
         });
         let id = 1;
         return {
-            showAndSelectElement(element) {
-                element.scrollIntoView(true);
-                element.focus();
-            },
             entryElement(element) {
                 if(!element) return -1;
                 const current = element.dataset[dataSetKey];

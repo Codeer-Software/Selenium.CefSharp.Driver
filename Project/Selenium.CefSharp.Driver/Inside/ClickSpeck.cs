@@ -9,6 +9,7 @@ namespace Selenium.CefSharp.Driver.Inside
             if (element.TagName.Equals("OPTION", StringComparison.InvariantCultureIgnoreCase))
             {
                 var parent = element.GetParentElement();
+
                 //TODO: emulate mouse down / up
                 //https://www.w3.org/TR/webdriver/#element-click
 

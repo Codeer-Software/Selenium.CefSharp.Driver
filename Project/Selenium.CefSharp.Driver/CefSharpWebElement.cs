@@ -42,8 +42,9 @@ namespace Selenium.CefSharp.Driver
         {
             get
             {
-                var x = Convert.ToInt32(Execute(JsGetBoundingClientRectX()), CultureInfo.InvariantCulture);
-                var y = Convert.ToInt32(Execute(JsGetBoundingClientRectY()), CultureInfo.InvariantCulture);
+                var rawLocation = Execute<Dictionary<string, object>>("var rect = arguments[0].getBoundingClientRect(); return {'x': rect.left, 'y': rect.top};");
+                int x = Convert.ToInt32(rawLocation["x"], CultureInfo.InvariantCulture);
+                int y = Convert.ToInt32(rawLocation["y"], CultureInfo.InvariantCulture);
                 return new Point(x, y);
             }
         }
@@ -52,8 +53,9 @@ namespace Selenium.CefSharp.Driver
         {
             get
             {
-                var w = Convert.ToInt32(Execute(JsGetBoundingClientRectWidth()), CultureInfo.InvariantCulture);
-                var h = Convert.ToInt32(Execute(JsGetBoundingClientRectHeight()), CultureInfo.InvariantCulture);
+                var rawLocation = Execute<Dictionary<string, object>>("var rect = arguments[0].getBoundingClientRect(); return {'w': rect.width, 'h': rect.height};");
+                int w = Convert.ToInt32(rawLocation["w"], CultureInfo.InvariantCulture);
+                int h = Convert.ToInt32(rawLocation["h"], CultureInfo.InvariantCulture);
                 return new Size(w, h);
             }
         }
@@ -64,10 +66,8 @@ namespace Selenium.CefSharp.Driver
         {
             get
             {
-                var rawLocation = Execute<Dictionary<string, object>>("var rect = arguments[0].getBoundingClientRect(); return {'x': rect.left, 'y': rect.top};");
-                int x = Convert.ToInt32(rawLocation["x"], CultureInfo.InvariantCulture);
-                int y = Convert.ToInt32(rawLocation["y"], CultureInfo.InvariantCulture);
-                return new Point(x, y);
+                ScrollIntoView();
+                return Location;
             }
         }
 
@@ -212,7 +212,6 @@ namespace Selenium.CefSharp.Driver
         internal void ScrollIntoView()
             => Execute(JsScrollIntoView());
 
-        //TODO
         internal void Focus()
             => Execute(JsFocus());
 
@@ -245,7 +244,8 @@ return value + '';";
         static string JsFocus()
     => $@"
 const element = arguments[0];
-window.__seleniumCefSharpDriver.showAndSelectElement(element);
+element.scrollIntoView(true);
+element.focus();
 ";
 
         static string JsScrollIntoView() => $@"
@@ -276,30 +276,6 @@ const element = arguments[0];
 if ('selected' in element) return element.selected;
 if ('checked' in element) return element.checked;
 return false;
-";
-
-        static string JsGetBoundingClientRectX()
-    => $@"
-const element = arguments[0];
-return element.getBoundingClientRect().x;
-";
-
-        static string JsGetBoundingClientRectY()
-    => $@"
-const element = arguments[0];
-return element.getBoundingClientRect().y;
-";
-
-        static string JsGetBoundingClientRectWidth()
-    => $@"
-const element = arguments[0];
-return element.getBoundingClientRect().width;
-";
-
-        static string JsGetBoundingClientRectHeight()
-    => $@"
-const element = arguments[0];
-return element.getBoundingClientRect().height;
 ";
 
         static string JsGetDisplayed()
