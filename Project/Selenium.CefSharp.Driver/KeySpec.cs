@@ -119,8 +119,14 @@ namespace Selenium.CefSharp.Driver
             {
                 if (SpecialKeys.TryGetValue(e.ToString(), out var sendSpecialKey))
                 {
-                    sendSpecialKey(KeyAction.Down, app, new List<Keys>());
-                    modifyKeyUp.Add(() => sendSpecialKey(KeyAction.Up, app, new List<Keys>()));
+                    sendSpecialKey(KeyAction.Down, app, new List<Keys>()); if (IsModifyKey(e.ToString()))
+                    {
+                        modifyKeyUp.Add(() => sendSpecialKey(KeyAction.Up, app, new List<Keys>()));
+                    }
+                    else
+                    {
+                        sendSpecialKey(KeyAction.Up, app, new List<Keys>());
+                    }
                 }
                 else
                 {
