@@ -217,8 +217,6 @@ namespace Test
             element.Submit();
         }
 
-        //TODO LinkText, PartialLinkText
-
         //ById
 
         [Test]

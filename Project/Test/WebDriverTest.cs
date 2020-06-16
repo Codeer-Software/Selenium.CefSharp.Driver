@@ -185,8 +185,6 @@ namespace Test
 
     public abstract class WebDriverTestBase : CompareTestBase
     {
-        //TODO LinkText, PartialLinkText
-
         //FindElement(s)ById
 
         [Test]

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 namespace Selenium.CefSharp.Driver
 {
-    //TODO LinkText, PartialLinkText
     static class ElementFinder
     {
         internal static IWebElement FindElementFromDocument(IJavaScriptExecutor js, By by)
