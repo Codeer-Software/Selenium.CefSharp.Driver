@@ -7,11 +7,62 @@ using System.Threading;
 using System.Linq;
 using System.Collections.Generic;
 using Selenium.CefSharp.Driver.InTarget;
+using System.Text;
 
 namespace Selenium.CefSharp.Driver.Inside
 {
     class JavaScriptAdaptor
     {
+        const string JsInitialize = @"
+(function () {
+
+    if (window.__seleniumCefSharpDriver) return;
+    
+    window.__seleniumCefSharpDriver = (function() {
+        const dataSetKey = 'selemniumCefSharpDriverRef';
+        const attributeDataSetkey = 'data-' + dataSetKey.replace(/([A-Z])/g, (s) => {
+            return '-' + s.charAt(0).toLowerCase();
+        });
+        let id = 1;
+        return {
+            showAndSelectElement(element) {
+                element.scrollIntoView(true);
+                element.focus();
+            },
+            entryElement(element) {
+                if(!element) return -1;
+                const current = element.dataset[dataSetKey];
+                if(current) return current;
+                id += 1;
+                element.dataset[dataSetKey] = id;
+                return id;
+            }, 
+            getElementByEntryId(id) {
+                const result = document.querySelector(`[${attributeDataSetkey}='${id}']`);
+                if(!result) {
+                    throw 'EntriedElementNotFound';
+                }
+                return result;
+            },
+            getElementsByXPath(xpath, contextNode) {
+                const result = document.evaluate(xpath, contextNode || document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+                const nodes = [];
+                for(let i = 0; i < result.snapshotLength; i++) {
+                    nodes.push(result.snapshotItem(i));
+                }
+                return nodes;
+            },
+            isUndefOrNull(value) {
+                return typeof value === 'undefined' || value === null;
+            }
+        };
+    })();
+})();
+";
+
+        static string JsFindElementByEntryIdScriptBody(int id)
+            => $"window.__seleniumCefSharpDriver.getElementByEntryId({id})";
+
         CefSharpFrameDriver _frame;
 
         internal JavaScriptAdaptor(CefSharpFrameDriver frame)
@@ -34,7 +85,7 @@ namespace Selenium.CefSharp.Driver.Inside
         dynamic ExecuteScriptInternal(string script, params object[] args)
         {
             _frame.WaitForLoading();
-            dynamic initializeResult = ExecuteScriptCore(JS.Initialize);
+            dynamic initializeResult = ExecuteScriptCore(JsInitialize);
 
             dynamic execResult = ExecuteScriptCore(script, args);
             if (!(bool)execResult.Success)
@@ -58,7 +109,7 @@ namespace Selenium.CefSharp.Driver.Inside
         dynamic ExecuteScriptAsyncInternal(string script, params object[] args)
         {
             _frame.WaitForLoading();
-            ExecuteScriptCore(JS.Initialize);
+            ExecuteScriptCore(JsInitialize);
 
             var callbackObj = _frame.App.Type<AsyncResultBoundObject>()();
             var scriptId = $"_cefsharp_script_{Guid.NewGuid():N}";
@@ -192,10 +243,10 @@ return val;
             if (v == null) return "null";
             if (IsNumericType(v)) return v.ToString();
             if (v is bool) return ((bool)v).ToString().ToLower();
-            if (v is string) return $"\"{JsUtils.ToJsEscapedString(v.ToString())}\"";
+            if (v is string) return $"\"{ToJsEscapedString(v.ToString())}\"";
             if (v is CefSharpWebElement)
             {
-                return JS.FindElementByEntryIdScriptBody(((CefSharpWebElement)v).Id);
+                return JsFindElementByEntryIdScriptBody(((CefSharpWebElement)v).Id);
             }
             if (v is IDictionary)
             {
@@ -231,6 +282,44 @@ return val;
                 default:
                     return false;
             }
+        }
+
+
+        static readonly bool[] escapeFlags = new bool[128];
+
+        static JavaScriptAdaptor()
+        {
+            var escapeChars = new List<char>
+            {
+                '\n', '\r', '\t', '\\', '\f', '\b', '"', '\'',
+            };
+            for (int i = 0; i < ' '; i++)
+            {
+                escapeChars.Add((char)i);
+            }
+            foreach (var c in escapeChars)
+            {
+                escapeFlags[c] = true;
+            }
+        }
+
+        public static string ToJsEscapedString(string value)
+        {
+            var builder = new StringBuilder();
+            foreach (var c in value)
+            {
+                if (c > 128 || !escapeFlags[c])
+                {
+                    builder.Append(c);
+                }
+                else
+                {
+                    if (c == '\r') builder.Append("\\r");
+                    else if (c == '\n') builder.Append("\\n");
+                    else builder.Append("\\").Append(c);
+                }
+            }
+            return builder.ToString();
         }
     }
 }

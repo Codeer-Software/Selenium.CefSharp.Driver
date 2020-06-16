@@ -8,11 +8,12 @@ namespace Selenium.CefSharp.Driver.Inside
         {
             if (element.TagName.Equals("OPTION", StringComparison.InvariantCultureIgnoreCase))
             {
-                var parent = (CefSharpWebElement)element.JavaScriptExecutor.ExecuteScript(JS.GetParentElement(element.Id));
+                var parent = element.GetParentElement();
                 //TODO: emulate mouse down / up
                 //https://www.w3.org/TR/webdriver/#element-click
 
                 parent.Focus();
+
                 if (!parent.Enabled)
                 {
                     return;
@@ -32,7 +33,7 @@ element.selected = !element.selected";
             }
             else
             {
-                element.JavaScriptExecutor.ExecuteScript(JS.ScrollIntoView(element.Id));
+                element.ScrollIntoView();
                 var pos = element.Location;
                 var size = element.Size;
                 pos.Offset(size.Width / 2, size.Height / 2);

@@ -86,8 +86,6 @@
     <Compile Include="Inside\CotnrolAccessor.cs" />
     <Compile Include="Inside\ElementFinder.cs" />
     <Compile Include="Inside\ICefSharpBrowser.cs" />
-    <Compile Include="Inside\JS.cs" />
-    <Compile Include="Inside\JsUtils.cs" />
     <Compile Include="Inside\KeySpec.cs" />
     <Compile Include="Inside\NativeMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

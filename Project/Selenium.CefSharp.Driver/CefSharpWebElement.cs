@@ -30,20 +30,20 @@ namespace Selenium.CefSharp.Driver
 
         public IWebDriver WrappedDriver => _frame.CefSharpDriver;
 
-        public string TagName => (JavaScriptExecutor.ExecuteScript(JS.GetTagName(Id)) as string)?.ToLower();
+        public string TagName => Execute<string>(JsGetTagName())?.ToLower();
 
-        public string Text => JavaScriptExecutor.ExecuteScript(JS.GetInnerHTML(Id)) as string;
+        public string Text => Execute<string>(JsGetInnerHTML());
 
-        public bool Enabled => !(bool)JavaScriptExecutor.ExecuteScript(JS.GetDisabled(Id));
+        public bool Enabled => !Execute<bool>(JsGetDisabled());
 
-        public bool Selected => (bool)JavaScriptExecutor.ExecuteScript(JS.GetSelected(Id));
+        public bool Selected => Execute<bool>(JsGetSelected());
 
         public Point Location
         {
             get
             {
-                var x = Convert.ToInt32(JavaScriptExecutor.ExecuteScript(JS.GetBoundingClientRectX(Id)), CultureInfo.InvariantCulture);
-                var y = Convert.ToInt32(JavaScriptExecutor.ExecuteScript(JS.GetBoundingClientRectY(Id)), CultureInfo.InvariantCulture);
+                var x = Convert.ToInt32(Execute(JsGetBoundingClientRectX()), CultureInfo.InvariantCulture);
+                var y = Convert.ToInt32(Execute(JsGetBoundingClientRectY()), CultureInfo.InvariantCulture);
                 return new Point(x, y);
             }
         }
@@ -52,19 +52,19 @@ namespace Selenium.CefSharp.Driver
         {
             get
             {
-                var w = Convert.ToInt32(JavaScriptExecutor.ExecuteScript(JS.GetBoundingClientRectWidth(Id)), CultureInfo.InvariantCulture);
-                var h = Convert.ToInt32(JavaScriptExecutor.ExecuteScript(JS.GetBoundingClientRectHeight(Id)), CultureInfo.InvariantCulture);
+                var w = Convert.ToInt32(Execute(JsGetBoundingClientRectWidth()), CultureInfo.InvariantCulture);
+                var h = Convert.ToInt32(Execute(JsGetBoundingClientRectHeight()), CultureInfo.InvariantCulture);
                 return new Size(w, h);
             }
         }
 
-        public bool Displayed => (bool)JavaScriptExecutor.ExecuteScript(JS.GetDisplayed(Id));
+        public bool Displayed => Execute<bool>(JsGetDisplayed());
 
         public Point LocationOnScreenOnceScrolledIntoView
         {
             get
             {
-                var rawLocation = (Dictionary<string, object>)JavaScriptExecutor.ExecuteScript("var rect = arguments[0].getBoundingClientRect(); return {'x': rect.left, 'y': rect.top};", this);
+                var rawLocation = Execute<Dictionary<string, object>>("var rect = arguments[0].getBoundingClientRect(); return {'x': rect.left, 'y': rect.top};");
                 int x = Convert.ToInt32(rawLocation["x"], CultureInfo.InvariantCulture);
                 int y = Convert.ToInt32(rawLocation["y"], CultureInfo.InvariantCulture);
                 return new Point(x, y);
@@ -87,19 +87,19 @@ namespace Selenium.CefSharp.Driver
         }
 
         public void Clear()
-            => JavaScriptExecutor.ExecuteScript(JS.SetAttribute(Id, "value", string.Empty));
+            => Execute(JsSetAttribute("value", string.Empty));
 
         public void Click()
             => ClickSpeck.Click(this);
 
         public string GetAttribute(string attributeName)
-            => JavaScriptExecutor.ExecuteScript(JS.GetAttribute(Id, attributeName)) as string;
+            => Execute<string>(JsGetAttribute(attributeName));
 
         public string GetCssValue(string propertyName)
-            => JavaScriptExecutor.ExecuteScript(JS.GetCssValue(Id, propertyName)) as string;
+            => Execute<string>(JsGetCssValue(propertyName));
 
         public string GetProperty(string propertyName)
-            => JavaScriptExecutor.ExecuteScript(JS.GetProperty(Id, propertyName)) as string;
+            => Execute<string>(JsGetProperty(propertyName));
 
         public void SendKeys(string text)
         {
@@ -128,12 +128,12 @@ namespace Selenium.CefSharp.Driver
                 _frame.App.SendKey(System.Windows.Forms.Keys.Enter);
                 return;
             }
-            JavaScriptExecutor.ExecuteScript(JS.Focus(Id));
+            Execute(JsFocus());
             CotnrolAccessor.SendKeys(text);
         }
 
         public void Submit()
-            => JavaScriptExecutor.ExecuteScript(JS.Submit(Id));
+            => Execute(JsSubmit());
 
         public IWebElement FindElement(By by)
             => ElementFinder.FindElementFromElement(JavaScriptExecutor, Id, by);
@@ -191,7 +191,7 @@ namespace Selenium.CefSharp.Driver
 
         public Screenshot GetScreenshot()
         {
-            JavaScriptExecutor.ExecuteScript(JS.ScrollIntoView(Id));
+            ScrollIntoView();
             return CotnrolAccessor.GetScreenShot(Location, Size);
         }
 
@@ -206,8 +206,146 @@ namespace Selenium.CefSharp.Driver
         public override int GetHashCode()
             => WrappedDriver.GetHashCode() + Id;
 
+        internal CefSharpWebElement GetParentElement()
+            => Execute<CefSharpWebElement>(JsGetParentElement());
+
+        internal void ScrollIntoView()
+            => Execute(JsScrollIntoView());
+
         //TODO
         internal void Focus()
-            => JavaScriptExecutor.ExecuteScript(JS.Focus(Id));
+            => Execute(JsFocus());
+
+        object Execute(string js)
+            => JavaScriptExecutor.ExecuteScript(js, this);
+
+        T Execute<T>(string js)
+            => (T)JavaScriptExecutor.ExecuteScript(js, this);
+
+        static string JsGetAttribute(string attrName) => $@"
+const elem = arguments[0];
+const value = elem['{attrName}'];
+if(window.__seleniumCefSharpDriver.isUndefOrNull(value)) {{
+    return elem.getAttribute('{attrName}');
+}}
+return value + '';";
+
+        static string JsSetAttribute(string attrName, string value) => $@"
+const elem = arguments[0];
+return elem.setAttribute('{attrName}', '{value}');";
+
+        static string JsGetProperty(string propName) => $@"
+const elem = arguments[0];
+const value = elem['{propName}'];
+if(window.__seleniumCefSharpDriver.isUndefOrNull(value)) {{
+    return;
+}}
+return value + '';";
+
+        static string JsFocus()
+    => $@"
+const element = arguments[0];
+window.__seleniumCefSharpDriver.showAndSelectElement(element);
+";
+
+        static string JsScrollIntoView() => $@"
+const element = arguments[0];
+element.scrollIntoView(true);
+";
+
+        static string JsGetTagName()
+    => $@"
+const element = arguments[0];
+return element.tagName;
+";
+
+        static string JsGetInnerHTML()
+    => $@"
+const element = arguments[0];
+return element.innerHTML;
+";
+
+        static string JsGetDisabled()
+    => $@"
+const element = arguments[0];
+return element.disabled;
+";
+        static string JsGetSelected()
+    => $@"
+const element = arguments[0];
+if ('selected' in element) return element.selected;
+if ('checked' in element) return element.checked;
+return false;
+";
+
+        static string JsGetBoundingClientRectX()
+    => $@"
+const element = arguments[0];
+return element.getBoundingClientRect().x;
+";
+
+        static string JsGetBoundingClientRectY()
+    => $@"
+const element = arguments[0];
+return element.getBoundingClientRect().y;
+";
+
+        static string JsGetBoundingClientRectWidth()
+    => $@"
+const element = arguments[0];
+return element.getBoundingClientRect().width;
+";
+
+        static string JsGetBoundingClientRectHeight()
+    => $@"
+const element = arguments[0];
+return element.getBoundingClientRect().height;
+";
+
+        static string JsGetDisplayed()
+    => $@"
+const element = arguments[0];
+" + @"
+if (element.offsetParent === null) {
+    return false;
+}
+
+let target = element;
+do {
+const style = getComputedStyle(target);
+
+if (style.display === 'none'
+    || style.visibility !== 'visible'
+    || parseFloat(style.opacity || '') <= 0.0
+    || parseInt(style.height || '', 10) <= 0
+    || parseInt(style.width || '', 10) <= 0
+) {
+    return false;
+}
+
+target = target.parentElement;
+} while (target !== null)
+
+return true;
+";
+
+        static string JsGetCssValue(string propertyName)
+    => $@"
+const element = arguments[0];
+const style = getComputedStyle(element);
+return style['{propertyName}'];
+";
+
+        static string JsSubmit()
+            => $@"
+const element = arguments[0];
+element.submit();
+";
+
+        static string JsGetParentElement()
+            => $@"
+const element = arguments[0];
+return element.parentElement;
+";
     }
 }
