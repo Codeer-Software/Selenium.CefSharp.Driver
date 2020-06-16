@@ -14,75 +14,9 @@ using Selenium.CefSharp.Driver.InTarget;
 using OpenQA.Selenium.Interactions.Internal;
 using System.Collections.Generic;
 using OpenQA.Selenium.Interactions;
-using System.Collections;
 
 namespace Selenium.CefSharp.Driver
 {
-#pragma warning disable CS0618
-    class Keyboard : IKeyboard
-#pragma warning restore CS0618
-    {
-        public void PressKey(string keyToPress)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ReleaseKey(string keyToRelease)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SendKeys(string keySequence)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-#pragma warning disable CS0618
-    class Mouse : IMouse
-#pragma warning restore CS0618
-    {
-        public void Click(ICoordinates where)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ContextClick(ICoordinates where)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void DoubleClick(ICoordinates where)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void MouseDown(ICoordinates where)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void MouseMove(ICoordinates where)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void MouseMove(ICoordinates where, int offsetX, int offsetY)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void MouseUp(ICoordinates where)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class DefaultFileDetector : IFileDetector
-    {
-        public bool IsFile(string keySequence) => false;
-    }
-
     [ControlDriver(TypeFullName = "CefSharp.Wpf.ChromiumWebBrowser|CefSharp.WinForms.ChromiumWebBrowser")]
     public class CefSharpDriver :
         IWebDriver,
@@ -118,11 +52,11 @@ namespace Selenium.CefSharp.Driver
         public Size Size => ChromiumWebBrowser.Size;
 
 #pragma warning disable CS0618
-        public IKeyboard Keyboard => new Keyboard();
+        public IKeyboard Keyboard => new ObsoleteKeyboard();
 #pragma warning restore CS0618
 
 #pragma warning disable CS0618
-        public IMouse Mouse => new Mouse();
+        public IMouse Mouse => new ObsoleteMouse();
 #pragma warning restore CS0618
 
         public bool IsActionExecutor => true;
@@ -322,11 +256,33 @@ namespace Selenium.CefSharp.Driver
             public IWebDriver Window(string windowName) => throw new NotSupportedException();
         }
 
+#pragma warning disable CS0618
+        class ObsoleteKeyboard : IKeyboard
+#pragma warning restore CS0618
+        {
+            public void PressKey(string keyToPress) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
+            public void ReleaseKey(string keyToRelease) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
+            public void SendKeys(string keySequence) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
+        }
+
+#pragma warning disable CS0618
+        class ObsoleteMouse : IMouse
+#pragma warning restore CS0618
+        {
+            public void Click(ICoordinates where) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
+            public void ContextClick(ICoordinates where) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
+            public void DoubleClick(ICoordinates where) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
+            public void MouseDown(ICoordinates where) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
+            public void MouseMove(ICoordinates where) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
+            public void MouseMove(ICoordinates where, int offsetX, int offsetY) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
+            public void MouseUp(ICoordinates where) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
+        }
+
         //don't support.
-        public string CurrentWindowHandle => throw new NotImplementedException();
-        public ReadOnlyCollection<string> WindowHandles => throw new NotImplementedException();
-        public void Close() => throw new NotImplementedException();
-        public void Quit() => throw new NotImplementedException();
-        public IOptions Manage() => throw new NotImplementedException();
+        public string CurrentWindowHandle => throw new NotSupportedException();
+        public ReadOnlyCollection<string> WindowHandles => throw new NotSupportedException();
+        public void Close() => throw new NotSupportedException();
+        public void Quit() => throw new NotSupportedException();
+        public IOptions Manage() => throw new NotSupportedException();
     }
 }
