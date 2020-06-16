@@ -56,10 +56,72 @@ namespace Selenium.CefSharp.Driver.Inside
 })();
 ";
 
-        static string JsFindElementByEntryIdScriptBody(int id)
-            => $"window.__seleniumCefSharpDriver.getElementByEntryId({id})";
+        const string HtmlElementEntryIdStringPrefix = "$$_selemniumCefSharpDriverEntryId:";
 
-        CefSharpFrameDriver _frame;
+        const string HtmlElementEntryIdListStringPrefix = "$$_selemniumCefSharpDriverEntryIdList:";
+
+        // Date string may be affected by browser location etc., so convert anything that can be converted in JavaScript.
+        const string ConvertResultInJavaScriptString = @"(function convert(val){
+const toStr = Object.prototype.toString;
+if(toStr.call(val) === '[object Array]') {
+    return val.map(function(v) {return convert(v);});
+}
+if(toStr.call(val) === '[object Number]') {
+    if(Number.isNaN(val)) return null;
+    if(!Number.isFinite(val)) return null;
+    return val;
+}
+if(toStr.call(val) === '[object Date]') {
+    if(Number.isNaN(val.getTime())) return null;
+    return val.toISOString();
+}
+if(toStr.call(val) === '[object Function]' || toStr.call(val) === '[object Object]') {
+    return Object.entries(val).reduce(function(v, kv) {
+        v[kv[0]] = convert(kv[1]);
+        return v;
+    }, {});
+}
+if(val === window) {
+    throw 'ExpectReturnWindowReference\nCannot return window object';
+}
+if(val instanceof HTMLElement || val instanceof Node) { // Document type not support
+    if(val.nodeType !== Node.ELEMENT_NODE) {
+        throw 'ExpectReturnNonElementReference\nCannot return non element node';
+    }
+    const entryId = window.__seleniumCefSharpDriver.entryElement(val);
+    return `" + HtmlElementEntryIdStringPrefix + @"${entryId}`;
+}
+if(val instanceof HTMLCollection || val instanceof NodeList) {
+    const entryIds = Array.prototype.slice.call(val).map(elem => {
+        if(elem.nodeType !== Node.ELEMENT_NODE) {
+            throw 'ExpectReturnNonElementReference\nCannot return non element node';
+        }
+        return window.__seleniumCefSharpDriver.entryElement(elem);
+    }).join(',');
+    return `" + HtmlElementEntryIdListStringPrefix + @"${entryIds}`;
+}
+return val;
+})(result)";
+
+        readonly CefSharpFrameDriver _frame;
+
+        static readonly bool[] escapeFlags = new bool[128];
+
+        static JavaScriptAdaptor()
+        {
+            var escapeChars = new List<char>
+            {
+                '\n', '\r', '\t', '\\', '\f', '\b', '"', '\'',
+            };
+            for (int i = 0; i < ' '; i++)
+            {
+                escapeChars.Add((char)i);
+            }
+            foreach (var c in escapeChars)
+            {
+                escapeFlags[c] = true;
+            }
+        }
 
         internal JavaScriptAdaptor(CefSharpFrameDriver frame)
             => _frame = frame;
@@ -77,6 +139,9 @@ namespace Selenium.CefSharp.Driver.Inside
             var rawResult = (result as DynamicAppVar)?.CodeerFriendlyAppVar?.Core;
             return ConvertExecuteScriptResult(rawResult);
         }
+
+        static string JsFindElementByEntryIdScriptBody(int id)
+            => $"window.__seleniumCefSharpDriver.getElementByEntryId({id})";
 
         dynamic ExecuteScriptInternal(string script, params object[] args)
         {
@@ -138,58 +203,13 @@ namespace Selenium.CefSharp.Driver.Inside
     }});
 }})()";
 
-        const string HtmlElementEntryIdStringPrefix = "$$_selemniumCefSharpDriverEntryId:";
-        const string HtmlElementEntryIdListStringPrefix = "$$_selemniumCefSharpDriverEntryIdList:";
-        // 日付文字列はブラウザロケーションの影響なども受ける可能性があるため、JavaScript内で変換できるものは変換しておく
-        const string ConvertResultInJavaScriptString = @"(function convert(val){
-const toStr = Object.prototype.toString;
-if(toStr.call(val) === '[object Array]') {
-    return val.map(function(v) {return convert(v);});
-}
-if(toStr.call(val) === '[object Number]') {
-    if(Number.isNaN(val)) return null;
-    if(!Number.isFinite(val)) return null;
-    return val;
-}
-if(toStr.call(val) === '[object Date]') {
-    if(Number.isNaN(val.getTime())) return null;
-    return val.toISOString();
-}
-if(toStr.call(val) === '[object Function]' || toStr.call(val) === '[object Object]') {
-    return Object.entries(val).reduce(function(v, kv) {
-        v[kv[0]] = convert(kv[1]);
-        return v;
-    }, {});
-}
-if(val === window) {
-    throw 'ExpectReturnWindowReference\nCannot return window object';
-}
-if(val instanceof HTMLElement || val instanceof Node) { // Document type not support
-    if(val.nodeType !== Node.ELEMENT_NODE) {
-        throw 'ExpectReturnNonElementReference\nCannot return non element node';
-    }
-    const entryId = window.__seleniumCefSharpDriver.entryElement(val);
-    return `" + HtmlElementEntryIdStringPrefix + @"${entryId}`;
-}
-if(val instanceof HTMLCollection || val instanceof NodeList) {
-    const entryIds = Array.prototype.slice.call(val).map(elem => {
-        if(elem.nodeType !== Node.ELEMENT_NODE) {
-            throw 'ExpectReturnNonElementReference\nCannot return non element node';
-        }
-        return window.__seleniumCefSharpDriver.entryElement(elem);
-    }).join(',');
-    return `" + HtmlElementEntryIdListStringPrefix + @"${entryIds}`;
-}
-return val;
-})(result)";
-
         object ConvertExecuteScriptResult(object value)
         {
-            if (value is int) // selenium は int の範囲内でも long になる模様?
+            if (value is int) // selenium'spec. value is long.
             {
                 return Convert.ToInt64((int)value);
             }
-            if (value is List<object> list)  // cef は配列はList<object>になる模様? ただし selenium は ReadOnlyCollection になる模様?
+            if (value is List<object> list)  // Array is converted List<object> at cef, but it is converted ReadOnlyCollection at selenium.
             {
                 var result = list.Select(i => ConvertExecuteScriptResult(i)).ToList();
 
@@ -280,26 +300,7 @@ return val;
             }
         }
 
-
-        static readonly bool[] escapeFlags = new bool[128];
-
-        static JavaScriptAdaptor()
-        {
-            var escapeChars = new List<char>
-            {
-                '\n', '\r', '\t', '\\', '\f', '\b', '"', '\'',
-            };
-            for (int i = 0; i < ' '; i++)
-            {
-                escapeChars.Add((char)i);
-            }
-            foreach (var c in escapeChars)
-            {
-                escapeFlags[c] = true;
-            }
-        }
-
-        public static string ToJsEscapedString(string value)
+        static string ToJsEscapedString(string value)
         {
             var builder = new StringBuilder();
             foreach (var c in value)
