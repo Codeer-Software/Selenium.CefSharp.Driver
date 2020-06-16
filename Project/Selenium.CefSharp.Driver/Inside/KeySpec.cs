@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-namespace Selenium.CefSharp.Driver
+namespace Selenium.CefSharp.Driver.Inside
 {
     static class KeySpec
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Selenium.CefSharp.Driver
+namespace Selenium.CefSharp.Driver.Inside
 {
     static class ClickSpeck
     {

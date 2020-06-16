@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 
-namespace Selenium.CefSharp.Driver
+namespace Selenium.CefSharp.Driver.Inside
 {
     class CotnrolAccessor
     {

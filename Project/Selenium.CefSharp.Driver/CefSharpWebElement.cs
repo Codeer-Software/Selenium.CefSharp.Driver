@@ -2,6 +2,7 @@
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions.Internal;
 using OpenQA.Selenium.Internal;
+using Selenium.CefSharp.Driver.Inside;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -177,7 +178,7 @@ namespace Selenium.CefSharp.Driver
             }
         }
 
-        public ICoordinates Coordinates => new CefSharpCoordinates(this);
+        public ICoordinates Coordinates => new Coordinates(this);
 
         public override bool Equals(object obj)
         {

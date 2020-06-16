@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Selenium.CefSharp.Driver
+namespace Selenium.CefSharp.Driver.Inside
 {
     static class NativeMethods
     {

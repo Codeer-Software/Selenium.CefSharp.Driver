@@ -9,7 +9,7 @@ using Selenium.CefSharp.Driver.InTarget;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace Selenium.CefSharp.Driver
+namespace Selenium.CefSharp.Driver.Inside
 {
     class CefSharpWindowBrowser : ICefSharpBrowser
     {

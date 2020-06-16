@@ -1,7 +1,7 @@
 ﻿using Codeer.Friendly.Windows;
 using OpenQA.Selenium;
 
-namespace Selenium.CefSharp.Driver
+namespace Selenium.CefSharp.Driver.Inside
 {
     interface IJavaScriptExecutorCefFunctions
     {

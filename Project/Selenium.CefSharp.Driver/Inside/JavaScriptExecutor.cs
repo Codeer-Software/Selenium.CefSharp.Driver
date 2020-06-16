@@ -8,13 +8,13 @@ using System.Linq;
 using System.Collections.Generic;
 using Selenium.CefSharp.Driver.InTarget;
 
-namespace Selenium.CefSharp.Driver
+namespace Selenium.CefSharp.Driver.Inside
 {
-    class CefSharpJavaScriptExecutor : IJavaScriptExecutor
+    class JavaScriptExecutor : IJavaScriptExecutor
     {
         IJavaScriptExecutorCefFunctions _cef;
 
-        internal CefSharpJavaScriptExecutor(IJavaScriptExecutorCefFunctions cef)
+        internal JavaScriptExecutor(IJavaScriptExecutorCefFunctions cef)
             => _cef = cef;
 
         public object ExecuteScript(string script, params object[] args)

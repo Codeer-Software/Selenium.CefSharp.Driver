@@ -71,28 +71,28 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActionsAnalyzer.cs" />
-    <Compile Include="CefSharpAlert.cs" />
-    <Compile Include="CefSharpApplicationCache.cs" />
-    <Compile Include="CefSharpFrameDriver.cs" />
+    <Compile Include="Inside\ActionsAnalyzer.cs" />
+    <Compile Include="Inside\Alert.cs" />
+    <Compile Include="Inside\ApplicationCache.cs" />
+    <Compile Include="Inside\CefSharpFrameDriver.cs" />
     <Compile Include="CefSharpDriver.cs" />
-    <Compile Include="CefSharpJavaScriptExecutor.cs" />
-    <Compile Include="CefSharpStorag.cs" />
+    <Compile Include="Inside\JavaScriptExecutor.cs" />
+    <Compile Include="Inside\Storag.cs" />
     <Compile Include="CefSharpWebElement.cs" />
-    <Compile Include="CefSharpWebStorage.cs" />
-    <Compile Include="CefSharpWindowBrowser.cs" />
-    <Compile Include="ChromiumWebBrowserDriver.cs" />
-    <Compile Include="ClickSpeck.cs" />
-    <Compile Include="CotnrolAccessor.cs" />
-    <Compile Include="ElementFinder.cs" />
-    <Compile Include="ICefSharpBrowser.cs" />
-    <Compile Include="IJavaScriptExecutorCefFunctions.cs" />
-    <Compile Include="JS.cs" />
-    <Compile Include="JsUtils.cs" />
-    <Compile Include="KeySpec.cs" />
-    <Compile Include="NativeMethods.cs" />
+    <Compile Include="Inside\WebStorage.cs" />
+    <Compile Include="Inside\CefSharpWindowBrowser.cs" />
+    <Compile Include="Inside\ChromiumWebBrowserDriver.cs" />
+    <Compile Include="Inside\ClickSpeck.cs" />
+    <Compile Include="Inside\CotnrolAccessor.cs" />
+    <Compile Include="Inside\ElementFinder.cs" />
+    <Compile Include="Inside\ICefSharpBrowser.cs" />
+    <Compile Include="Inside\IJavaScriptExecutorCefFunctions.cs" />
+    <Compile Include="Inside\JS.cs" />
+    <Compile Include="Inside\JsUtils.cs" />
+    <Compile Include="Inside\KeySpec.cs" />
+    <Compile Include="Inside\NativeMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="CefSharpCoordinates.cs" />
+    <Compile Include="Inside\Coordinates.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Selenium.CefSharp.Driver.InTarget\Selenium.CefSharp.Driver.InTarget.csproj">

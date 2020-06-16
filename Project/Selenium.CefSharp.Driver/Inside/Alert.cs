@@ -7,11 +7,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using static Selenium.CefSharp.Driver.NativeMethods;
+using static Selenium.CefSharp.Driver.Inside.NativeMethods;
 
-namespace Selenium.CefSharp.Driver
+namespace Selenium.CefSharp.Driver.Inside
 {
-    class CefSharpAlert : IAlert
+    class Alert : IAlert
     {
         WindowsAppFriend _app;
         WindowControl _editor;
@@ -21,7 +21,7 @@ namespace Selenium.CefSharp.Driver
 
         public string Text => _message == null ? string.Empty : _message.GetWindowText();
 
-        public CefSharpAlert(WindowsAppFriend driverApp, string url)
+        public Alert(WindowsAppFriend driverApp, string url)
         {
             int processId = driverApp.ProcessId;
             int currentThreadId = driverApp.Type(typeof(Codeer.Friendly.Windows.Grasp.Inside.NativeMethods)).GetCurrentThreadId();

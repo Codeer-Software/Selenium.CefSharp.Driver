@@ -7,7 +7,7 @@ using System;
 using System.Drawing;
 using System.Linq;
 
-namespace Selenium.CefSharp.Driver
+namespace Selenium.CefSharp.Driver.Inside
 {
     class CefSharpFrameDriver :
         IAppVarOwner,
@@ -50,7 +50,7 @@ namespace Selenium.CefSharp.Driver
         internal CefSharpFrameDriver(CefSharpDriver rootDriver, CefSharpFrameDriver parentFrame, Func<AppVar> frameGetter, IWebElement[] frameElement)
         {
             ParentFrame = parentFrame;
-            _javaScriptExecutor = new CefSharpJavaScriptExecutor(this);
+            _javaScriptExecutor = new JavaScriptExecutor(this);
             CefSharpDriver = rootDriver;
             _frameGetter = frameGetter;
             FrameElements = frameElement;

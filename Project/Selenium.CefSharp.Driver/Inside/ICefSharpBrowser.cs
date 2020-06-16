@@ -2,7 +2,7 @@
 using Codeer.Friendly.Windows.Grasp;
 using System;
 
-namespace Selenium.CefSharp.Driver
+namespace Selenium.CefSharp.Driver.Inside
 {
     interface ICefSharpBrowser : IUIObject
     {

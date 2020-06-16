@@ -15,6 +15,7 @@ using OpenQA.Selenium.Interactions.Internal;
 using System.Collections.Generic;
 using OpenQA.Selenium.Interactions;
 using System.Diagnostics;
+using Selenium.CefSharp.Driver.Inside;
 
 namespace Selenium.CefSharp.Driver
 {
@@ -114,11 +115,11 @@ namespace Selenium.CefSharp.Driver
 
         public bool HasApplicationCache => true;
 
-        public IApplicationCache ApplicationCache => new CefSharpApplicationCache(this);
+        public IApplicationCache ApplicationCache => new ApplicationCache(this);
 
         public bool HasWebStorage => true;
 
-        public IWebStorage WebStorage => new CefSharpWebStorage(this);
+        public IWebStorage WebStorage => new WebStorage(this);
 
         public string PageSource => (string)ExecuteScript("return document.documentElement.outerHTML;");
 
@@ -213,7 +214,7 @@ namespace Selenium.CefSharp.Driver
 
             public IWebElement ActiveElement() => _this.ExecuteScript("return document.activeElement;") as IWebElement;
 
-            public IAlert Alert() => new CefSharpAlert(_this.App, _this.Url);
+            public IAlert Alert() => new Alert(_this.App, _this.Url);
 
             public IWebDriver Frame(int frameIndex)
             {

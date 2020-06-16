@@ -9,7 +9,7 @@ using Codeer.Friendly.DotNetExecutor;
 using System.Drawing;
 using OpenQA.Selenium;
 
-namespace Selenium.CefSharp.Driver
+namespace Selenium.CefSharp.Driver.Inside
 {
     class ChromiumWebBrowserDriver :
         IAppVarOwner,

@@ -6,14 +6,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 
-namespace Selenium.CefSharp.Driver
+namespace Selenium.CefSharp.Driver.Inside
 {
-    class CefSharpStorag : ILocalStorage, ISessionStorage
+    class Storag : ILocalStorage, ISessionStorage
     {
         readonly IJavaScriptExecutor _javaScriptExecutor;
         readonly string _storageName;
 
-        public CefSharpStorag(IJavaScriptExecutor javaScriptExecutor, string storageName)
+        public Storag(IJavaScriptExecutor javaScriptExecutor, string storageName)
         {
             _javaScriptExecutor = javaScriptExecutor;
             _storageName = storageName;
