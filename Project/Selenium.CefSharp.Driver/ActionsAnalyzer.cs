@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace Selenium.CefSharp.Driver
 {
@@ -15,24 +16,54 @@ namespace Selenium.CefSharp.Driver
         {
             protected ReflectionAccessor Core { get; }
             protected Interaction(object core) => Core = core == null ? null : new ReflectionAccessor(core);
-            internal virtual void Execute(CefSharpDriver driver) { }
+            internal virtual void Execute(CefSharpDriver driver, Dictionary<string, bool> modifyKeys) { }
         }
 
         internal class KeyDownInteraction : TypingInteraction
         {
             internal KeyDownInteraction(object core) : base(core) { }
-            internal override void Execute(CefSharpDriver driver)
+            internal override void Execute(CefSharpDriver driver, Dictionary<string, bool> modifyKeys)
             {
-                //TODO Sendkeys other than modifier keys
+                if (KeySpec.IsModifyKey(value))
+                {
+                    modifyKeys[value] = true;
+                }
+                if (KeySpec.IsAzOrNumber(value))
+                {
+                    KeySpec.SimpleKeyDown(driver.App, value);
+                }
+                else
+                {
+                    //Modifier key is released once.
+                    var modify = string.Empty;
+                    foreach (var e in modifyKeys)
+                    {
+                        KeySpec.SimpleKeyUp(driver.App, e.Key);
+                        modify += e.Key;
+                    }
+                    KeySpec.SendKeys(driver.App, modify + value);
+                    foreach (var e in modifyKeys)
+                    {
+                        KeySpec.SimpleKeyDown(driver.App, e.Key);
+                    }
+                }
             }
         }
 
         internal class KeyUpInteraction : TypingInteraction
         {
             internal KeyUpInteraction(object core) : base(core) { }
-            internal override void Execute(CefSharpDriver driver)
+            internal override void Execute(CefSharpDriver driver, Dictionary<string, bool> modifyKeys)
             {
-                //TODODo nothing but modifier keys
+                if (KeySpec.IsModifyKey(value))
+                {
+                    modifyKeys.Remove(value);
+                    KeySpec.SimpleKeyUp(driver.App, value);
+                }
+                if (KeySpec.IsAzOrNumber(value))
+                {
+                    KeySpec.SimpleKeyUp(driver.App, value);
+                }
             }
         }
 
@@ -48,7 +79,7 @@ namespace Selenium.CefSharp.Driver
             internal string button => Core.GetField<object>("button").ToString();
 
             internal PointerDownInteraction(object core) : base(core) { }
-            internal override void Execute(CefSharpDriver driver)
+            internal override void Execute(CefSharpDriver driver, Dictionary<string, bool> modifyKeys)
             {
                 if (!Enum.TryParse<MouseButtonType>(button, out var buttonType)) return;
                 var mouse = new MouseEmulator(driver.App);
@@ -61,7 +92,7 @@ namespace Selenium.CefSharp.Driver
             internal string button => Core.GetField<object>("button").ToString();
 
             internal PointerUpInteraction(object core) : base(core) { }
-            internal override void Execute(CefSharpDriver driver)
+            internal override void Execute(CefSharpDriver driver, Dictionary<string, bool> modifyKeys)
             {
                 if (!Enum.TryParse<MouseButtonType>(button, out var buttonType)) return;
                 var mouse = new MouseEmulator(driver.App);
@@ -83,7 +114,7 @@ namespace Selenium.CefSharp.Driver
             internal string origin => Core.GetField<object>("origin").ToString();
 
             internal PointerMoveInteraction(object core) : base(core) { }
-            internal override void Execute(CefSharpDriver driver)
+            internal override void Execute(CefSharpDriver driver, Dictionary<string, bool> modifyKeys)
             {
                 var mouse = new MouseEmulator(driver.App);
 
@@ -108,7 +139,7 @@ namespace Selenium.CefSharp.Driver
         {
             string _button;
             internal PointerClickInteraction(string button) : base(null) => _button = button;
-            internal override void Execute(CefSharpDriver driver)
+            internal override void Execute(CefSharpDriver driver, Dictionary<string, bool> modifyKeys)
             {
                 if (!Enum.TryParse<MouseButtonType>(_button, out var buttonType)) return;
                 var mouse = new MouseEmulator(driver.App);
@@ -120,7 +151,7 @@ namespace Selenium.CefSharp.Driver
         {
             string _button;
             internal PointerDoubleClickInteraction(string button) : base(null) => _button = button;
-            internal override void Execute(CefSharpDriver driver)
+            internal override void Execute(CefSharpDriver driver, Dictionary<string, bool> modifyKeys)
             {
                 if (!Enum.TryParse<MouseButtonType>(_button, out var buttonType)) return;
                 var mouse = new MouseEmulator(driver.App);
@@ -141,9 +172,16 @@ namespace Selenium.CefSharp.Driver
         internal static void PerformActions(CefSharpDriver driver, IList<ActionSequence> actionSequenceList)
         {
             var x = GetInteractions(actionSequenceList);
+            var modifyKeys = new Dictionary<string, bool>();
             foreach (var e in x)
             {
-                e.Execute(driver);
+                e.Execute(driver, modifyKeys);
+            }
+
+            //up modify keys.
+            foreach (var e in modifyKeys)
+            {
+                KeySpec.SimpleKeyUp(driver.App, e.Key);
             }
         }
 
@@ -181,15 +219,9 @@ namespace Selenium.CefSharp.Driver
                 else
                 {
                     var e = interractions[i];
-
-                    //TODO check modify keys.
                     list.Add(e);
                 }
             }
-
-
-            //TODO If there is a modifier key that you keep pressing, add Up
-
             return list.ToArray();
         }
 

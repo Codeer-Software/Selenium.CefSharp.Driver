@@ -60,9 +60,47 @@ namespace Selenium.CefSharp.Driver
             SpecialKeys[OpenQA.Selenium.Keys.Command] = (_, __, ___) => throw new NotSupportedException("Keys.Command is not supprted. Please don't use it.");
         }
 
+
+        internal static void SimpleKeyDown(WindowsAppFriend app, string key)
+        {
+            if (SpecialKeys.TryGetValue(key, out var sendSpecialKey))
+            {
+                sendSpecialKey(KeyAction.Down, app, new List<Keys>());
+            }
+            else
+            {
+                var keyCode = (Keys)key.ToUpper()[0];
+                app.KeyDown(keyCode);
+            }
+        }
+
+        internal static void SimpleKeyUp(WindowsAppFriend app, string key)
+        {
+            if (SpecialKeys.TryGetValue(key, out var sendSpecialKey))
+            {
+                sendSpecialKey(KeyAction.Up, app, new List<Keys>());
+            }
+            else
+            {
+                var keyCode = (Keys)key.ToUpper()[0];
+                app.KeyUp(keyCode);
+            }
+        }
+
+        internal static bool IsModifyKey(string key)
+            => key == OpenQA.Selenium.Keys.Shift ||
+               key == OpenQA.Selenium.Keys.Alt ||
+               key == OpenQA.Selenium.Keys.Control ||
+               key == OpenQA.Selenium.Keys.LeftShift ||
+               key == OpenQA.Selenium.Keys.LeftAlt ||
+               key == OpenQA.Selenium.Keys.LeftControl;
+
+        internal static bool IsAzOrNumber(string target)
+            => !Regex.IsMatch(target, @"[^a-zA-z0-9]");
+
         internal static void SendKeys(WindowsAppFriend app, string keys)
         {
-            if (IsSimpleModify(keys))
+            if (CanSimpleModify(keys))
             {
                 //For alphanumeric characters and modifier keys only, make the key up / down order closer to human operation
                 SendSimpleModifyKeys(app, keys);
@@ -176,13 +214,13 @@ namespace Selenium.CefSharp.Driver
             app.SendKeys(keys);
         }
 
-        public static bool IsSimpleModify(string target)
+        static bool CanSimpleModify(string target)
         {
             foreach (var e in SpecialKeys)
             {
                 target = target.Replace(e.Key, string.Empty);
             }
-            return !Regex.IsMatch(target, @"[^a-zA-z0-9]");
+            return IsAzOrNumber(target);
         }
     }
 }

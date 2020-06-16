@@ -6,8 +6,8 @@ using OpenQA.Selenium;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
+using static Selenium.CefSharp.Driver.NativeMethods;
 
 namespace Selenium.CefSharp.Driver
 {
@@ -84,28 +84,5 @@ namespace Selenium.CefSharp.Driver
             _app.SendKeys(password);
             _app.SendKey(System.Windows.Forms.Keys.Enter);
         }
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool IsWindowEnabled(IntPtr hWnd);
-
-        [DllImport("user32.dll")]
-        static extern int GetWindowThreadProcessId(IntPtr hWnd, out int lpdwProcessId);
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool IsWindowVisible(IntPtr hWnd);
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool IsWindow(IntPtr hWnd);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        static extern int EnumWindows(EnumWindowsDelegate lpEnumFunc, IntPtr lparam);
-
-        delegate bool EnumWindowsDelegate(IntPtr hWnd, IntPtr lparam);
     }
 }

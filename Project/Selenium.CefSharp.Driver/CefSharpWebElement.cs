@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Globalization;
+using System.Threading;
 
 namespace Selenium.CefSharp.Driver
 {
@@ -93,9 +94,24 @@ namespace Selenium.CefSharp.Driver
         {
             if (_frame.CefSharpDriver.FileDetector.IsFile(text))
             {
+                var before = NativeMethods.GetWindows(_frame.App.ProcessId);
                 Click();
-
-                //TODO wait for next dialog.
+                
+                //wait for file dialog.
+                while (true)
+                {
+                    bool hit = false;
+                    foreach (var e in NativeMethods.GetWindows(_frame.App.ProcessId))
+                    {
+                        if (!before.Contains(e))
+                        {
+                            hit = true;
+                            break;
+                        }
+                    }
+                    if (hit) break;
+                    Thread.Sleep(10);
+                }
 
                 _frame.App.SendKeys(text);
                 _frame.App.SendKey(System.Windows.Forms.Keys.Enter);
