@@ -1,168 +1,40 @@
-﻿using Codeer.Friendly.Dynamic;
-using Codeer.Friendly.Windows;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
+﻿using OpenQA.Selenium;
 using Selenium.CefSharp.Driver;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
-using Codeer.Friendly.Windows.Grasp;
 using OpenQA.Selenium.Internal;
 using NUnit.Framework;
-using OpenQA.Selenium.Html5;
 
 namespace Test
 {
-    public class WebDriverTestWinForm : WebDriverTestBase
+    public abstract class WebDriverTest : CompareTestBase
     {
-        CefSharpDriver _driver;
+        public class Forms : WebDriverTest
+        {
+            public Forms() : base(new FormsAgent()) { }
+        }
 
-        public override IWebDriver GetDriver()
-            => _driver;
+        public class Wpf : WebDriverTest
+        {
+            public Wpf() : base(new WpfAgent()) { }
+        }
+
+        public class Web : WebDriverTest
+        {
+            public Web() : base(new WebAgent()) { }
+
+            [Ignore("")]
+            public override void WebStorageLocal() { }
+
+            [Ignore("")]
+            public override void WebStorageSession() { }
+        }
+
+        protected WebDriverTest(INeed need) : base(need) { }
 
         [SetUp]
         public void SetUp()
-            => _driver.Url = this.GetHtmlUrl();
-
-        [OneTimeSetUp]
-        public void ClassInit()
-            => _driver = AppRunner.RunWinFormApp();
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-            => Process.GetProcessById(_driver.App.ProcessId).Kill();
-
-        [Test]
-        public void ApplicationCache()
-        {
-            _driver.HasApplicationCache.IsTrue();
-            _driver.ApplicationCache.Status.Is(AppCacheStatus.Uncached);
-        }
-
-        [Test]
-        public void WebStorageLocal()
-        {
-            _driver.HasWebStorage.IsTrue();
-            _driver.WebStorage.LocalStorage.Clear();
-            _driver.WebStorage.LocalStorage.SetItem("a", "x");
-            _driver.WebStorage.LocalStorage.Count.Is(1);
-            _driver.WebStorage.LocalStorage.GetItem("a").Is("x");
-            _driver.WebStorage.LocalStorage.SetItem("b", "y");
-            var keys = _driver.WebStorage.LocalStorage.KeySet().OrderBy(e => e).ToList();
-            keys.Count.Is(2);
-            keys[0].Is("a");
-            keys[1].Is("b");
-        }
-
-        [Test]
-        public void WebStorageSession()
-        {
-            _driver.HasWebStorage.IsTrue();
-            _driver.WebStorage.SessionStorage.Clear();
-            _driver.WebStorage.SessionStorage.SetItem("a", "x");
-            _driver.WebStorage.SessionStorage.Count.Is(1);
-            _driver.WebStorage.SessionStorage.GetItem("a").Is("x");
-            _driver.WebStorage.SessionStorage.SetItem("b", "y");
-            var keys = _driver.WebStorage.SessionStorage.KeySet().OrderBy(e => e).ToList();
-            keys.Count.Is(2);
-            keys[0].Is("a");
-            keys[1].Is("b");
-        }
-    }
-
-    public class WebDriverTestWPF : WebDriverTestBase
-    {
-        CefSharpDriver _driver;
-
-        public override IWebDriver GetDriver()
-            => _driver;
-
-        [SetUp]
-        public void SetUp()
-            => _driver.Url = this.GetHtmlUrl();
-
-        [OneTimeSetUp]
-        public void ClassInit()
-            => _driver = AppRunner.RunWpfApp();
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-            => Process.GetProcessById(_driver.App.ProcessId).Kill();
-
-        [Test]
-        public void ApplicationCache()
-        {
-            _driver.HasApplicationCache.IsTrue();
-            _driver.ApplicationCache.Status.Is(AppCacheStatus.Uncached);
-        }
-
-        [Test]
-        public void WebStorageLocal()
-        {
-            _driver.HasWebStorage.IsTrue();
-            _driver.WebStorage.LocalStorage.Clear();
-            _driver.WebStorage.LocalStorage.SetItem("a", "x");
-            _driver.WebStorage.LocalStorage.Count.Is(1);
-            _driver.WebStorage.LocalStorage.GetItem("a").Is("x");
-            _driver.WebStorage.LocalStorage.SetItem("b", "y");
-            var keys = _driver.WebStorage.LocalStorage.KeySet().OrderBy(e => e).ToList();
-            keys.Count.Is(2);
-            keys[0].Is("a");
-            keys[1].Is("b");
-        }
-
-        [Test]
-        public void WebStorageSession()
-        {
-            _driver.HasWebStorage.IsTrue();
-            _driver.WebStorage.SessionStorage.Clear();
-            _driver.WebStorage.SessionStorage.SetItem("a", "x");
-            _driver.WebStorage.SessionStorage.Count.Is(1);
-            _driver.WebStorage.SessionStorage.GetItem("a").Is("x");
-            _driver.WebStorage.SessionStorage.SetItem("b", "y");
-            var keys = _driver.WebStorage.SessionStorage.KeySet().OrderBy(e => e).ToList();
-            keys.Count.Is(2);
-            keys[0].Is("a");
-            keys[1].Is("b");
-        }
-    }
-
-    public class WebDriverTestSelenium : WebDriverTestBase
-    {
-        IWebDriver _driver;
-
-        public override IWebDriver GetDriver() => _driver;
-
-        [SetUp]
-        public void initialize()
-        {
-            _driver.Url = this.GetHtmlUrl();
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-        }
-
-        [OneTimeSetUp]
-        public void ClassInit()
-        {
-            _driver = new ChromeDriver();
-        }
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-        {
-            _driver.Dispose();
-        }
-    }
-
-    public abstract class WebDriverTestBase : CompareTestBase
-    {
-        //FindElement(s)ById
+            => GetDriver().Url = HtmlServer.Instance.RootUrl + "Controls.html";
 
         [Test]
         public void ScreenShot()
@@ -526,6 +398,42 @@ document.body.appendChild(elem);");
             element = GetDriver().FindElement(By.Id("textBoxName"));
             AssertCompatible.IsInstanceOfType(element, typeof(IWebElement));
             element.SendKeys("ABC");
+        }
+
+        [Test]
+        public virtual void WebStorageLocal()
+        {
+            var driver = GetDriver() as CefSharpDriver;
+            if (driver == null) return;
+
+            driver.HasWebStorage.IsTrue();
+            driver.WebStorage.LocalStorage.Clear();
+            driver.WebStorage.LocalStorage.SetItem("a", "x");
+            driver.WebStorage.LocalStorage.Count.Is(1);
+            driver.WebStorage.LocalStorage.GetItem("a").Is("x");
+            driver.WebStorage.LocalStorage.SetItem("b", "y");
+            var keys = driver.WebStorage.LocalStorage.KeySet().OrderBy(e => e).ToList();
+            keys.Count.Is(2);
+            keys[0].Is("a");
+            keys[1].Is("b");
+        }
+
+        [Test]
+        public virtual void WebStorageSession()
+        {
+            var driver = GetDriver() as CefSharpDriver;
+            if (driver == null) return;
+
+            driver.HasWebStorage.IsTrue();
+            driver.WebStorage.SessionStorage.Clear();
+            driver.WebStorage.SessionStorage.SetItem("a", "x");
+            driver.WebStorage.SessionStorage.Count.Is(1);
+            driver.WebStorage.SessionStorage.GetItem("a").Is("x");
+            driver.WebStorage.SessionStorage.SetItem("b", "y");
+            var keys = driver.WebStorage.SessionStorage.KeySet().OrderBy(e => e).ToList();
+            keys.Count.Is(2);
+            keys[0].Is("a");
+            keys[1].Is("b");
         }
     }
 }

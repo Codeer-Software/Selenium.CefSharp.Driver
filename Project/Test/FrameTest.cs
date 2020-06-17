@@ -1,90 +1,29 @@
-﻿using System.Diagnostics;
-using System.IO;
-using Codeer.Friendly.Windows;
-using OpenQA.Selenium;
-using Selenium.CefSharp.Driver;
-using OpenQA.Selenium.Chrome;
+﻿using OpenQA.Selenium;
 using NUnit.Framework;
-using OpenQA.Selenium.Support.UI;
 using System.Threading;
 
 namespace Test
 {
-    public class FrameTestWinForms : FrameTest
-    {
-        CefSharpDriver _driver;
-
-        public override IWebDriver GetDriver()
-            => _driver;
-
-        [SetUp]
-        public void SetUp()
-            => _driver.Url = this.GetHtmlUrl();
-
-        [OneTimeSetUp]
-        public void ClassInit()
-            => _driver = AppRunner.RunWinFormApp();
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-            => Process.GetProcessById(_driver.App.ProcessId).Kill();
-    }
-
-    public class FrameTestWpf : FrameTest
-    {
-        CefSharpDriver _driver;
-
-        public override IWebDriver GetDriver()
-            => _driver;
-
-        [SetUp]
-        public void SetUp()
-            => _driver.Url = this.GetHtmlUrl();
-
-        [OneTimeSetUp]
-        public void ClassInit()
-            => _driver = AppRunner.RunWpfApp();
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-            => Process.GetProcessById(_driver.App.ProcessId).Kill();
-    }
-
-    public class FrameTestWeb : FrameTest
-    {
-        IWebDriver _driver;
-
-        public override IWebDriver GetDriver() => _driver;
-
-        [SetUp]
-        public void initialize()
-        {
-            _driver.Url = "https://github.com/Codeer-Software/Selenium.CefSharp.Driver";
-            _driver.Url = this.GetHtmlUrl();
-        }
-
-        [OneTimeSetUp]
-        public void ClassInit()
-        {
-            _driver = new ChromeDriver();
-        }
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-        {
-            _driver.Dispose();
-        }
-    }
-
     //TODO
-    public abstract class FrameTest
+    public abstract class FrameTest : CompareTestBase
     {
-        public abstract IWebDriver GetDriver();
-
-        protected string GetHtmlUrl()
+        public class Forms : FrameTest
         {
-            return HtmlServer.Instance.RootUrl +"Frame.html";
+            public Forms() : base(new FormsAgent()) { }
         }
+        public class Wpf : FrameTest
+        {
+            public Wpf() : base(new WpfAgent()) { }
+        }
+        public class Web : FrameTest
+        {
+            public Web() : base(new WebAgent()) { }
+        }
+        protected FrameTest(INeed need) : base(need) { }
+
+        [SetUp]
+        public void SetUp()
+            => GetDriver().Url = HtmlServer.Instance.RootUrl + "Frame.html";
 
         [Test]
         public void TestFrame()
@@ -106,7 +45,7 @@ namespace Test
             var url = driver.Url;
 
             driver.Navigate().GoToUrl("https://github.com/Codeer-Software/Selenium.CefSharp.Driver");
-            driver.Url = this.GetHtmlUrl();
+            driver.Url = HtmlServer.Instance.RootUrl + "Frame.html";
 
             var y = driver.FindElement(By.Id("frameInput1"));
             /*

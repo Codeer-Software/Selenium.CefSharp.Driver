@@ -1,85 +1,32 @@
-﻿using System.Diagnostics;
-using System.IO;
-using Codeer.Friendly.Windows;
-using OpenQA.Selenium;
-using Selenium.CefSharp.Driver;
-using OpenQA.Selenium.Chrome;
+﻿using OpenQA.Selenium;
 using NUnit.Framework;
 using OpenQA.Selenium.Support.UI;
+using System.IO;
 
 namespace Test
 {
-    public class BasicTestWinForms : BasicTest
+    public abstract class BasicTest : CompareTestBase
     {
-        CefSharpDriver _driver;
-
-        public override IWebDriver GetDriver()
-            => _driver;
+        public class Forms : BasicTest
+        {
+            public Forms() : base(new FormsAgent()) { }
+        }
+        public class Wpf : BasicTest
+        {
+            public Wpf() : base(new WpfAgent()) { }
+        }
+        public class Web : BasicTest
+        {
+            public Web() : base(new WebAgent()) { }
+        }
+        protected BasicTest(INeed need) : base(need) { }
 
         [SetUp]
         public void SetUp()
-            => _driver.Url = this.GetHtmlUrl();
+            => GetDriver().Url = GetHtmlUrl();// HtmlServer.Instance.RootUrl + "Controls.html";
 
-        [OneTimeSetUp]
-        public void ClassInit()
-            => _driver = AppRunner.RunWinFormApp();
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-            => Process.GetProcessById(_driver.App.ProcessId).Kill();
-    }
-
-    public class BasicTestWpf : BasicTest
-    {
-        CefSharpDriver _driver;
-
-        public override IWebDriver GetDriver()
-            => _driver;
-
-        [SetUp]
-        public void SetUp()
-            => _driver.Url = this.GetHtmlUrl();
-
-        [OneTimeSetUp]
-        public void ClassInit()
-            => _driver = AppRunner.RunWpfApp();
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-            => Process.GetProcessById(_driver.App.ProcessId).Kill();
-    }
-
-    public class BasicTestWeb : BasicTest
-    {
-        IWebDriver _driver;
-
-        public override IWebDriver GetDriver() => _driver;
-
-        [SetUp]
-        public void initialize()
-        {
-            _driver.Url = "https://github.com/Codeer-Software/Selenium.CefSharp.Driver";
-            _driver.Url = this.GetHtmlUrl();
-        }
-
-        [OneTimeSetUp]
-        public void ClassInit()
-        {
-            _driver = new ChromeDriver();
-        }
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-        {
-            _driver.Dispose();
-        }
-    }
-
-    public abstract class BasicTest
-    {
-        public abstract IWebDriver GetDriver();
-
-        protected string GetHtmlUrl()
+        //TODO timing.
+        string GetHtmlUrl()
         {
             var dir = GetType().Assembly.Location;
             for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);

@@ -1,126 +1,30 @@
-﻿using Codeer.Friendly.Windows;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
-using Selenium.CefSharp.Driver;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 
 namespace Test
 {
-    public class SelectElementTestWinForm : SelectElementTestBase
+    public abstract class SelectElementTest : CompareTestBase
     {
-        CefSharpDriver _driver;
-
-        public override IWebDriver GetDriver()
-            => _driver;
+        public class Forms : SelectElementTest
+        {
+            public Forms() : base(new FormsAgent()) { }
+        }
+        public class Wpf : SelectElementTest
+        {
+            public Wpf() : base(new WpfAgent()) { }
+        }
+        public class Web : SelectElementTest
+        {
+            public Web() : base(new WebAgent()) { }
+        }
+        protected SelectElementTest(INeed need) : base(need) { }
 
         [SetUp]
         public void SetUp()
-            => _driver.Url = this.GetHtmlUrl();
+            => GetDriver().Url = HtmlServer.Instance.RootUrl + "Controls.html";
 
-        [OneTimeSetUp]
-        public void ClassInit()
-            => _driver = AppRunner.RunWinFormApp();
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-            => Process.GetProcessById(_driver.App.ProcessId).Kill();
-
-        //[Ignore("clickの挙動を作り込んだうえで対応")]
-        //public override void SelectByIndex()
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //[Ignore("clickの挙動を作り込んだうえで対応")]
-        //public override void SelectByText()
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //[Ignore("clickの挙動を作り込んだうえで対応")]
-        //public override void SelectByValue()
-        //{
-        //    throw new NotImplementedException();
-        //}
-    }
-
-    public class SelectElementTestWPF : SelectElementTestBase
-    {
-        CefSharpDriver _driver;
-
-        public override IWebDriver GetDriver()
-            => _driver;
-
-        [SetUp]
-        public void SetUp()
-            => _driver.Url = this.GetHtmlUrl();
-
-        [OneTimeSetUp]
-        public void ClassInit()
-            => _driver = AppRunner.RunWpfApp();
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-            => Process.GetProcessById(_driver.App.ProcessId).Kill();
-
-        //[Ignore("clickの挙動を作り込んだうえで対応")]
-        //public override void SelectByIndex()
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //[Ignore("clickの挙動を作り込んだうえで対応")]
-        //public override void SelectByText()
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //[Ignore("clickの挙動を作り込んだうえで対応")]
-        //public override void SelectByValue()
-        //{
-        //    throw new NotImplementedException();
-        //}
-    }
-
-    public class SelectElementTestSelenium : SelectElementTestBase
-    {
-        IWebDriver _driver;
-
-        public override IWebDriver GetDriver() => _driver;
-
-        [SetUp]
-        public void initialize()
-        {
-            _driver.Url = this.GetHtmlUrl();
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-        }
-
-        [OneTimeSetUp]
-        public void ClassInit()
-        {
-            _driver = new ChromeDriver();
-        }
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-        {
-            _driver.Dispose();
-        }
-    }
-
-    public abstract class SelectElementTestBase : CompareTestBase
-    {
         public void InitializeSelect()
         {
             GetExecutor().ExecuteScript("document.getElementById('singleSelect').selectedIndex = -1");

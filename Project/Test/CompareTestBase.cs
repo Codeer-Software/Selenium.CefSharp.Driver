@@ -1,16 +1,76 @@
-﻿using OpenQA.Selenium;
-using System.IO;
+﻿using NUnit.Framework;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+using Selenium.CefSharp.Driver;
+using System.Diagnostics;
 
 namespace Test
 {
     public abstract class CompareTestBase
     {
-        public abstract IWebDriver GetDriver();
+        protected interface INeed
+        {
+            IWebDriver Driver { get; }
+            void OneTimeSetUp();
+            void OneTimeTearDown();
+        }
 
-        public T GetDriver<T>() => (T)GetDriver();
+        INeed _need;
+
+        protected IWebDriver GetDriver() => _need.Driver;
+
+        protected T GetDriver<T>() => (T)GetDriver();
 
         protected IJavaScriptExecutor GetExecutor() => (IJavaScriptExecutor)GetDriver();
 
-        protected string GetHtmlUrl() => HtmlServer.Instance.RootUrl + "Controls.html";
+        protected CompareTestBase(INeed need) => _need = need;
+
+        [OneTimeSetUp]
+        public void OneTimeSetUp() => _need.OneTimeSetUp();
+
+        [OneTimeTearDown]
+        public void OneTimeTearDown() => _need.OneTimeTearDown();
+
+        protected class FormsAgent : INeed
+        {
+            CefSharpDriver _driver;
+
+            public IWebDriver Driver => _driver;
+
+            public void OneTimeSetUp()
+                => _driver = AppRunner.RunWinFormApp();
+
+            public void OneTimeTearDown()
+                => Process.GetProcessById(_driver.App.ProcessId).Kill();
+        }
+
+        protected class WpfAgent : INeed
+        {
+            CefSharpDriver _driver;
+
+            public IWebDriver Driver => _driver;
+
+            public void OneTimeSetUp()
+                => _driver = AppRunner.RunWpfApp();
+
+            public void OneTimeTearDown()
+                => Process.GetProcessById(_driver.App.ProcessId).Kill();
+        }
+
+        protected class WebAgent : INeed
+        {
+            ChromeDriver _driver;
+
+            public IWebDriver Driver => _driver;
+
+            public void OneTimeSetUp()
+            {
+                _driver = new ChromeDriver();
+                _driver.Url = "https://github.com/Codeer-Software/Selenium.CefSharp.Driver";
+            }
+
+            public void OneTimeTearDown()
+                => _driver.Dispose();
+        }
     }
 }

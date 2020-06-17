@@ -1,87 +1,32 @@
-﻿using Codeer.Friendly.Windows;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Internal;
-using Selenium.CefSharp.Driver;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Automation.Peers;
 
 namespace Test
 {
-    public class WebElementTestWinForm : WebElementTestBase
+    public abstract class WebElementTest: CompareTestBase
     {
-        CefSharpDriver _driver;
-
-        public override IWebDriver GetDriver()
-            => _driver;
+        public class Forms : WebElementTest
+        {
+            public Forms() : base(new FormsAgent()) { }
+        }
+        public class Wpf : WebElementTest
+        {
+            public Wpf() : base(new WpfAgent()) { }
+        }
+        public class Web : WebElementTest
+        {
+            public Web() : base(new WebAgent()) { }
+        }
+        protected WebElementTest(INeed need) : base(need) { }
 
         [SetUp]
         public void SetUp()
-            => _driver.Url = this.GetHtmlUrl();
+            => GetDriver().Url = HtmlServer.Instance.RootUrl + "Controls.html";
 
-        [OneTimeSetUp]
-        public void ClassInit()
-            => _driver = AppRunner.RunWinFormApp();
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-            => Process.GetProcessById(_driver.App.ProcessId).Kill();
-    }
-
-    public class WebElementTestWPF : WebElementTestBase
-    {
-        CefSharpDriver _driver;
-
-        public override IWebDriver GetDriver()
-            => _driver;
-
-        [SetUp]
-        public void SetUp()
-            => _driver.Url = this.GetHtmlUrl();
-
-        [OneTimeSetUp]
-        public void ClassInit()
-            => _driver = AppRunner.RunWpfApp();
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-            => Process.GetProcessById(_driver.App.ProcessId).Kill();
-    }
-
-    public class WebElementTestSelenium : WebElementTestBase
-    {
-        IWebDriver _driver;
-
-        public override IWebDriver GetDriver() => _driver;
-
-        [SetUp]
-        public void initialize()
-        {
-            _driver.Url = this.GetHtmlUrl();
-        }
-
-        [OneTimeSetUp]
-        public void ClassInit()
-        {
-            _driver = new ChromeDriver();
-        }
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-        {
-            _driver.Dispose();
-        }
-    }
-
-    public abstract class WebElementTestBase: CompareTestBase
-    {
         [Test]
         public void ScreenShot()
         {

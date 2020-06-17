@@ -1,92 +1,31 @@
-﻿using System.Diagnostics;
-using System.IO;
-using Codeer.Friendly.Windows;
+﻿using System.IO;
 using OpenQA.Selenium;
-using Selenium.CefSharp.Driver;
-using OpenQA.Selenium.Chrome;
 using System.Collections.Generic;
-using Codeer.Friendly.Windows.KeyMouse;
 using NUnit.Framework;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Remote;
 
 namespace Test
 {
-    public class KeyMouseTestWinForms : KeyMouseTest
+    public abstract class KeyMouseTest : CompareTestBase
     {
-        CefSharpDriver _driver;
-
-        public override IWebDriver GetDriver()
-            => _driver;
+        public class Forms : KeyMouseTest
+        {
+            public Forms() : base(new FormsAgent()) { }
+        }
+        public class Wpf : KeyMouseTest
+        {
+            public Wpf() : base(new WpfAgent()) { }
+        }
+        public class Web : KeyMouseTest
+        {
+            public Web() : base(new WebAgent()) { }
+        }
+        protected KeyMouseTest(INeed need) : base(need) { }
 
         [SetUp]
         public void SetUp()
-            => _driver.Url = this.GetHtmlUrl();
-
-        [OneTimeSetUp]
-        public void ClassInit()
-            => _driver = AppRunner.RunWinFormApp();
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-            => Process.GetProcessById(_driver.App.ProcessId).Kill();
-    }
-
-    public class KeyMouseTestWpf : KeyMouseTest
-    {
-        CefSharpDriver _driver;
-
-        public override IWebDriver GetDriver()
-            => _driver;
-
-        [SetUp]
-        public void SetUp()
-            => _driver.Url = this.GetHtmlUrl();
-
-        [OneTimeSetUp]
-        public void ClassInit()
-            => _driver = AppRunner.RunWpfApp();
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-            => Process.GetProcessById(_driver.App.ProcessId).Kill();
-    }
-
-    public class KeyMouseTestWeb : KeyMouseTest
-    {
-        IWebDriver _driver;
-
-        public override IWebDriver GetDriver() => _driver;
-
-        [SetUp]
-        public void initialize()
-        {
-            _driver.Url = this.GetHtmlUrl();
-        }
-
-        [OneTimeSetUp]
-        public void ClassInit()
-        {
-            _driver = new ChromeDriver();
-        }
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-        {
-            _driver.Dispose();
-        }
-    }
-
-    public abstract class KeyMouseTest
-    {
-        public abstract IWebDriver GetDriver();
-
-        protected string GetHtmlUrl()
-        {
-            var dir = GetType().Assembly.Location;
-            for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
-            return Path.Combine(dir, @"Test\Html\Controls.html");
-        }
+            => GetDriver().Url = HtmlServer.Instance.RootUrl + "Controls.html";
 
         [Test]
         public void Click()

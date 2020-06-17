@@ -1,110 +1,48 @@
-﻿using Codeer.Friendly.Windows;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using Selenium.CefSharp.Driver;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Test
 {
-    public class JavaScriptExecutorTestWinForm : JavaScriptExecutorTestBase
+    public abstract class JavaScriptExecutorTest : CompareTestBase
     {
-        CefSharpDriver _driver;
+        public class Forms : JavaScriptExecutorTest
+        {
+            public Forms() : base(new FormsAgent()) { }
 
-        public override IWebDriver GetDriver()
-            => _driver;
+            [Ignore("This testcase not supported. Because CefSharp returns a null object result when execution result of the javascript is Promise.")]
+            public override void ShouldReturnPromiseResultWhenExecuteReturnSuccessPromiseJavaScript() { }
+
+            [Ignore("This testcase not supported. Because Document cannot be identified in the current processing method after the second time.")]
+            public override void ShouldReturnWebElementWhenExecuteReturnDocumentScript() { }
+        }
+
+        public class Wpf : JavaScriptExecutorTest
+        {
+            public Wpf() : base(new WpfAgent()) { }
+
+            [Ignore("This testcase not supported. Because CefSharp returns a null object result when execution result of the javascript is Promise.")]
+            public override void ShouldReturnPromiseResultWhenExecuteReturnSuccessPromiseJavaScript() { }
+
+            [Ignore("This testcase not supported. Because Document cannot be identified in the current processing method after the second time.")]
+            public override void ShouldReturnWebElementWhenExecuteReturnDocumentScript() { }
+        }
+
+        public class Web : JavaScriptExecutorTest
+        {
+            public Web() : base(new WebAgent()) { }
+        }
+
+        protected JavaScriptExecutorTest(INeed need) : base(need) { }
 
         [SetUp]
         public void SetUp()
-            => _driver.Url = this.GetHtmlUrl();
+            => GetDriver().Url = HtmlServer.Instance.RootUrl + "Controls.html";
 
-        [OneTimeSetUp]
-        public void ClassInit()
-            => _driver = AppRunner.RunWinFormApp();
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-            => Process.GetProcessById(_driver.App.ProcessId).Kill();
-
-        [Ignore("This testcase not supported. Because CefSharp returns a null object result when execution result of the javascript is Promise.")]
-        public override void ShouldReturnPromiseResultWhenExecuteReturnSuccessPromiseJavaScript()
-        {
-        }
-
-        [Ignore("This testcase not supported. Because Document cannot be identified in the current processing method after the second time.")]
-        public override void ShouldReturnWebElementWhenExecuteReturnDocumentScript()
-        {
-        }
-    }
-
-    public class JavaScriptExecutorTestWPF : JavaScriptExecutorTestBase
-    {
-        CefSharpDriver _driver;
-
-        public override IWebDriver GetDriver()
-            => _driver;
-
-        [SetUp]
-        public void SetUp()
-            => _driver.Url = this.GetHtmlUrl();
-
-        [OneTimeSetUp]
-        public void ClassInit()
-            => _driver = AppRunner.RunWpfApp();
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-            => Process.GetProcessById(_driver.App.ProcessId).Kill();
-
-        [Ignore("This testcase not supported. Because CefSharp returns a null object result when execution result of the javascript is Promise.")]
-        public override void ShouldReturnPromiseResultWhenExecuteReturnSuccessPromiseJavaScript()
-        {
-        }
-
-        [Ignore("This testcase not supported. Because Document cannot be identified in the current processing method after the second time.")]
-        public override void ShouldReturnWebElementWhenExecuteReturnDocumentScript()
-        {
-        }
-    }
-
-    public class JavaScriptExecutorTestSelenium : JavaScriptExecutorTestBase
-    {
-        IWebDriver _driver;
-
-        public override IWebDriver GetDriver() => _driver;
-
-        [SetUp]
-        public void initialize()
-        {
-            _driver.Url = this.GetHtmlUrl();
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-        }
-
-        [OneTimeSetUp]
-        public void ClassInit()
-        {
-            _driver = new ChromeDriver();
-        }
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-        {
-            _driver.Dispose();
-        }
-    }
-
-    public abstract class JavaScriptExecutorTestBase : CompareTestBase
-    {
         [Test]
         public void ShouldReturnSameStringWhenExecuteReturnSingleQuotationStringJavaScript()
         {
