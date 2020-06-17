@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NUnit.Framework;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -6,14 +7,35 @@ using System.Text;
 
 namespace Test
 {
-    public class HtmlServer : IDisposable
+    [SetUpFixture]
+    public class HtmlServer
+    {
+        internal static HtmlServerCore Instance { get; private set; }
+
+        public HtmlServer() { }
+
+        [OneTimeSetUp]
+        public void Setup()
+        {
+            Instance = HtmlServerCore.StartNew();
+        }
+
+        [OneTimeTearDown]
+        public void TearDown()
+        {
+            Instance.Dispose();
+            Instance = null;
+        }
+    }
+
+    public class HtmlServerCore : IDisposable
     {
         string _rootDir;
         HttpListener listener;
 
         public string RootUrl { get; }
 
-        HtmlServer()
+        HtmlServerCore()
         {
             var dir = GetType().Assembly.Location;
             for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
@@ -21,9 +43,9 @@ namespace Test
             RootUrl = GetLocalhostAddress();
         }
 
-        public static HtmlServer StartNew()
+        public static HtmlServerCore StartNew()
         {
-            var server = new HtmlServer();
+            var server = new HtmlServerCore();
             server.Start();
             return server;
         }

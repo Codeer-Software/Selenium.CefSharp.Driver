@@ -26,7 +26,6 @@ namespace Test
         [OneTimeSetUp]
         public void ClassInit()
         {
-            Server = HtmlServer.StartNew();
             var appWithDriver = AppRunner.RunWinFormApp();
             _app = appWithDriver.App;
             _driver = appWithDriver.Driver;
@@ -36,7 +35,6 @@ namespace Test
         public void OneTimeTearDown()
         {
             Process.GetProcessById(_app.ProcessId).Kill();
-            Server.Dispose();
         }
     }
 
@@ -56,7 +54,6 @@ namespace Test
         [OneTimeSetUp]
         public void ClassInit()
         {
-            Server = HtmlServer.StartNew();
             var appWithDriver = AppRunner.RunWpfApp();
             _app = appWithDriver.App;
             _driver = appWithDriver.Driver;
@@ -66,7 +63,6 @@ namespace Test
         public void OneTimeTearDown()
         {
             Process.GetProcessById(_app.ProcessId).Kill();
-            Server.Dispose();
         }
     }
 
@@ -86,7 +82,6 @@ namespace Test
         [OneTimeSetUp]
         public void ClassInit()
         {
-            Server = HtmlServer.StartNew();
             _driver = new ChromeDriver();
         }
 
@@ -94,20 +89,17 @@ namespace Test
         public void OneTimeTearDown()
         {
             _driver.Dispose();
-            Server.Dispose();
         }
     }
 
     //TODO
     public abstract class WindowTest
     {
-        protected HtmlServer Server { get; set; }
-
         public abstract IWebDriver GetDriver();
 
         protected string GetHtmlUrl()
         {
-            return Server.RootUrl +"Window.html";
+            return HtmlServer.Instance.RootUrl +"Window.html";
         }
 
         [Test]
