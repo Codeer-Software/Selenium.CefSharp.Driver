@@ -11,7 +11,7 @@ namespace Test
         {
             var dir = GetType().Assembly.Location;
             for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
-            var path = Path.Combine(dir, @"Test\Controls.html");
+            var path = Path.Combine(dir, @"Test\Html\Controls.html");
 
             _server = HtmlServer.StartNew();
         }

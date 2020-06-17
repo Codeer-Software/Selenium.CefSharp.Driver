@@ -17,7 +17,7 @@ namespace Test
         {
             var dir = GetType().Assembly.Location;
             for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
-            _rootDir = Path.Combine(dir, @"Test");
+            _rootDir = Path.Combine(dir, @"Test\Html");
             RootUrl = GetLocalhostAddress();
         }
 

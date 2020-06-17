@@ -99,7 +99,7 @@ namespace Test
         {
             var dir = GetType().Assembly.Location;
             for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
-            return Path.Combine(dir, @"Test\Controls.html");
+            return Path.Combine(dir, @"Test\Html\Controls.html");
         }
 
         [Test]

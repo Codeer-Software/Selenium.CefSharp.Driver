@@ -101,7 +101,7 @@ namespace Test
         {
             var dir = GetType().Assembly.Location;
             for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
-            return Path.Combine(dir, @"Test\Controls.html");
+            return Path.Combine(dir, @"Test\Html\Controls.html");
         }
 
         [Test]
@@ -453,12 +453,6 @@ namespace Test
             a.Click(element);
             a.Build();
             a.Perform();
-
-            /*
-            //あれー、やっぱりMenuじゃん！
-            ((CefSharpDriver)driver).App.KeyDown(System.Windows.Forms.Keys.Menu);
-            element.Click();
-            ((CefSharpDriver)driver).App.KeyUp(System.Windows.Forms.Keys.Menu);*/
         }
 
         [Test]
@@ -470,7 +464,7 @@ namespace Test
 
             var dir = GetType().Assembly.Location;
             for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
-            var path = Path.Combine(dir, @"Test\favicon.ico");
+            var path = Path.Combine(dir, @"Test\html\favicon.ico");
 
             e.SendKeys(path);
             var result = e.GetAttribute("value");
