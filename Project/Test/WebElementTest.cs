@@ -17,63 +17,42 @@ namespace Test
 {
     public class WebElementTestWinForm : WebElementTestBase
     {
-        WindowsAppFriend _app;
         CefSharpDriver _driver;
 
-        public override IWebDriver GetDriver() => _driver;
+        public override IWebDriver GetDriver()
+            => _driver;
 
         [SetUp]
         public void SetUp()
-        {
-            _driver.Url = this.GetHtmlUrl();
-        }
+            => _driver.Url = this.GetHtmlUrl();
 
         [OneTimeSetUp]
         public void ClassInit()
-        {
-            ClassInitBase();
-
-            var appWithDriver = AppRunner.RunWinFormApp();
-            _app = appWithDriver.App;
-            _driver = appWithDriver.Driver;
-        }
+            => _driver = AppRunner.RunWinFormApp();
 
         [OneTimeTearDown]
         public void OneTimeTearDown()
-        {
-            Process.GetProcessById(_app.ProcessId).Kill();
-            ClassCleanupBase();
-        }
+            => Process.GetProcessById(_driver.App.ProcessId).Kill();
     }
 
     public class WebElementTestWPF : WebElementTestBase
     {
-        WindowsAppFriend _app;
         CefSharpDriver _driver;
 
-        public override IWebDriver GetDriver() => _driver;
+        public override IWebDriver GetDriver()
+            => _driver;
 
         [SetUp]
         public void SetUp()
-        {
-            _driver.Url = this.GetHtmlUrl();
-        }
+            => _driver.Url = this.GetHtmlUrl();
 
         [OneTimeSetUp]
         public void ClassInit()
-        {
-            ClassInitBase();
-            var appWithDriver = AppRunner.RunWpfApp();
-            _app = appWithDriver.App;
-            _driver = appWithDriver.Driver;
-        }
+            => _driver = AppRunner.RunWpfApp();
 
         [OneTimeTearDown]
         public void OneTimeTearDown()
-        {
-            Process.GetProcessById(_app.ProcessId).Kill();
-            ClassCleanupBase();
-        }
+            => Process.GetProcessById(_driver.App.ProcessId).Kill();
     }
 
     public class WebElementTestSelenium : WebElementTestBase
@@ -88,22 +67,16 @@ namespace Test
             _driver.Url = this.GetHtmlUrl();
         }
 
-        [TearDown]
-        public void TearDown()
-        {
-        }
-
         [OneTimeSetUp]
         public void ClassInit()
         {
-            ClassInitBase();
             _driver = new ChromeDriver();
         }
+
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
             _driver.Dispose();
-            ClassCleanupBase();
         }
     }
 

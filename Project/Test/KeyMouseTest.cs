@@ -14,58 +14,42 @@ namespace Test
 {
     public class KeyMouseTestWinForms : KeyMouseTest
     {
-        WindowsAppFriend _app;
         CefSharpDriver _driver;
 
-        public override IWebDriver GetDriver() => _driver;
+        public override IWebDriver GetDriver()
+            => _driver;
 
         [SetUp]
         public void SetUp()
-        {
-            _driver.Url = this.GetHtmlUrl();
-        }
+            => _driver.Url = this.GetHtmlUrl();
 
         [OneTimeSetUp]
         public void ClassInit()
-        {
-            var appWithDriver = AppRunner.RunWinFormApp();
-            _app = appWithDriver.App;
-            _driver = appWithDriver.Driver;
-        }
+            => _driver = AppRunner.RunWinFormApp();
 
         [OneTimeTearDown]
         public void OneTimeTearDown()
-        {
-            Process.GetProcessById(_app.ProcessId).Kill();
-        }
+            => Process.GetProcessById(_driver.App.ProcessId).Kill();
     }
 
     public class KeyMouseTestWpf : KeyMouseTest
     {
-        WindowsAppFriend _app;
         CefSharpDriver _driver;
 
-        public override IWebDriver GetDriver() => _driver;
+        public override IWebDriver GetDriver()
+            => _driver;
 
         [SetUp]
         public void SetUp()
-        {
-            _driver.Url = this.GetHtmlUrl();
-        }
+            => _driver.Url = this.GetHtmlUrl();
 
         [OneTimeSetUp]
         public void ClassInit()
-        {
-            var appWithDriver = AppRunner.RunWpfApp();
-            _app = appWithDriver.App;
-            _driver = appWithDriver.Driver;
-        }
+            => _driver = AppRunner.RunWpfApp();
 
         [OneTimeTearDown]
         public void OneTimeTearDown()
-        {
-            Process.GetProcessById(_app.ProcessId).Kill();
-        }
+            => Process.GetProcessById(_driver.App.ProcessId).Kill();
     }
 
     public class KeyMouseTestWeb : KeyMouseTest
