@@ -15,15 +15,15 @@ Install Selenium.CefSharp.Driver from NuGet
     PM> Install-Package Selenium.CefSharp.Driver
 https://www.nuget.org/packages/Selenium.CefSharp.Driver/
 
-# What problem can this solve?
+## What problem can this solve?
 Chrome driver is able to manipulate apps that are configured only with CefSharp, but it can't manipulate apps that used CefSharp for only part of it.
 This problem will be solved by using CefSharpDriver.
 
-# Another process manuplation.
+## Another process manuplation.
 This library is a layer on top of Friendly, so you must learn that first. But it is very easy to learn.<br>
-https://github.com/Codeer-Software/Friendly.Windows
+https://github.com/Codeer-Software/Friendly
 
-# Sample
+## Sample
 https://github.com/Codeer-Software/Selenium.CefSharp.Driver/tree/master/Project/Sample<br>
 Sample App.<br>
  ![Sample App.](Img/SampleApp.png)
@@ -127,7 +127,7 @@ namespace SampleTest
 }
 ```
 
-# Many Doxygen comments are copy from SeleniumHQ
+## Many Doxygen comments are copy from SeleniumHQ
 Thank you!<br>
 https://github.com/SeleniumHQ/selenium
 

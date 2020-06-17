@@ -41,10 +41,8 @@ namespace Selenium.CefSharp.Driver.InTarget
         {
             lock (_fullNameAndType)
             {
-                //キャッシュを見る
                 if (_fullNameAndType.TryGetValue(typeFullName, out var type)) return type;
 
-                //各アセンブリに問い合わせる			
                 var assemblies = AppDomain.CurrentDomain.GetAssemblies();
                 var assemblyTypes = new List<Type>();
                 foreach (Assembly assembly in assemblies)

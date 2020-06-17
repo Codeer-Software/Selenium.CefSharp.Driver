@@ -5,19 +5,20 @@ namespace Test
 {
     public abstract class CompareTestBase
     {
-        protected HtmlServer server = null;
+        protected HtmlServer _server = null;
 
         protected void ClassInitBase()
         {
             var dir = GetType().Assembly.Location;
             for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
             var path = Path.Combine(dir, @"Test\Controls.html");
-            server = HtmlServer.CreateFromFile(path);
+
+            _server = HtmlServer.StartNew();
         }
 
         protected void ClassCleanupBase()
         {
-            if (server != null) server.Close();
+            if (_server != null) _server.Close();
         }
 
         public abstract IWebDriver GetDriver();
@@ -26,6 +27,6 @@ namespace Test
 
         protected IJavaScriptExecutor GetExecutor() => (IJavaScriptExecutor)GetDriver();
 
-        protected string GetHtmlUrl() => server?.Url;
+        protected string GetHtmlUrl() => _server.RootUrl + "Controls.html";
     }
 }

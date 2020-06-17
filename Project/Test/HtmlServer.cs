@@ -1,82 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Test
 {
     public class HtmlServer : IDisposable
     {
-        private HtmlServer(string url, string html)
+        string _rootDir;
+        HttpListener listener;
+
+        public string RootUrl { get; }
+
+        HtmlServer()
         {
-            this.Url = url;
-            this.Html = html;
+            var dir = GetType().Assembly.Location;
+            for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
+            _rootDir = Path.Combine(dir, @"Test");
+            RootUrl = GetLocalhostAddress();
         }
 
-        public string Url { get;  }
-
-        public string Html { get; }
-
-        private HttpListener listener;
-
-        private void Start()
+        public static HtmlServer StartNew()
         {
-            
-            if(listener != null && listener.IsListening)
-            {
-                listener.Abort();
-            }
-
-            listener = new HttpListener();
-            listener.Prefixes.Add(this.Url);
-            listener.Start();
-
-            void callback(IAsyncResult ar)
-            {
-                var context = listener.EndGetContext(ar);
-                listener.BeginGetContext(callback, null);
-                var request = context.Request;
-                var response = context.Response;
-
-                response.StatusCode = (int)HttpStatusCode.OK;
-                response.ContentType = "text/html;charset=UTF-8";
-                using (var writer = new StreamWriter(response.OutputStream, Encoding.UTF8))
-                {
-                    writer.Write(this.Html);
-                }
-                response.Close();
-            }
-            listener.BeginGetContext(callback, null);
-        }
-        
-        public static HtmlServer CreateFromHtmlString(string html)
-        {
-            var address = GetLocalhostAddress();
-            var server = new HtmlServer(address, html);
+            var server = new HtmlServer();
             server.Start();
             return server;
-        }
-
-        public static HtmlServer CreateFromFile(string path)
-        {
-            var address = GetLocalhostAddress();
-            var server = new HtmlServer(address, File.ReadAllText(path));
-            server.Start();
-            return server;
-        }
-
-        private static string GetLocalhostAddress()
-        {
-            var listener = new TcpListener(IPAddress.Loopback, 0);
-            listener.Start();
-            int port = ((IPEndPoint)listener.LocalEndpoint).Port;
-            listener.Stop();
-
-            return $"http://localhost:{port}/";
         }
 
         public void Close()
@@ -88,9 +37,53 @@ namespace Test
             listener = null;
         }
 
-        public void Dispose()
+        public void Dispose() => Close();
+
+        void Start()
         {
-            this.Close();
+            if (listener != null && listener.IsListening)
+            {
+                listener.Abort();
+            }
+
+            listener = new HttpListener();
+            listener.Prefixes.Add(RootUrl);
+            listener.Start();
+
+            void callback(IAsyncResult ar)
+            {
+                var context = listener.EndGetContext(ar);
+                listener.BeginGetContext(callback, null);
+                var request = context.Request;
+                var response = context.Response;
+
+                var fileName = request.Url.ToString().Replace(RootUrl, string.Empty);
+                var path = Path.Combine(_rootDir, fileName);
+
+                response.StatusCode = (int)HttpStatusCode.OK;
+                response.ContentType = "text/html;charset=UTF-8";
+                using (var writer = new StreamWriter(response.OutputStream, Encoding.UTF8))
+                {
+                    try
+                    {
+                        var html = File.ReadAllText(path);
+                        writer.Write(html);
+                    }
+                    catch { }
+                }
+                response.Close();
+            }
+            listener.BeginGetContext(callback, null);
+        }
+
+        static string GetLocalhostAddress()
+        {
+            var listener = new TcpListener(IPAddress.Loopback, 0);
+            listener.Start();
+            int port = ((IPEndPoint)listener.LocalEndpoint).Port;
+            listener.Stop();
+
+            return $"http://localhost:{port}/";
         }
     }
 }
