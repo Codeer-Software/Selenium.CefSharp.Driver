@@ -336,17 +336,17 @@ namespace Selenium.CefSharp.Driver
             => FindElements(By.ClassName(className));
 
         /// <summary>
-        /// Finds the first element matching the specified tag name.
+        /// Finds the first element matching the specified name.
         /// </summary>
-        /// <param name="tagName">The tag name to match.</param>
+        /// <param name="name">The name to match.</param>
         /// <returns>The first <see cref="IWebElement"/> matching the criteria.</returns>
         public IWebElement FindElementByName(string name)
             => FindElement(By.Name(name));
 
         /// <summary>
-        /// Finds all elements matching the specified tag name.
+        /// Finds all elements matching the specified name.
         /// </summary>
-        /// <param name="tagName">The tag name to match.</param>
+        /// <param name="name">The name to match.</param>
         /// <returns>A <see cref="ReadOnlyCollection{T}"/> containing all
         /// <see cref="IWebElement">IWebElements</see> matching the criteria.</returns>
         public ReadOnlyCollection<IWebElement> FindElementsByName(string name)
