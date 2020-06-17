@@ -127,5 +127,7 @@ namespace SampleTest
 }
 ```
 
-
+# Many Doxygen comments are copy from SeleniumHQ
+Thank you!<br>
+https://github.com/SeleniumHQ/selenium
 
