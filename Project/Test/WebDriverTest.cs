@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using OpenQA.Selenium.Internal;
 using NUnit.Framework;
+using OpenQA.Selenium.Support.UI;
+using System.Threading;
 
 namespace Test
 {
@@ -434,6 +436,54 @@ document.body.appendChild(elem);");
             keys.Count.Is(2);
             keys[0].Is("a");
             keys[1].Is("b");
+        }
+
+        [Test]
+        public void TestNavigation()
+        {
+            var navigate = GetDriver().Navigate();
+            navigate.Back();
+            GetDriver().Url.Contains("Selenium.CefSharp.Driver").IsTrue();
+            navigate.Forward();
+            GetDriver().Url.Contains("Controls").IsTrue();
+            navigate.GoToUrl("https://github.com/Codeer-Software/Selenium.CefSharp.Driver");
+
+            //TODO
+            Thread.Sleep(500);
+
+            GetDriver().Url.Contains("Selenium.CefSharp.Driver").IsTrue();
+            navigate.Refresh();
+            GetDriver().Url.Contains("Selenium.CefSharp.Driver").IsTrue();
+        }
+
+        [Test]
+        public void Alert()
+        {
+            GetDriver().FindElement(By.Id("alertJS")).Click();
+
+            var wait = new WebDriverWait(GetDriver(), new System.TimeSpan(10000));
+
+#pragma warning disable CS0618
+            var alert = wait.Until(ExpectedConditions.AlertIsPresent());
+#pragma warning restore CS0618
+            alert.Text.Is("test");
+            alert.Accept();
+
+            GetDriver().FindElement(By.Id("confirmJS")).Click();
+
+#pragma warning disable CS0618
+            var confirm = wait.Until(ExpectedConditions.AlertIsPresent());
+#pragma warning restore CS0618
+            confirm.Text.Is("test");
+            confirm.Dismiss();
+
+            GetDriver().FindElement(By.Id("promptJS")).Click();
+
+#pragma warning disable CS0618
+            var prompt = wait.Until(ExpectedConditions.AlertIsPresent());
+#pragma warning restore CS0618
+            prompt.SendKeys("abc");
+            prompt.Accept();
         }
     }
 }

@@ -87,7 +87,6 @@
     <Compile Include="Utility\AssertCompatible.cs" />
     <Compile Include="WindowTest.cs" />
     <Compile Include="FrameTest.cs" />
-    <Compile Include="BasicTest.cs" />
     <Compile Include="Utility\ChainingAssertion.NUnit.cs" />
     <Compile Include="KeyMouseTest.cs" />
     <Compile Include="Utility\CompareTestBase.cs" />
