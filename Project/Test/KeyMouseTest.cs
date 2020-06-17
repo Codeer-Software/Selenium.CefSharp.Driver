@@ -368,7 +368,7 @@ namespace Test
                 "g[control][shift][alt]"  ,
             });
         }
-
+        
         [Test]
         public void Action()
         {
@@ -413,6 +413,52 @@ namespace Test
 
             a.Build();
             a.Perform();
+        }
+
+        [Test]
+        public void Action2()
+        {
+            var driver = GetDriver();
+
+            var element = driver.FindElement(By.Id("testAlt"));
+
+            var a = new Actions(driver);
+
+            /*
+            a.Click();
+            a.Click(onElement);
+            a.ClickAndHold(onElement);
+            a.ClickAndHold();
+            a.ContextClick();
+            a.ContextClick(onElement);
+            a.DoubleClick();
+            a.DoubleClick(onElement);
+            a.DragAndDrop(source, target);
+            a.DragAndDropToOffset(source, 1, 2);
+            a.KeyDown(element, Keys.Control);
+            a.KeyDown(Keys.Shift);
+            a.KeyUp(element, Keys.Control);
+            a.KeyUp(Keys.Shift);
+            a.MoveByOffset(3, 4);
+            a.MoveToElement(toElement);
+            a.MoveToElement(toElement, 5, 6);
+            a.MoveToElement(toElement, 7, 8, MoveToElementOffsetOrigin.Center);
+            a.Release(onElement);
+            a.Release();
+            a.SendKeys(element, "abc");
+            a.SendKeys("efg");
+            */
+            
+            a.KeyDown(Keys.Alt);
+            a.Click(element);
+            a.Build();
+            a.Perform();
+
+            /*
+            //あれー、やっぱりMenuじゃん！
+            ((CefSharpDriver)driver).App.KeyDown(System.Windows.Forms.Keys.Menu);
+            element.Click();
+            ((CefSharpDriver)driver).App.KeyUp(System.Windows.Forms.Keys.Menu);*/
         }
 
         [Test]

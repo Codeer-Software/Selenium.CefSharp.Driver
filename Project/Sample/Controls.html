@@ -3,9 +3,18 @@
 <head>
 	<title>Controls for Test</title>
 	<script>
-	    function clickJS(){
-	    document.getElementById("textBoxName").value = "JS";
-	    }
+        function clickTest() {
+            document.getElementById("textBox").value = "Click";
+        }
+        function clickAltTest() {
+            document.getElementById("textBox").value = "Click";
+        }
+        function clickAltTest(event) {
+            var key_event = event || window.event;
+			if (key_event.altKey) {
+				document.getElementById("textBox").value = "Alt";
+			}
+        }
 	</script>
 </head>
 <body>
@@ -20,7 +29,7 @@
 			<tbody>
 				<tr>
 					<td>Name：</td>
-					<td><input id="textBoxName" type="text" value="ABCDE" /></td>
+					<td><input id="textBox" type="text" value="ABCDE" name="nameInput" /></td>
 				</tr>
 				<tr>
 					<td>Date：</td>
@@ -59,24 +68,12 @@
 				</tr>
 				<tr>
 					<td colspan="2">
-						<input id="testButton" type="button" value="JS" onClick="clickJS()" />
+						<input id="testButtonClick" type="button" value="Click" onClick="clickTest()" />
+						<input type="button" value="Alt" onClick="clickAltTest()" />
 					</td>
 				</tr>
 			</tbody>
 		</table>
 	</form>
-	<div class="bytest">
-		<input id="idtest" name="nametest" class="classtest" data-key="1" />
-		<input id="idtest" name="nametest" class="classtest dummy" data-key="2" />
-		<div>
-			<input id="idtest" name="nametest" class="classtest" data-key="3" />
-		</div>
-		<tagtest data-key="1"></tagtest>
-		<tagtest data-key="2"></tagtest>
-	</div>
-	<div>
-		<input id="disabletest" name="xxx" class="yyy" data-key="3" disabled />
-		<input id="not_displayed" name="xxx" class="yyy" data-key="4" style="display:none" />
-	</div>
 </body>
 </html>

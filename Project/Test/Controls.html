@@ -67,6 +67,7 @@
                         <input id="alertJS" type="button" value="alert" onClick="alert('test')" />
                         <input id="confirmJS" type="button" value="confirm" onClick="confirm('test')" />
                         <input id="promptJS" type="button" value="prompt" onClick="prompt('test')" />
+                        <input id="testAlt" type="button" value="Alt" onClick="clickAltTest()" />
                     </td>
                 </tr>
             </tbody>
@@ -120,6 +121,15 @@
     <script>
         function clickJS() {
             document.getElementById("textBoxName").value = "JS";
+        }
+
+        function clickAltTest(event) {
+            var key_event = event || window.event;
+            if (key_event.altKey) {
+                document.getElementById("textBoxName").value = "Alt";
+            } else {
+                document.getElementById("textBoxName").value = "x";
+            }
         }
 
         keyTest.addEventListener('keydown', (event) => {

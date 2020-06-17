@@ -27,8 +27,9 @@ namespace Selenium.CefSharp.Driver.Inside
                 if (KeySpec.IsModifyKey(value))
                 {
                     modifyKeys[value] = true;
+                    KeySpec.SimpleKeyDown(driver.App, value);
                 }
-                if (KeySpec.IsAzOrNumber(value))
+                else if (KeySpec.IsAzOrNumber(value))
                 {
                     KeySpec.SimpleKeyDown(driver.App, value);
                 }
@@ -96,7 +97,7 @@ namespace Selenium.CefSharp.Driver.Inside
             {
                 if (!Enum.TryParse<MouseButtonType>(button, out var buttonType)) return;
                 var mouse = new MouseEmulator(driver.App);
-                mouse.Down(buttonType);
+                mouse.Up(buttonType);
             }
         }
 
@@ -171,9 +172,9 @@ namespace Selenium.CefSharp.Driver.Inside
 
         internal static void PerformActions(CefSharpDriver driver, IList<ActionSequence> actionSequenceList)
         {
-            var x = GetInteractions(actionSequenceList);
+            var interactions = GetInteractions(actionSequenceList);
             var modifyKeys = new Dictionary<string, bool>();
-            foreach (var e in x)
+            foreach (var e in interactions)
             {
                 e.Execute(driver, modifyKeys);
             }
