@@ -448,10 +448,6 @@ document.body.appendChild(elem);");
             navigate.Forward();
             GetDriver().Url.Contains("Controls").IsTrue();
             navigate.GoToUrl("https://github.com/Codeer-Software/Selenium.CefSharp.Driver");
-
-            //TODO bug! failed url change...
-            Thread.Sleep(500);
-
             GetDriver().Url.Contains("Selenium.CefSharp.Driver").IsTrue();
             navigate.Refresh();
             GetDriver().Url.Contains("Selenium.CefSharp.Driver").IsTrue();

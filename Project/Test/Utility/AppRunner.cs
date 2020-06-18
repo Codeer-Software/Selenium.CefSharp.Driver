@@ -28,8 +28,10 @@ namespace Test
             var _app = new WindowsAppFriend(process);
             var main = _app.WaitForIdentifyFromWindowText("MainWindow");
 
-            //adjust timing at started.
-            Thread.Sleep(500);
+            while (!(bool)main.Dynamic().IsLoadEnded)
+            {
+                Thread.Sleep(500);
+            }
 
             //create driver.
             return new CefSharpDriver(main.Dynamic()._browser);

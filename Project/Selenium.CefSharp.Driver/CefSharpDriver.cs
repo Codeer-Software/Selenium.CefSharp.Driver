@@ -536,7 +536,7 @@ namespace Selenium.CefSharp.Driver
                 => _this.ExecuteScript("return document.activeElement;") as IWebElement;
 
             public IAlert Alert()
-                => new Alert(_this.App, _this.Url);
+                => new Alert(_this.App);
 
             public IWebDriver Frame(int frameIndex)
             {

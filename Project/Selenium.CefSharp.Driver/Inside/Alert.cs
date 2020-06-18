@@ -21,7 +21,7 @@ namespace Selenium.CefSharp.Driver.Inside
 
         public string Text => _message == null ? string.Empty : _message.GetWindowText();
 
-        public Alert(WindowsAppFriend driverApp, string url)
+        public Alert(WindowsAppFriend driverApp)
         {
             int processId = driverApp.ProcessId;
             int currentThreadId = driverApp.Type(typeof(Codeer.Friendly.Windows.Grasp.Inside.NativeMethods)).GetCurrentThreadId();

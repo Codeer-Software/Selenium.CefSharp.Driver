@@ -59,34 +59,5 @@ namespace CefSharpWPFTarget.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   using CefSharp;
-        ///using System;
-        ///using System.Collections.Generic;
-        ///using System.Diagnostics;
-        ///using System.Runtime.InteropServices;
-        ///using System.Text;
-        ///
-        ///namespace Selenium.CefSharp.Driver
-        ///{
-        ///    public class CefSharpWindowManager : ILifeSpanHandler
-        ///    {
-        ///        public class BrowserInfo
-        ///        {
-        ///            public IntPtr WindowHandle;
-        ///            public IBrowser Browser;
-        ///        }
-        ///
-        ///        public List&lt;BrowserInfo&gt; Browsers = new List&lt;BrowserInfo&gt;();
-        ///        List&lt;IntPtr&gt; _beforeOpen = null;
-        ///
-        ///  [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string CefSharpWindowManager {
-            get {
-                return ResourceManager.GetString("CefSharpWindowManager", resourceCulture);
-            }
-        }
     }
 }

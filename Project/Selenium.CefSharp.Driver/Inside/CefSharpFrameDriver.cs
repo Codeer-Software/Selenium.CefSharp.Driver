@@ -28,7 +28,7 @@ namespace Selenium.CefSharp.Driver.Inside
 
         internal string Url
         {
-            get => this.Dynamic().Url;
+            get => (string)ExecuteScript("return window.location.href;");
             set
             {
                 this.Dynamic().LoadUrl(value);
