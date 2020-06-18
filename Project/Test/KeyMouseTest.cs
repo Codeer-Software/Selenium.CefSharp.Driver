@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Remote;
+using System.Threading;
 
 namespace Test
 {
@@ -25,7 +26,10 @@ namespace Test
 
         [SetUp]
         public void SetUp()
-            => GetDriver().Url = HtmlServer.Instance.RootUrl + "Controls.html";
+        {
+            GetDriver().Url = HtmlServer.Instance.RootUrl + "Controls.html";
+            GetDriver().Navigate().Refresh();
+        }
 
         [Test]
         public void Click()
@@ -41,8 +45,8 @@ namespace Test
         {
             var textBoxName = GetDriver().FindElement(By.Id("textBoxName"));
             textBoxName.SendKeys(Keys.Control + "a");
-            textBoxName.SendKeys("abc");
-            textBoxName.GetAttribute("value").Is("abc");
+            textBoxName.SendKeys("AbC");
+            textBoxName.GetAttribute("value").Is("AbC");
             textBoxName.SendKeys(Keys.Control + "a");
             textBoxName.SendKeys(Keys.Shift + "abc");
             textBoxName.GetAttribute("value").Is("ABC");
@@ -292,8 +296,9 @@ namespace Test
             });
         }
         
+        //TODO add many actions test.
         [Test]
-        public void Action()
+        public void Actions()
         {
             var driver = GetDriver();
 
@@ -339,7 +344,7 @@ namespace Test
         }
 
         [Test]
-        public void Action2()
+        public void Actions2()
         {
             var driver = GetDriver();
 
@@ -374,24 +379,9 @@ namespace Test
             
             a.KeyDown(Keys.Alt);
             a.Click(element);
+            a.KeyUp(Keys.Alt);
             a.Build();
             a.Perform();
-        }
-
-        [Test]
-        public void FileDetectorSendKeys()
-        {
-            var driver = GetDriver();
-            ((IAllowsFileDetection)driver).FileDetector = new LocalFileDetector();
-            var e = driver.FindElement(By.Id("file"));
-
-            var dir = GetType().Assembly.Location;
-            for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
-            var path = Path.Combine(dir, @"Test\html\favicon.ico");
-
-            e.SendKeys(path);
-            var result = e.GetAttribute("value");
-            result.Contains("favicon.ico");
         }
 
         string[] PopKeyLog()

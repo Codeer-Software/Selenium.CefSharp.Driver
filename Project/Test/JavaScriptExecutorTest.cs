@@ -88,7 +88,7 @@ namespace Test
         [Test]
         public void ShouldReturnIsoDateStringWhenExecuteReturnDateJavaScript()
         {
-            // selenium (のChrome Driver) は ISOString の結果を返す模様
+            // selenium return ISOString's result.
             var isoValue = GetExecutor().ExecuteScript("return new Date(2012,0,16,23,23,23,123).toISOString()");
             var value = GetExecutor().ExecuteScript("return new Date(2012,0,16,23,23,23,123)");
             Assert.AreEqual(isoValue, value);
@@ -97,7 +97,7 @@ namespace Test
         [Test]
         public void ShouldReturnNullValueWhenExecuteReturnInvalidJavaScript()
         {
-            // selenium (のChrome Driver) は Invalid Date は null を返す模様
+            // selenium return Invalid Date to null.
             var value = GetExecutor().ExecuteScript("return new Date(void 0)");
             Assert.IsNull(value);
         }
@@ -133,7 +133,7 @@ namespace Test
         [Test]
         public void ShouldReturnReadOnlyCollectionObjectValueWhenExecuteReturnArrayJavaScript()
         {
-            // selenium (のChrome Driver) は ReadOnlyCollection を返す模様
+            // selenium return ReadOnlyCollection.
             var value = GetExecutor().ExecuteScript("return [123, 456, 789]");
             Assert.AreEqual(typeof(ReadOnlyCollection<object>), value.GetType());
 

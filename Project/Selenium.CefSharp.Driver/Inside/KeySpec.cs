@@ -220,12 +220,16 @@ namespace Selenium.CefSharp.Driver.Inside
             app.SendKeys(keys);
         }
 
-        static bool CanSimpleModify(string target)
+        static bool CanSimpleModify(string src)
         {
+            var target = src;
             foreach (var e in SpecialKeys)
             {
                 target = target.Replace(e.Key, string.Empty);
             }
+
+            //no need modify.
+            if (src == target) return false;
             return IsAzOrNumber(target);
         }
     }

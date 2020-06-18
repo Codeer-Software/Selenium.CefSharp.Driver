@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace Test
 {
-    //TODO
+    //TODO add many window test.
     public abstract class WindowTest : CompareTestBase
     {
         public class Forms : WindowTest

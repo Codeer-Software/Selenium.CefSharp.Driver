@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace Test
 {
-    //TODO
+    //TODO add many frame test.
     public abstract class FrameTest : CompareTestBase
     {
         public class Forms : FrameTest
@@ -48,13 +48,6 @@ namespace Test
             driver.Url = HtmlServer.Instance.RootUrl + "Frame.html";
 
             var y = driver.FindElement(By.Id("frameInput1"));
-            /*
-            driver.SwitchTo().ParentFrame();
-            driver.FindElement(By.Id("frameInput1")).SendKeys("abc");
-            */
-            //TODO
-            //url is browser's url. not iframe url.
-            //check navigate too.
         }
     }
 }

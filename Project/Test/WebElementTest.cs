@@ -489,8 +489,7 @@ namespace Test
             }
         }
 
-
-        private void InitAttr()
+        void InitAttr()
         {
             GetExecutor().ExecuteScript(@"delete document.getElementById('attrTestInput').bar;
 delete document.getElementById('attrTestInput').foo;");
@@ -524,9 +523,8 @@ delete document.getElementById('attrTestInput').foo;");
             var elem = GetDriver().FindElement(By.Id("attrTestInput"));
             var value = elem.GetAttribute("foo");
 
-            // selenium は attribute と property を混同して扱っている模様。
-            // property の値を先に返している。
-
+            // selenium treats attribute and property as same.
+            // The value of property is returned with priority.
             attrValue.Is("fooattr");
             value.Is("foodynamic");
         }
@@ -538,8 +536,8 @@ delete document.getElementById('attrTestInput').foo;");
             GetExecutor().ExecuteScript("document.getElementById('attrTestInput').foo = null;");
             var elem = GetDriver().FindElement(By.Id("attrTestInput"));
             var value = elem.GetAttribute("foo");
-            // selenium は attribute と property を混同して扱っている模様。
-            // property の値がnullの場合は attribute の値を返している。
+            // selenium treats attribute and property as same.
+            // If the value of property is null, the value of attribute is returned.
             value.Is("fooattr");
         }
 

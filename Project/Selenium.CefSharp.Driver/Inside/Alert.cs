@@ -88,7 +88,7 @@ namespace Selenium.CefSharp.Driver.Inside
 
         public void SetAuthenticationCredentials(string userName, string password)
         {
-            //TODO
+            //TODO not test.
             _app.SendKeys(userName);
             _app.SendKey(System.Windows.Forms.Keys.Tab);
             _app.SendKeys(password);

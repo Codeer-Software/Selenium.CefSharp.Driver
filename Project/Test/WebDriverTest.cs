@@ -6,6 +6,7 @@ using OpenQA.Selenium.Internal;
 using NUnit.Framework;
 using OpenQA.Selenium.Support.UI;
 using System.Threading;
+using OpenQA.Selenium.Remote;
 
 namespace Test
 {
@@ -448,7 +449,7 @@ document.body.appendChild(elem);");
             GetDriver().Url.Contains("Controls").IsTrue();
             navigate.GoToUrl("https://github.com/Codeer-Software/Selenium.CefSharp.Driver");
 
-            //TODO
+            //TODO bug! failed url change...
             Thread.Sleep(500);
 
             GetDriver().Url.Contains("Selenium.CefSharp.Driver").IsTrue();
@@ -484,6 +485,22 @@ document.body.appendChild(elem);");
 #pragma warning restore CS0618
             prompt.SendKeys("abc");
             prompt.Accept();
+        }
+
+        [Test]
+        public void FileDetectorSendKeys()
+        {
+            var driver = GetDriver();
+            ((IAllowsFileDetection)driver).FileDetector = new LocalFileDetector();
+            var e = driver.FindElement(By.Id("file"));
+
+            var dir = GetType().Assembly.Location;
+            for (int i = 0; i < 4; i++) dir = Path.GetDirectoryName(dir);
+            var path = Path.Combine(dir, @"Test\html\favicon.ico");
+
+            e.SendKeys(path);
+            var result = e.GetAttribute("value");
+            result.Contains("favicon.ico");
         }
     }
 }

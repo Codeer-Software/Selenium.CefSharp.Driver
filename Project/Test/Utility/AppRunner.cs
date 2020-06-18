@@ -4,6 +4,7 @@ using Codeer.Friendly.Windows.Grasp;
 using Selenium.CefSharp.Driver;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 
 namespace Test
 {
@@ -26,6 +27,9 @@ namespace Test
             //attach by friendly.
             var _app = new WindowsAppFriend(process);
             var main = _app.WaitForIdentifyFromWindowText("MainWindow");
+
+            //adjust timing at started.
+            Thread.Sleep(500);
 
             //create driver.
             return new CefSharpDriver(main.Dynamic()._browser);

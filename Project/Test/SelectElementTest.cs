@@ -181,7 +181,6 @@ namespace Test
             selectedIndex.Is(1L);
         }
 
-
         [Test]
         public virtual void SelectEvent()
         {
