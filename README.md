@@ -126,7 +126,19 @@ namespace SampleTest
     }
 }
 ```
+***
+## Architecture
+I'm not using WebDriver. The function is realized by the combination of the following processes.
 
+#### Friendly
+Call the API of another process.
+#### JavaScript
+Various processing is realized by JavaScript.
+#### Key Mouse Emulate
+A low level key mouse emulation.
+However, I am adjusting the timing.
+
+***
 ## Many Doxygen comments are copy from SeleniumHQ
 Thank you!<br>
 https://github.com/SeleniumHQ/selenium
