@@ -31,8 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Codeer.TestAssistant.GeneratorToolKit, Version=3.9.0.0, Culture=neutral, PublicKeyToken=f7af39ab9bcf13fe, processorArchitecture=MSIL">
-      <HintPath>..\packages\Codeer.TestAssistant.GeneratorToolKit.3.9.0\lib\net20\Codeer.TestAssistant.GeneratorToolKit.dll</HintPath>
+    <Reference Include="Codeer.TestAssistant.GeneratorToolKit, Version=3.10.0.0, Culture=neutral, PublicKeyToken=f7af39ab9bcf13fe, processorArchitecture=MSIL">
+      <HintPath>..\packages\Codeer.TestAssistant.GeneratorToolKit.3.10.0\lib\net20\Codeer.TestAssistant.GeneratorToolKit.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
