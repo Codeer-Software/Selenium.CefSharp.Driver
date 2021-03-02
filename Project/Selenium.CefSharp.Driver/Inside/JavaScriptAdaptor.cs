@@ -104,7 +104,7 @@ return val;
 })(result)";
 
         readonly CefSharpFrameDriver _frame;
-
+        bool? _isEvaluateScriptAsyncArgs4;
         static readonly bool[] escapeFlags = new bool[128];
 
         static JavaScriptAdaptor()
@@ -165,7 +165,7 @@ return val;
         }
 
         dynamic ExecuteScriptCore(string src, params object[] args)
-            => _frame.Dynamic().EvaluateScriptAsync(ConvertCefSharpScript(src, args), "about:blank", 1, null).Result;
+            => EvaluateScriptAsyncWrap(ConvertCefSharpScript(src, args));
 
         dynamic ExecuteScriptAsyncInternal(string script, params object[] args)
         {
@@ -188,7 +188,18 @@ return val;
         }
 
         dynamic ExecuteScriptAsyncCore(string scriptId, string src, params object[] args)
-            => _frame.Dynamic().EvaluateScriptAsync(ConvertCefSharpAsyncScript(scriptId, src, args), "about:blank", 1, null).Result;
+            => EvaluateScriptAsyncWrap(ConvertCefSharpAsyncScript(scriptId, src, args));
+
+        dynamic EvaluateScriptAsyncWrap(string script)
+        {
+            if (_isEvaluateScriptAsyncArgs4 == null)
+            {
+                _isEvaluateScriptAsyncArgs4 = _frame.App.Type<CefSharpChecker>().IsEvaluateScriptAsyncArgs4();
+            }
+            return _isEvaluateScriptAsyncArgs4.Value ? 
+                _frame.Dynamic().EvaluateScriptAsync(script, "about:blank", 1, null).Result :
+                _frame.Dynamic().EvaluateScriptAsync(script, "about:blank", 1, null, false).Result;
+        }
 
         string ConvertCefSharpScript(string script, object[] args)
             => $"(function() {{ const result = (function() {{ {script} }})({ConvertScriptParameters(args)}); \r\n return {ConvertResultInJavaScriptString} }})();";

@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncResultBoundObject.cs" />
+    <Compile Include="CefSharpChecker.cs" />
     <Compile Include="CefSharpWindowManagerFactory.cs" />
     <Compile Include="FrameFinder.cs" />
     <Compile Include="JSResultConverter.cs" />
