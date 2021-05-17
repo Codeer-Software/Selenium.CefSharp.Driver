@@ -34,7 +34,10 @@ element.selected = !element.selected";
             }
             else
             {
-                element.ScrollIntoView();
+                if (!element.HitTestCenter())
+                {
+                    element.ScrollIntoView();
+                }
                 var pos = element.Location;
                 var size = element.Size;
                 pos.Offset(size.Width / 2, size.Height / 2);

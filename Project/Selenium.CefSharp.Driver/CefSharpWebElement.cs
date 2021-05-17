@@ -475,6 +475,20 @@ namespace Selenium.CefSharp.Driver
         internal void Focus()
             => Execute(JsFocus());
 
+        internal bool HitTestCenter()
+            => Execute<bool>(@"
+var element = arguments[0];
+var rc = element.getBoundingClientRect();
+var hitElement = document.elementFromPoint(rc.x + rc.width / 2, rc.y + rc.height / 2);
+
+while (!!hitElement)
+{
+    if (hitElement === element) return true;
+    hitElement = hitElement.parentElement;
+}
+return false;
+");
+
         object Execute(string js)
             => JavaScriptExecutor.ExecuteScript(js, this);
 
