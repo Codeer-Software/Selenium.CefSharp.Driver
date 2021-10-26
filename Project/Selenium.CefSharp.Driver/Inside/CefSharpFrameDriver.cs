@@ -91,5 +91,10 @@ namespace Selenium.CefSharp.Driver.Inside
         }
 
         public override int GetHashCode() => this.Dynamic().Identifier;
+
+        public object ExecuteScript(PinnedScript script, params object[] args)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
