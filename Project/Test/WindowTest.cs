@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using OpenQA.Selenium.Support.UI;
 using System.Threading;
+using SeleniumExtras.WaitHelpers;
 
 namespace Test
 {

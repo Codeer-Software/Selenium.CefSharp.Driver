@@ -597,5 +597,20 @@ element.submit();
 const element = arguments[0];
 return element.parentElement;
 ";
+
+        public string GetDomAttribute(string attributeName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetDomProperty(string propertyName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ISearchContext GetShadowRoot()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

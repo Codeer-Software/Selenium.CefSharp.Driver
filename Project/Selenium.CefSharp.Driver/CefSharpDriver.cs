@@ -16,6 +16,8 @@ using System.Collections.Generic;
 using OpenQA.Selenium.Interactions;
 using System.Diagnostics;
 using Selenium.CefSharp.Driver.Inside;
+using ApplicationCache = Selenium.CefSharp.Driver.Inside.ApplicationCache;
+using WebStorage = Selenium.CefSharp.Driver.Inside.WebStorage;
 
 namespace Selenium.CefSharp.Driver
 {
@@ -76,9 +78,6 @@ namespace Selenium.CefSharp.Driver
         IHasApplicationCache,
         IHasWebStorage,
         ITakesScreenshot,
-#pragma warning disable CS0618
-        IHasInputDevices,
-#pragma warning restore CS0618
         IAllowsFileDetection,
         IActionExecutor,
         IAppVarOwner,
@@ -101,20 +100,6 @@ namespace Selenium.CefSharp.Driver
         /// Returns the size of IUIObject.
         /// </summary>
         public Size Size => CurrentBrowser.Size;
-
-        /// <summary>
-        /// Gets an OpenQA.Selenium.IKeyboard object for sending keystrokes to the browser.
-        /// </summary>
-#pragma warning disable CS0618
-        public IKeyboard Keyboard => new ObsoleteKeyboard();
-#pragma warning restore CS0618
-
-        /// <summary>
-        /// Gets an OpenQA.Selenium.IMouse object for sending mouse commands to the browser.
-        /// </summary>
-#pragma warning disable CS0618
-        public IMouse Mouse => new ObsoleteMouse();
-#pragma warning restore CS0618
 
         /// <summary>
         /// Gets a value indicating whether this object is a valid action executor.
@@ -601,28 +586,11 @@ namespace Selenium.CefSharp.Driver
 
                 return _this;
             }
-        }
 
-#pragma warning disable CS0618
-        class ObsoleteKeyboard : IKeyboard
-#pragma warning restore CS0618
-        {
-            public void PressKey(string keyToPress) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
-            public void ReleaseKey(string keyToRelease) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
-            public void SendKeys(string keySequence) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
-        }
-
-#pragma warning disable CS0618
-        class ObsoleteMouse : IMouse
-#pragma warning restore CS0618
-        {
-            public void Click(ICoordinates where) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
-            public void ContextClick(ICoordinates where) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
-            public void DoubleClick(ICoordinates where) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
-            public void MouseDown(ICoordinates where) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
-            public void MouseMove(ICoordinates where) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
-            public void MouseMove(ICoordinates where, int offsetX, int offsetY) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
-            public void MouseUp(ICoordinates where) => throw new NotSupportedException("Obsolete! Use the Actions or ActionBuilder class to simulate keyboard input.");
+            public IWebDriver NewWindow(WindowType typeHint)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         /// <summary>
@@ -630,5 +598,16 @@ namespace Selenium.CefSharp.Driver
         /// </summary>
         /// <returns>nothing.</returns>
         public IOptions Manage() => throw new NotSupportedException();
+
+        /// <summary>
+        /// don't support.
+        /// </summary>
+        /// <param name="script"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public object ExecuteScript(PinnedScript script, params object[] args)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
