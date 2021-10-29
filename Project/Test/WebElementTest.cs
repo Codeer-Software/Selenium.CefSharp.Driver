@@ -182,9 +182,11 @@ delete document.getElementById('attrTestInput').foo;");
             GetExecutor().ExecuteScript("document.getElementById('attrTestInput').foo = null;");
             var elem = GetDriver().FindElement(By.Id("attrTestInput"));
             var value = elem.GetAttribute("foo");
+            var value2 = elem.GetDomAttribute("foo");
             // selenium treats attribute and property as same.
             // If the value of property is null, the value of attribute is returned.
             value.Is("fooattr");
+            value2.Is("fooattr");
         }
 
         [Test]
@@ -193,7 +195,9 @@ delete document.getElementById('attrTestInput').foo;");
             InitAttr();
             var elem = GetDriver().FindElement(By.Id("attrTestInput"));
             var value = elem.GetProperty("foo");
+            var value2 = elem.GetDomProperty("foo");
             value.IsNull();
+            value2.IsNull();
         }
 
         [Test]
@@ -203,7 +207,39 @@ delete document.getElementById('attrTestInput').foo;");
             GetExecutor().ExecuteScript("document.getElementById('attrTestInput').foo = 'foodynamic';");
             var elem = GetDriver().FindElement(By.Id("attrTestInput"));
             var value = elem.GetProperty("foo");
+            var value2 = elem.GetDomProperty("foo");
             value.Is("foodynamic");
+            value2.Is("foodynamic");
+        }
+
+        [Test]
+        public void GetShadowRoot()
+        {
+            var elem = GetDriver().FindElement(By.Id("labelShadowRootTest"));
+            try
+            {
+                elem.GetShadowRoot();
+            }
+            catch (System.NotImplementedException e)
+            {
+                // ChromeDriver 95.0.4638.1700 時点で未実装
+                Console.WriteLine(e.Message);
+                return;
+            }
+            var height = GetExecutor().ExecuteScript("return arguments[0].getBoundingClientRect().height;", elem);
+            // 要素が表示されている事の確認(表示中は高さが設定されている)
+            height.IsNot(0);
+            var shadowRoot = elem.GetShadowRoot();
+            // ShadowRoot未指定なのでNULL
+            shadowRoot.IsNull();
+            // ShadowRootを指定
+            GetExecutor().ExecuteScript("arguments[0].attachShadow({ mode: 'open' });", elem);
+            shadowRoot = elem.GetShadowRoot();
+            // 取得されることを確認
+            shadowRoot.IsNotNull();
+            height = GetExecutor().ExecuteScript("return arguments[0].getBoundingClientRect().height;", elem);
+            // ShadowRoot指定された要素は表示されないはずなので高さが0になる
+            height.Is(0);
         }
     }
 }
