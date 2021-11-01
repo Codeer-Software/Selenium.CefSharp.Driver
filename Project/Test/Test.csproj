@@ -88,6 +88,7 @@
   <ItemGroup>
     <Compile Include="Utility\AppRunner.cs" />
     <Compile Include="Utility\AssertCompatible.cs" />
+    <Compile Include="Utility\ExpectedConditions.cs" />
     <Compile Include="WindowTest.cs" />
     <Compile Include="FrameTest.cs" />
     <Compile Include="Utility\ChainingAssertion.NUnit.cs" />
