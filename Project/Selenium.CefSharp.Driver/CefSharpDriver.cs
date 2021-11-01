@@ -67,14 +67,6 @@ namespace Selenium.CefSharp.Driver
     public class CefSharpDriver :
         IWebDriver,
         IJavaScriptExecutor,
-        IFindsById,
-        IFindsByClassName,
-        IFindsByLinkText,
-        IFindsByName,
-        IFindsByTagName,
-        IFindsByXPath,
-        IFindsByPartialLinkText,
-        IFindsByCssSelector,
         IHasApplicationCache,
         IHasWebStorage,
         ITakesScreenshot,
@@ -468,6 +460,19 @@ namespace Selenium.CefSharp.Driver
         public ReadOnlyCollection<IWebElement> FindElementsByPartialLinkText(string partialLinkText)
             => FindElements(By.PartialLinkText(partialLinkText));
 
+        /// <summary>
+        /// don't support.
+        /// </summary>
+        /// <returns>nothing.</returns>
+        public IOptions Manage() => throw new NotSupportedException();
+
+        /// <summary>
+        /// don't support.
+        /// </summary>
+        /// <returns>nothing.</returns>
+        public object ExecuteScript(PinnedScript script, params object[] args)
+            => CurrentBrowser.CurrentFrame.ExecuteScript(script, args);
+
         class Navigation : INavigation
         {
             CefSharpDriver _this;
@@ -591,23 +596,6 @@ namespace Selenium.CefSharp.Driver
             {
                 throw new NotImplementedException();
             }
-        }
-
-        /// <summary>
-        /// don't support.
-        /// </summary>
-        /// <returns>nothing.</returns>
-        public IOptions Manage() => throw new NotSupportedException();
-
-        /// <summary>
-        /// don't support.
-        /// </summary>
-        /// <param name="script"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        public object ExecuteScript(PinnedScript script, params object[] args)
-        {
-            throw new NotImplementedException();
         }
     }
 }

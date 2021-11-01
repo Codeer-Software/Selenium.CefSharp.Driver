@@ -18,14 +18,6 @@ namespace Selenium.CefSharp.Driver
     public class CefSharpWebElement :
         IWebElement, 
         IWrapsDriver,
-        IFindsById,
-        IFindsByClassName,
-        IFindsByLinkText,
-        IFindsByName,
-        IFindsByTagName,
-        IFindsByXPath,
-        IFindsByPartialLinkText,
-        IFindsByCssSelector,
         ITakesScreenshot,
         ILocatable
     {
@@ -206,6 +198,22 @@ namespace Selenium.CefSharp.Driver
             => Execute<string>(JsGetAttribute(attributeName));
 
         /// <summary>
+        /// Gets the value of a declared HTML attribute of this element.
+        /// </summary>
+        /// <param name="attributeName">The name of the HTML attribute to get the value of.</param>
+        /// <returns>The HTML attribute's current value. Returns a <see langword="null"/> if the
+        /// value is not set or the declared attribute does not exist.</returns>
+        /// <exception cref="StaleElementReferenceException">Thrown when the target element is no longer valid in the document DOM.</exception>
+        /// <remarks>
+        /// As opposed to the <see cref="GetAttribute(string)"/> method, this method
+        /// only returns attributes declared in the element's HTML markup. To access the value
+        /// of an IDL property of the element, either use the <see cref="GetAttribute(string)"/>
+        /// method or the <see cref="GetDomProperty(string)"/> method.
+        /// </remarks>
+        public string GetDomAttribute(string attributeName)
+            => Execute<string>(JsGetAttribute(attributeName));
+
+        /// <summary>
         /// Gets the value of a CSS property of this element.
         /// </summary>
         /// <param name="propertyName">The name of the CSS property to get the value of.</param>
@@ -227,6 +235,16 @@ namespace Selenium.CefSharp.Driver
         /// value is not set or the property does not exist.</returns>
         /// <exception cref="StaleElementReferenceException">Thrown when the target element is no longer valid in the document DOM.</exception>
         public string GetProperty(string propertyName)
+            => Execute<string>(JsGetProperty(propertyName));
+
+        /// <summary>
+        /// Gets the value of a JavaScript property of this element.
+        /// </summary>
+        /// <param name="propertyName">The name of the JavaScript property to get the value of.</param>
+        /// <returns>The JavaScript property's current value. Returns a <see langword="null"/> if the
+        /// value is not set or the property does not exist.</returns>
+        /// <exception cref="StaleElementReferenceException">Thrown when the target element is no longer valid in the document DOM.</exception>
+        public string GetDomProperty(string propertyName)
             => Execute<string>(JsGetProperty(propertyName));
 
         /// <summary>
@@ -598,19 +616,18 @@ const element = arguments[0];
 return element.parentElement;
 ";
 
-        public string GetDomAttribute(string attributeName)
-        {
-            throw new NotImplementedException();
-        }
+        static string JsGetShadowRoot()
+            => $@"
+return (arguments[0].shadowRoot === null) ? null : arguments[0].shadowRoot.host.firstChild.parentElement;
+";
 
-        public string GetDomProperty(string propertyName)
-        {
-            throw new NotImplementedException();
-        }
-
+        /// <summary>
+        /// Gets the representation of an element's shadow root for accessing the shadow DOM of a web component.
+        /// </summary>
+        /// <returns>A shadow root representation.</returns>
         public ISearchContext GetShadowRoot()
         {
-            throw new NotImplementedException();
+            return Execute<CefSharpWebElement>(JsGetShadowRoot());
         }
     }
 }

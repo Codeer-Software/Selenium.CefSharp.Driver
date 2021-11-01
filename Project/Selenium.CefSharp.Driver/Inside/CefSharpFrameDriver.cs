@@ -94,6 +94,7 @@ namespace Selenium.CefSharp.Driver.Inside
 
         public object ExecuteScript(PinnedScript script, params object[] args)
         {
+            // PinnedScriptの詳細不明
             throw new NotImplementedException();
         }
     }

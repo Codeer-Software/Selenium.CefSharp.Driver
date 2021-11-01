@@ -418,14 +418,13 @@ return f;");
         public void WebElementParameterShouldPassedInElement()
         {
             var input = GetDriver().FindElement(By.Id("textBoxName"));
-            var oldvalue = input.GetProperty("value");
+            var oldvalue = input.GetDomProperty("value");
             var newvalue = DateTime.Now.ToString();
             GetExecutor().ExecuteScript("arguments[0].value = arguments[1];", input, newvalue);
 
             Assert.AreNotEqual(oldvalue, newvalue);
-            Assert.AreEqual(newvalue, input.GetProperty("value"));
+            Assert.AreEqual(newvalue, input.GetDomProperty("value"));
         }
-
 
         [Test]
         public void ShouldGetAsyncCallbackResult()
