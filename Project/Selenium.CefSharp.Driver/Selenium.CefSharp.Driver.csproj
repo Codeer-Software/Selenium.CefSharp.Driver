@@ -76,7 +76,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExpectedConditions.cs" />
     <Compile Include="Inside\ActionsAnalyzer.cs" />
     <Compile Include="Inside\Alert.cs" />
     <Compile Include="Inside\ApplicationCache.cs" />
