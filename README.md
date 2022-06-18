@@ -19,7 +19,7 @@ https://www.nuget.org/packages/Selenium.CefSharp.Driver/
 Chrome driver is able to manipulate apps that are configured only with CefSharp, but it can't manipulate apps that used CefSharp for only part of it.
 This problem will be solved by using CefSharpDriver.
 
-## Another process manuplation.
+## Another process manipulation.
 This library is a layer on top of Friendly, so you must learn that first. But it is very easy to learn.<br>
 https://github.com/Codeer-Software/Friendly
 
@@ -142,4 +142,5 @@ However, I am adjusting the timing.
 ## Many Doxygen comments are copy from SeleniumHQ
 Thank you!<br>
 https://github.com/SeleniumHQ/selenium
+
 
